@@ -1,0 +1,146 @@
+import {
+  FormEventHandler,
+  Fragment,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { useSelector } from "react-redux";
+import { Helmet } from "react-helmet-async";
+import CryptoJS from "crypto-js";
+
+function GetCode() {
+  type Image = {
+    id: number;
+    image: {
+      secure_url: string;
+    };
+    page: string;
+  };
+
+  type ImagesState = {
+    loading: boolean;
+    images: Image[];
+    error: string | null;
+  };
+  const { images } = useSelector(
+    (state: { images: ImagesState }) => state.images
+  );
+
+  const filteredImagesAuth = useMemo(() => {
+    const filteredL = images.filter((item) => item.page === "authlightbg");
+    const filteredD = images.filter((item) => item.page === "authdarkbg");
+    return { light: filteredL, dark: filteredD };
+  }, [images]);
+
+  const codeRef = useRef<HTMLInputElement | any>(null);
+
+  const darkMode = useSelector((state: any) => state.theme.darkMode);
+
+  type decryptedDataT = {
+    decryptedNumber: number | null;
+    decryptedEmail: number | null;
+  };
+
+  const [data, setData] = useState<decryptedDataT>({
+    decryptedNumber: null,
+    decryptedEmail: null,
+  });
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state) {
+      try {
+        const bytes = CryptoJS.AES.decrypt(
+          location.state.encryptedData,
+          location.state.codeSecretKey
+        );
+        const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+        setData({
+          decryptedNumber: decryptedData.defaultNumber,
+          decryptedEmail: decryptedData.email,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }, [location.state]);
+
+  const navigate = useNavigate();
+
+  const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+    const inputValue = codeRef.current?.value;
+    const inputValueAsNumber = inputValue ? parseInt(inputValue, 10) : null;
+
+    if (
+      codeRef.current?.value.toString().length === 6 &&
+      inputValueAsNumber === data.decryptedNumber
+    ) {
+      setData({
+        decryptedNumber: null,
+        decryptedEmail: null,
+      });
+      navigate("/Authorization/Change_Password/New_Password", {
+        state: data.decryptedEmail,
+      });
+    } else {
+      import("react-toastify").then(({ toast }) =>
+        toast.error("Code doesn't matched")
+      );
+    }
+  };
+
+  return (
+    <Fragment>
+      <Helmet>
+        <title>Get Code</title>
+        <meta name="description" content="Enter the code sent" />
+        <link rel="canonical" href="/Authorization/Change_Password/Get_Code" />
+      </Helmet>
+      <div
+        style={
+          darkMode
+            ? {
+                backgroundImage: `url(${filteredImagesAuth.dark[0].image.secure_url})`,
+              }
+            : {
+                backgroundImage: `url(${filteredImagesAuth.light[0].image.secure_url})`,
+              }
+        }
+        className="grid place-items-center  h-[100dvh] bg-cover bg-center bg-no-repeat  px-4 min-700:px-12 min-900:px-28 bg-white dark:bg-black"
+      >
+        <form
+          onSubmit={handleSubmit}
+          className="grid  gap-8 [&>div>input]:p-2 min-300:w-11/12 min-400:w-4/5 min-500:w-3/5 min-800:w-2/4 min-1000:w-2/5 min-1200:w-1/3 min-1300:w-[24rem]"
+        >
+          <div className="  grid text-blue-700 gap-2 text-res-base dark:text-[#e89c3e]">
+            <p>Code</p>{" "}
+            <input
+              ref={codeRef}
+              type="number"
+              id="confrimCode"
+              required
+              autoFocus
+              className=" border-2 bg-transparent w-full outline-none border-orange-400 rounded-md text-res-sm dark:border-blue-700 focus-within:border-orange-300  dark:focus-within:border-blue-400 "
+            />
+          </div>
+
+          <div className="grid place-items-center">
+            <button
+              type="submit"
+              className="bg-blue-900 dark:bg-[#e89c3e] p-2  text-[#e89c3e] w-2/4 border-transparent border-2   rounded-md dark:text-blue-700 hover:bg-transparent hover:dark:bg-transparent hover:text-blue-900  hover:dark:text-[#e89c3e] hover:border-blue-900 hover:dark:border-[#e89c3e]  transition duration-300"
+            >
+              Next
+            </button>
+          </div>
+        </form>
+      </div>
+    </Fragment>
+  );
+}
+
+export default GetCode;
