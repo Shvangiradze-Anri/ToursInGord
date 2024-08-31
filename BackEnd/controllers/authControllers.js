@@ -192,30 +192,30 @@ const logIn = async (req, res) => {
       return res
         .cookie("accessT", accessT, {
           httpOnly: true,
-          // secure: false, // Enable only for HTTPS
-          // sameSite: "lax", // Adjust based on your requirements
-          // domain: 'localhost',
-          // path:"/",
+          secure: false, // Enable only for HTTPS
+          sameSite: "lax", // Adjust based on your requirements
+          domain: 'localhost',
+          path:"/",
           expires: new Date(
             Date.now() + 90  * 24 * 60 * 60 * 1000
         ),
         })
         .cookie("refreshT", refreshT, {
           httpOnly: true,
-          // secure: false, // Enable only for HTTPS
-          // sameSite: "lax", // Adjust based on your requirements
-          // domain: 'localhost',
-          // path:"/",
+          secure: false, // Enable only for HTTPS
+          sameSite: "lax", // Adjust based on your requirements
+          domain: 'localhost',
+          path:"/",
           expires: new Date(
             Date.now() + 90  * 24 * 60 * 60 * 1000
         ),
         })
         .cookie("csrfT", csrfToken, {
           httpOnly: true,
-          // secure: false, // Enable only for HTTPS
-          // sameSite: "lax", // Adjust based on your requirements
-          // domain: 'localhost',
-          // path:"/",
+          secure: false, // Enable only for HTTPS
+          sameSite: "lax", // Adjust based on your requirements
+          domain: 'localhost',
+          path:"/",
           expires: new Date(
             Date.now() + 90  * 24 * 60 * 60 * 1000
         ),
@@ -292,20 +292,20 @@ const uploadImagesByUser = async (req, res) => {
         return res
           .cookie("accessToken", newAccessToken, {
             httpOnly: true,
-            // secure: false, // Enable only for HTTPS
-            // sameSite: "lax", // Adjust based on your requirements
-            // domain: domain,
-            // path:"/",
+            secure: false, // Enable only for HTTPS
+            sameSite: "lax", // Adjust based on your requirements
+            domain: domain,
+            path:"/",
             expires: new Date(
             Date.now() + 90 * 24 * 60 * 60 * 1000
         ),
           })
           .cookie("refreshT", newRefreshToken, {
             httpOnly: true,
-            // secure: false, // Enable only for HTTPS
-            // sameSite: "lax", // Adjust based on your requirements
-            // domain: domain,
-            // path:"/",
+            secure: false, // Enable only for HTTPS
+            sameSite: "lax", // Adjust based on your requirements
+            domain: domain,
+            path:"/",
             expires: new Date(
             Date.now() + 90 * 24 * 60 * 60 * 1000
         ),
