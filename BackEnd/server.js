@@ -12,7 +12,7 @@ const bodyParserOptions = { limit: "200kb" };
 const IMAGE_COOKIE_MAX_SIZE = 200 * 1024;
 
 mongoose
-  .connect("mongodb+srv://ToursInGord2024:uDTnaLy1CupgQqHz@cluster0.rjsa20i.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+  .connect(process.env.MongoDB_URL)
   .then(() => console.log("Database connected"))
   .catch((err) => console.error("Database connection error:", err));
 
