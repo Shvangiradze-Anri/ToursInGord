@@ -220,7 +220,7 @@ const logIn = async (req, res) => {
             Date.now() + 90  * 24 * 60 * 60 * 1000
         ),
           })
-          .json({ message: "succeed" });
+          .json({ message: "vataaaaa" });
       }
 
       return res.json({ error: "Wrong password" }); // Use return to avoid further execution
