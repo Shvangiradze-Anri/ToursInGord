@@ -95,7 +95,7 @@ const refreshToken = (req, res) => {
       return res
         .cookie("accessToken", newAccessToken, {
           httpOnly: true,
-          secure: false, // Enable only for HTTPS
+          secure: true, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
           domain: domain,
           path:"/",
@@ -105,7 +105,7 @@ const refreshToken = (req, res) => {
         })
         .cookie("refreshT", newRefreshToken, {
           httpOnly: true,
-          secure: false, // Enable only for HTTPS
+          secure: true, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
           domain: domain,
           path:"/",
@@ -192,7 +192,7 @@ const logIn = async (req, res) => {
       return res
         .cookie("accessT", accessT, {
           httpOnly: true,
-          secure: false, // Enable only for HTTPS
+          secure: true, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
           domain: 'https://toursingord.netlify.app',
           path:"/",
@@ -202,7 +202,7 @@ const logIn = async (req, res) => {
         })
         .cookie("refreshT", refreshT, {
           httpOnly: true,
-          secure: false, // Enable only for HTTPS
+          secure: true, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
           domain: 'https://toursingord.netlify.app',
           path:"/",
@@ -212,7 +212,7 @@ const logIn = async (req, res) => {
         })
         .cookie("csrfT", csrfToken, {
           httpOnly: true,
-          secure: false, // Enable only for HTTPS
+          secure: true, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
           domain: 'https://toursingord.netlify.app',
           path:"/",
@@ -292,7 +292,7 @@ const uploadImagesByUser = async (req, res) => {
         return res
           .cookie("accessToken", newAccessToken, {
             httpOnly: true,
-            secure: false, // Enable only for HTTPS
+            secure: true, // Enable only for HTTPS
             sameSite: "lax", // Adjust based on your requirements
             domain: domain,
             path:"/",
@@ -302,7 +302,7 @@ const uploadImagesByUser = async (req, res) => {
           })
           .cookie("refreshT", newRefreshToken, {
             httpOnly: true,
-            secure: false, // Enable only for HTTPS
+            secure: true, // Enable only for HTTPS
             sameSite: "lax", // Adjust based on your requirements
             domain: domain,
             path:"/",
