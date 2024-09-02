@@ -34,7 +34,7 @@ const SiteImages = lazy(() => import("./admin/pages/siteImage/siteImages"));
 import { Provider } from "react-redux";
 import store from "./redux/redux";
 import Main from "./Pages/Main/Main";
-import { fetchImages } from "./redux/getImages";
+
 const ErrorFallback = lazy(
   () => import("./Components/ErrorBoundinary/errorBoundinary")
 );
@@ -52,7 +52,7 @@ const route = createBrowserRouter(
     <Route
       path="/"
       element={<App />}
-      loader={() => store.dispatch(fetchImages()).unwrap()}
+      
     >
       <Route index element={<Main />} />
       <Route

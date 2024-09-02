@@ -34,6 +34,9 @@ const uploadImages = async (req, res) => {
 };
 
 let cachedImages = null;
+const CACHE_DURATION_MS = 7776000000; 
+let cacheTimestamp = null;
+
 
 const listenForChanges = () => {
   const changeStream = Images.watch();
@@ -49,16 +52,20 @@ const listenForChanges = () => {
 
 const getImages = async (req, res) => {
   try {
-    if (cachedImages !== null) {
+    const currentTime = Date.now();
+
+    // Check if cache is valid
+    if (cachedImages && (currentTime - cacheTimestamp < CACHE_DURATION_MS)) {
       return res.json(cachedImages);
     }
 
+    // Fetch images from database
     const images = await Images.find();
     updateCache(images);
     
 
     res.setHeader("Content-Type", "application/json");
-    res.setHeader("Cache-Control", "public, max-age= 7776000000");
+    res.setHeader("Cache-Control", "public, max-age=7776000000");
 
     res.json(images);
   } catch (error) {
@@ -68,10 +75,14 @@ const getImages = async (req, res) => {
 
 const updateCache = (images) => {
   cachedImages = images;
+  cacheTimestamp = Date.now();
+
 };
 
 const invalidateCache = () => {
   cachedImages = null;
+  cacheTimestamp = null;
+
 };
 
 listenForChanges();

@@ -2,19 +2,38 @@ import Home from "./Pages/Main/Home";
 
 import { Helmet } from "react-helmet-async";
 import { useDispatch } from "react-redux";
-import { Fragment, useCallback, useEffect } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import { fetchUser } from "./redux/getUser";
-import { useLoaderData } from "react-router-dom";
 import { axiosAdmin, axiosUser } from "./api/axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { AppDispatch } from "./redux/redux";
+import { fetchImages } from "./redux/getImages";
 
 
 
 const App = () => {
-  const loaderData = useLoaderData();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<null|string>(null);
 
+  const dispatch:AppDispatch=useDispatch()
+
+  useEffect(() => {
+
+    const fetchImage = async () => {
+      try {
+        await dispatch(fetchImages())
+      } catch (error) {
+        setError('Failed to load images');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchImage();
+  }, [dispatch]);
+
+  
   const cook=document.cookie
   console.log("Document Cookies: ", cook);
 
@@ -77,7 +96,30 @@ const App = () => {
       return Promise.reject(error);
     }
   );
-
+  if (loading) return <div className="text-center">
+  <svg
+    className="animate-spin h-12 w-12 mx-auto mb-4 text-blue-500"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <circle
+      className="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="4"
+    ></circle>
+    <path
+      className="opacity-75"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 4.418 3.582 8 8 8v-4c-2.24 0-4.267-.905-5.745-2.365l1.541-1.544z"
+    ></path>
+  </svg>
+  <p className="text-lg font-semibold">Preparing your adventure...</p>
+</div>;
+  if (error) return <div>{error}</div>;
   return (
     <Fragment>
       <Helmet>
@@ -88,34 +130,7 @@ const App = () => {
         />
         <link rel="canonical" href="/" />
       </Helmet>
-
-      {!loaderData && Array.isArray(loaderData) && loaderData.length === 0 ? (
-        <div className="text-center">
-          <svg
-            className="animate-spin h-12 w-12 mx-auto mb-4 text-blue-500"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 4.418 3.582 8 8 8v-4c-2.24 0-4.267-.905-5.745-2.365l1.541-1.544z"
-            ></path>
-          </svg>
-          <p className="text-lg font-semibold">Preparing your adventure...</p>
-        </div>
-      ) : (
         <Home />
-      )}
     </Fragment>
   );
 };
