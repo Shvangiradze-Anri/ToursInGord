@@ -20,7 +20,7 @@ interface User {
 // Define the initial state type
 interface UserState {
   loading: boolean;
-  users: User[] | any;
+  users: User[] ;
   error: string;
 }
 
@@ -107,7 +107,7 @@ const userSlice = createSlice({
       .addCase(fetchUser.fulfilled, (state, action) => {
         state.loading = false;
 
-        state.users = [action.payload];
+        state.users = [action.payload as User];
 
         state.error = "";
       })

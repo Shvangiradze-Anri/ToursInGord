@@ -1,9 +1,10 @@
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
+import { RootState } from "../redux/redux";
 
 export default function Toast() {
-  const darkMode = useSelector((state: any) => state.theme.darkMode);
+  const darkMode = useSelector((state: RootState) => state.theme.darkMode);
   return (
     <ToastContainer
       position="top-right"

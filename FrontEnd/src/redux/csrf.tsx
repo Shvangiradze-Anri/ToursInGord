@@ -1,15 +1,21 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-let token: any = null;
+let token: number | null = null;
+
+interface CsrfState {
+  csrfToken: number | null;
+}
+
+const initialState: CsrfState = {
+  csrfToken: null,
+};
 
 const csrfSlice = createSlice({
   name: "csrfToken",
-  initialState: {
-    csrfToken: null,
-  },
+  initialState,
   reducers: {
-    csrfTokenReducer: (state, action) => {
-      if (token !== null || undefined) {
+    csrfTokenReducer: (state, action: PayloadAction<number>) => {
+      if (token !== null) {
         state.csrfToken = token;
       } else {
         token = action.payload;
@@ -18,6 +24,6 @@ const csrfSlice = createSlice({
     },
   },
 });
-export const { csrfTokenReducer } = csrfSlice.actions;
 
+export const { csrfTokenReducer } = csrfSlice.actions;
 export default csrfSlice.reducer;

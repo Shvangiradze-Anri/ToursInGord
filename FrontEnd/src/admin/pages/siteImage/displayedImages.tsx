@@ -1,7 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
-import CarouselItmes from "../../../Pages/Main/About_tour/CarouselItmes";
+import CarouselItems from "../../../Pages/Main/About_tour/CarouselItems";
 import { ThreeDots } from "react-loader-spinner";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { AppDispatch } from "../../../redux/redux";
 
 type Page = {
   page: string;
@@ -30,7 +31,7 @@ function DisplayedImages({ page }: Page) {
   const [image, setIMG] = useState<ImageFile>({ image: "", page: page });
   const [loadingUpload, setLoadingUpload] = useState(false);
 
-  const dispatch = useDispatch<any>();
+  const dispatch = useDispatch<AppDispatch>();
 
   const { loading, images, error } = useSelector(
     (state: { images: ImagesState }) => state.images
@@ -48,19 +49,18 @@ function DisplayedImages({ page }: Page) {
       setIMG({ image: "", page: page });
     }
   };
-
-  const handleSubmit = async () => {
+  
+  const handleSubmit = useCallback(async () => {
     setLoadingUpload(true);
-    import("../../../redux/getImages").then(({ uploadImage }) =>
-      dispatch(uploadImage({ image, setLoadingUpload }))
-    );
-  };
-
+    const { uploadImage } = await import("../../../redux/getImages");
+    dispatch(uploadImage({ image, setLoadingUpload }));
+  }, [dispatch, image, setLoadingUpload]);
+  
   useEffect(() => {
     if (image.image !== "") {
       handleSubmit();
     }
-  }, [image.image]);
+  }, [handleSubmit, image.image]);
 
   const filteredImages = images.filter((item) => item.page === page);
 
@@ -121,7 +121,7 @@ function DisplayedImages({ page }: Page) {
         {!error &&
           !loading &&
           filteredImages.map((item, index) => (
-            <CarouselItmes
+            <CarouselItems
               key={index}
               image={item}
               items={item.image.secure_url}

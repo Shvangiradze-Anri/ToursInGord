@@ -27,6 +27,7 @@ function Map() {
     setOffice({ lat: 42.4576, lng: 42.5246 });
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onLoad = useCallback(async (map: any) => (mapRef.current = map), []);
   return (
     <div className="flex flex-col  h-96">

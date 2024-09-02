@@ -43,6 +43,8 @@ const Gallery = lazy(() => import("./admin/pages/siteImage/gallery"));
 const Hotel = lazy(() => import("./admin/pages/siteImage/hotel"));
 const PageNotFound = lazy(() => import("./Components/PageNotFound"));
 
+
+
 const rootContainer = document.getElementById("root") as HTMLElement;
 
 const route = createBrowserRouter(

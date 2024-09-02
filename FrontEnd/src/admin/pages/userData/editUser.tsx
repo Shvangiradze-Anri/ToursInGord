@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from "react";
 import CryptoJS from "crypto-js";
 import Cookies from "js-cookie";
 import { axiosAdmin } from "../../../api/axios";
+import { QueryObserverResult } from "@tanstack/react-query";
 
 type User = {
   _id?: string;
@@ -17,22 +18,13 @@ type User = {
 
 type EditUsersProps = {
   users: User;
-  refetch: () => Promise<any>;
+  refetch: () => Promise<QueryObserverResult<User[], Error>>;
 };
 
 const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
 
-  const [user, setUser] = useState<User>({
-    name: "",
-    lastname: "", // Initialize lastname as an empty string
-    email: "",
-    password: "",
-    image: "",
-    birthday: "",
-    gender: "",
-    role: "",
-  });
+  const [user, setUser] = useState<User>({ ...users });
 
   useEffect(() => {
     if (users) {

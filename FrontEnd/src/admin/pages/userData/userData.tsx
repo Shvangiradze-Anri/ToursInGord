@@ -2,9 +2,10 @@ import { useSelector } from "react-redux";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import FetchUsers from "./fetchUsers";
 import { Helmet } from "react-helmet-async";
+import { RootState } from "../../../redux/redux";
 
 function UserData() {
-  const user = useSelector((state: any) => state.user.users);
+  const user = useSelector((state: RootState) => state.user.users);
 
   const queryClient = new QueryClient({});
   return (

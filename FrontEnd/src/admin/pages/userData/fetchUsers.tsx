@@ -3,7 +3,20 @@ import EditUsers from "./editUser";
 import Cookies from "js-cookie";
 import { axiosAdmin } from "../../../api/axios";
 
-const fetchUsers = async () => {
+
+type User = {
+    _id: string;
+    name: string;
+    lastname: string;
+    email: string;
+    password: string;
+    birthday: string;
+    gender: string;
+    role: string;
+  };
+type FetchUsersResponse = User[];
+
+const fetchUsers = async (): Promise<FetchUsersResponse> => {
   const accessT = Cookies.get("accessT");
   const csrfToken = Cookies.get("csrfT");
 
@@ -18,23 +31,13 @@ const fetchUsers = async () => {
 
   return response?.data;
 };
-
-const queryOptions: UseQueryOptions<any, Error> = {
+const queryOptions: UseQueryOptions<FetchUsersResponse, Error> = {
   queryKey: ["users"],
   queryFn: fetchUsers,
 };
 
 function FetchUsers() {
-  type User = {
-    _id: string;
-    name: string;
-    lastname: string;
-    email: string;
-    password: string;
-    birthday: string;
-    gender: string;
-    role: string;
-  };
+
 
   const { data, refetch } = useQuery(queryOptions);
 

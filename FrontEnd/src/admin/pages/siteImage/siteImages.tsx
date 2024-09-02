@@ -2,9 +2,10 @@ import { Fragment } from "react";
 import { Helmet } from "react-helmet-async";
 import { useSelector } from "react-redux";
 import { Link, Outlet } from "react-router-dom";
+import { RootState } from "../../../redux/redux";
 
 function SiteImages() {
-  const user = useSelector((state: any) => state.user.users);
+  const user = useSelector((state: RootState) => state.user.users);
 
   return (
     <Fragment>

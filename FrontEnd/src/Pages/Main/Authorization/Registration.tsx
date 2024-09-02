@@ -18,6 +18,8 @@ import {
 import { useSelector } from "react-redux";
 import { Helmet } from "react-helmet-async";
 import { axiosUser } from "../../../api/axios";
+import { RootState } from "../../../redux/redux"
+
 
 interface MatchCode {
   confrimCode: number | null;
@@ -25,78 +27,52 @@ interface MatchCode {
 }
 function Registration() {
   const navigate = useNavigate();
-  const darkMode = useSelector((state: any) => state.theme.darkMode);
+  const darkMode = useSelector((state: RootState) => state.theme.darkMode);
 
-  const [name, setName] = useState<string>("");
-  const [lastname, setLastname] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-
+  const [name, setName] = useState<string>('');
+  const [lastname, setLastname] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  
+  const [gender, setGender] = useState<string>('Male'); // Default to 'Male'
   const maleRef = useRef<HTMLInputElement | null>(null);
   const femaleRef = useRef<HTMLInputElement | null>(null);
-  const [gender, setGender] = useState<string>();
 
   useEffect(() => {
-    if (femaleRef.current?.checked) {
-      setGender("Female");
-    } else {
-      setGender("Male");
-    }
-  });
+    setGender(femaleRef.current?.checked ? 'Female' : 'Male');
+  }, [femaleRef, maleRef]);
 
-  const [errorName, setErrorName] = useState<string>("");
-  const [errorLastname, setErrorLastname] = useState<string>("");
-  const [errorEmail, setErrorEmail] = useState<string>("");
-  const [errorPassword, setErrorPassword] = useState<string>("");
+  const [errorName, setErrorName] = useState<string>('');
+  const [errorLastname, setErrorLastname] = useState<string>('');
+  const [errorEmail, setErrorEmail] = useState<string>('');
+  const [errorPassword, setErrorPassword] = useState<string>('');
 
   useEffect(() => {
-    nameValidation(name, setErrorName);
-    lastnameValidation(lastname, setErrorLastname);
-    emailValidation(email, setErrorEmail);
-    passwordValidation(password, setErrorPassword);
+    const debounceValidation = setTimeout(() => {
+      nameValidation(name, setErrorName);
+      lastnameValidation(lastname, setErrorLastname);
+      emailValidation(email, setErrorEmail);
+      passwordValidation(password, setErrorPassword);
+    }, 300);
+
+    return () => clearTimeout(debounceValidation);
   }, [name, lastname, email, password]);
 
-  const Day = [
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-    22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
-  ];
-  const Month = [
-    "Jan",
-    "Feb",
-    "March",
-    "April",
-    "May",
-    "Jun",
-    "July",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  const Year = [
-    1920, 1921, 1922, 1923, 1924, 1925, 1926, 1927, 1928, 1929, 1930, 1931,
-    1932, 1933, 1934, 1935, 1936, 1937, 1938, 1939, 1940, 1941, 1942, 1943,
-    1944, 1945, 1946, 1947, 1948, 1949, 1950, 1951, 1952, 1953, 1954, 1955,
-    1956, 1957, 1958, 1959, 1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967,
-    1968, 1969, 1970, 1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979,
-    1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991,
-    1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
-    2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015,
-    2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023,
-  ];
+  const Day = Array.from({ length: 31 }, (_, i) => i + 1);
+  const Month = ['Jan', 'Feb', 'March', 'April', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const Year = Array.from({ length: 104 }, (_, i) => 1920 + i);
 
-  const [selectedDay, setSelectedDay] = useState<string>("");
+  const [selectedDay, setSelectedDay] = useState<string>('');
   const [dayOpen, setDayOpen] = useState<boolean>(false);
-
-  const [selectedMonth, setSelectedMonth] = useState<string>("");
+  
+  const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [monthAsNumber, setMonthASNUmber] = useState<number | null>(null);
   const [monthOpen, setMonthOpen] = useState<boolean>(false);
 
-  const [birthday, setBirthday] = useState<any>();
-
-  const [selectedYear, setSelectedYear] = useState<string>("");
+  const [selectedYear, setSelectedYear] = useState<string>('');
   const [yearOpen, setYearOpen] = useState<boolean>(false);
+
+  const [birthday, setBirthday] = useState<string | null>(null);
 
   const dayRef = useRef<HTMLDivElement | null>(null);
   const monthRef = useRef<HTMLDivElement | null>(null);
@@ -104,79 +80,79 @@ function Registration() {
 
   useEffect(() => {
     setBirthday(`${selectedDay}-${monthAsNumber}-${selectedYear}`);
-  }, [, selectedYear, monthAsNumber, selectedDay]);
+  }, [selectedYear, monthAsNumber, selectedDay]);
 
   useEffect(() => {
-    document.addEventListener("mousedown", (event) => {
-      if (!dayRef.current?.contains(event.target as HTMLElement)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dayRef.current && !dayRef.current.contains(event.target as Node)) {
         setDayOpen(false);
       }
-      if (!monthRef.current?.contains(event.target as HTMLElement)) {
+      if (monthRef.current && !monthRef.current.contains(event.target as Node)) {
         setMonthOpen(false);
       }
-      if (!yearRef.current?.contains(event.target as HTMLElement)) {
+      if (yearRef.current && !yearRef.current.contains(event.target as Node)) {
         setYearOpen(false);
       }
-    });
-  }, [dayOpen, monthOpen, yearOpen]);
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const [openCodeSender, setOpenCodeSender] = useState<boolean>(false);
-  const [matchCode, setMatchedCode] = useState<MatchCode>({
-    confrimCode: null,
-    generatedCode: null,
-  });
+  const [matchCode, setMatchedCode] = useState<MatchCode>({ confrimCode: null, generatedCode: null });
 
   const handleCode: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    const GenerateSecretKey = () => {
-      const array = new Uint8Array(16);
-      window.crypto.getRandomValues(array);
-      return Array.from(array, (byte) =>
-        ("0" + (byte & 0xff).toString(16)).slice(-2)
-      ).join("");
-    };
-    const defaultNumber = Math.floor(100000 + Math.random() * 900000);
-    console.log("HEREEEEEEE", defaultNumber)
-    setOpenCodeSender(true);
-    setMatchedCode((prevGenerateCode) => ({
-      ...prevGenerateCode,
-      generatedCode: defaultNumber,
-    }));
-    if (
-      !errorName &&
-      !errorLastname &&
-      !errorEmail &&
-      !errorPassword &&
-      birthday
-    ) {
-      try {
-        const codeSecretKey = GenerateSecretKey();
-        const encryptedData = CryptoJS.AES.encrypt(
-          JSON.stringify({ defaultNumber, email }),
-          codeSecretKey
-        ).toString();
 
-        const res = await axiosUser.post(
-          `/Authorization/Registration/ConfrimCode`,
-          {
-            encryptedData,
-            codeSecretKey,
-          }
-        );
+    if (errorName || errorLastname || errorEmail || errorPassword || !birthday) {
+      return; // Do not proceed if there are validation errors
+    }
+
+    try {
+      const defaultNumber = Math.floor(100000 + Math.random() * 900000);
+      setOpenCodeSender(true);
+      setMatchedCode((prev) => ({ ...prev, generatedCode: defaultNumber }));
+
+      const codeSecretKey = generateSecretKey();
+      const encryptedData = CryptoJS.AES.encrypt(
+        JSON.stringify({ defaultNumber, email }),
+        codeSecretKey
+      ).toString();
+
+      const res = await axiosUser.post('/Authorization/Registration/ConfrimCode', {
+        encryptedData,
+        codeSecretKey,
+      });
+
+      import('react-toastify').then(({ toast }) => {
         if (res.status === 200) {
-          import("react-toastify").then(({ toast }) =>
-            toast.success("Code is Sended")
-          );
+          toast.success('Code is Sended');
         } else {
-          import("react-toastify").then(({ toast }) =>
-            toast.error("Code doesn't Send")
-          );
+          toast.error("Code doesn't Send");
         }
-      } catch (error: any) {
-        throw error;
+      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        import('react-toastify').then(({ toast }) =>
+          toast.error('An error occurred while sending the code')
+        );
+      } else {
+        console.error('An unexpected error occurred');
+        import('react-toastify').then(({ toast }) =>
+          toast.error('An unexpected error occurred')
+        );
       }
     }
   };
+
+  const generateSecretKey = (): string => {
+    const array = new Uint8Array(16);
+    window.crypto.getRandomValues(array);
+    return Array.from(array, (byte) => ('0' + byte.toString(16)).slice(-2)).join('');
+  };
+
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();

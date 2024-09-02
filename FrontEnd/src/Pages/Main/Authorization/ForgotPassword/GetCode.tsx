@@ -11,6 +11,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Helmet } from "react-helmet-async";
 import CryptoJS from "crypto-js";
+import { RootState } from "../../../../redux/redux";
 
 function GetCode() {
   type Image = {
@@ -36,9 +37,9 @@ function GetCode() {
     return { light: filteredL, dark: filteredD };
   }, [images]);
 
-  const codeRef = useRef<HTMLInputElement | any>(null);
+  const codeRef = useRef<HTMLInputElement | null>(null);
 
-  const darkMode = useSelector((state: any) => state.theme.darkMode);
+  const darkMode = useSelector((state: RootState) => state.theme.darkMode);
 
   type decryptedDataT = {
     decryptedNumber: number | null;

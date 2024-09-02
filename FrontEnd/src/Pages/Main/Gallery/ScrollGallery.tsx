@@ -2,7 +2,7 @@ import React from "react";
 
 type Images = {
   items: string;
-  setImageURL: any;
+  setImageURL: (url: string) => void;
 };
 
 const ScrollGallery: React.FC<Images> = React.memo(({ items, setImageURL }) => {

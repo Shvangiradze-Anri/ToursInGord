@@ -24,7 +24,7 @@ export const emailValidation = (
   setErrorEmail: React.Dispatch<React.SetStateAction<string>>
 ): void => {
   const emailRegular =
-    /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
   return email && !email.match(emailRegular)
     ? setErrorEmail("Email not valid")
@@ -53,7 +53,7 @@ export const changePasswordValidation = (
     /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,20}$/;
   return password && !password.match(passwordRegular)
     ? setErrorPassword(
-        "Your password must contains (8-20 characters),(A,z,0-9,#$@...)"
+        "Your password must contains (8-20 characters),(A,z,0-9,#$@...) or they aren't suitable"
       )
     : setErrorPassword("");
 };

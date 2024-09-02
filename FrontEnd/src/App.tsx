@@ -1,13 +1,14 @@
 import Home from "./Pages/Main/Home";
 
 import { Helmet } from "react-helmet-async";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Fragment, useCallback, useEffect } from "react";
 import { fetchUser } from "./redux/getUser";
 import { useLoaderData } from "react-router-dom";
 import { axiosAdmin, axiosUser } from "./api/axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import { AppDispatch } from "./redux/redux";
 
 
 
@@ -17,7 +18,7 @@ const App = () => {
   const cook=document.cookie
   console.log("Document Cookies: ", cook);
 
-  const dispatchUser = useDispatch<any>();
+  const dispatchUser = useDispatch<AppDispatch>();
 
   console.log("fetchUser",fetchUser);
   

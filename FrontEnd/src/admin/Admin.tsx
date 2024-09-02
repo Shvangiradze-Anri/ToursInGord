@@ -1,15 +1,15 @@
-import { Dispatch } from "@reduxjs/toolkit";
 import { Fragment, useCallback, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Link, useLocation } from "react-router-dom";
+import { AppDispatch, RootState } from "../redux/redux";
 
 function Admin() {
-  const user = useSelector((state: any) => state.user.users);
+  const user = useSelector((state: RootState) => state.user.users);
   const location = useLocation();
 
-  const dispatch: Dispatch<any> = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
 
   const fetchUserMemoized = useCallback(() => {
     import("../redux/getUser").then(({ fetchUser }) => {

@@ -1,4 +1,6 @@
-const ErrorFallback = ({ error, resetErrorBoundary }: any) => {
+import { FallbackProps } from "react-error-boundary";
+
+const ErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => {
   return (
     <div className="error">
       <p>Something went wrong:</p>

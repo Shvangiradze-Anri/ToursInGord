@@ -1,6 +1,6 @@
 import { Fragment, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import CarouselItmes from "../About_tour/CarouselItmes";
+import CarouselItems from "../About_tour/CarouselItems";
 
 function Carouserl() {
   type Image = {
@@ -24,11 +24,11 @@ function Carouserl() {
 
   const filteredImages = useMemo(
     () => images.filter((item) => item.page === "hotel"),
-    []
+    [images]
   );
   const filteredImageNotFound = useMemo(
     () => images.filter((item) => item.page === "imagenotfound"),
-    []
+    [images]
   );
 
   const updateIndex = (newIndex: number) => {
@@ -49,7 +49,7 @@ function Carouserl() {
         >
           {!error && filteredImages.length > 0 ? (
             filteredImages.map((item, index) => (
-              <CarouselItmes
+              <CarouselItems
                 key={index} // Using index as key
                 items={
                   item.image.secure_url
@@ -59,7 +59,7 @@ function Carouserl() {
               />
             ))
           ) : (
-            <CarouselItmes
+            <CarouselItems
               key={0}
               items={filteredImageNotFound[0]?.image?.secure_url}
             />

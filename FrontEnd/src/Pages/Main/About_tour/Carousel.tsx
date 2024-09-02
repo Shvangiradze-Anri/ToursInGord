@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import CarouselItmes from "./CarouselItmes";
+import CarouselItems from "./CarouselItems";
 import { useSelector } from "react-redux";
 
 function Carousel() {
@@ -55,7 +55,7 @@ function Carousel() {
       >
         {!error && filteredImages.tour.length > 0 ? (
           filteredImages.tour.map((item, index) => (
-            <CarouselItmes
+            <CarouselItems
               key={index} // Using index as key
               items={
                 item.image.secure_url
@@ -65,7 +65,7 @@ function Carousel() {
             />
           ))
         ) : (
-          <CarouselItmes
+          <CarouselItems
             key={0}
             items={filteredImages.notFound[0]?.image.secure_url}
           />

@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { Helmet } from "react-helmet-async";
 import { axiosUser } from "../../../api/axios";
 import { toast } from "react-toastify";
+import { RootState } from "../../../redux/redux";
 
 function LogIn() {
   const [email, setEmail] = useState<string>("");
@@ -18,7 +19,7 @@ function LogIn() {
   const [errorEmail, setErrorEmail] = useState<string>("");
   const [errorPassword, setErrorPassword] = useState<string>("");
 
-  const darkMode = useSelector((state: any) => state.theme.darkMode);
+  const darkMode = useSelector((state: RootState) => state.theme.darkMode);
 
   useEffect(() => {
     emailValidation(email, setErrorEmail);

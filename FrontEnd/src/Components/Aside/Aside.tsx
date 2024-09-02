@@ -5,10 +5,11 @@ import { Link, useLocation } from "react-router-dom";
 
 import { useSelector, useDispatch } from "react-redux";
 import { toggleDarkMode } from "../../redux/theme";
+import { RootState } from "../../redux/redux";
 
 function Aside() {
   const dispatch = useDispatch();
-  const darkMode = useSelector((state: any) => state.theme.darkMode);
+  const darkMode = useSelector((state: RootState) => state.theme.darkMode);
 
   const handleToggleDarkMode = () => {
     dispatch(toggleDarkMode());
@@ -17,14 +18,20 @@ function Aside() {
   const [scrollUp, setScrollUp] = useState<boolean>(false);
 
   useEffect(() => {
-    window.addEventListener("scroll", () => {
+    const handleScroll = () => {
       if (window.scrollY > 100) {
         setScrollUp(true);
       } else {
         setScrollUp(false);
       }
-    });
-  }, [window.scrollY]);
+    };
+  
+    window.addEventListener("scroll", handleScroll);
+  
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const scrollUP = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -47,7 +54,7 @@ function Aside() {
         element.classList.remove("dark");
         break;
     }
-  }, [darkMode]);
+  }, [darkMode,element]);
 
   const location = useLocation();
   return (

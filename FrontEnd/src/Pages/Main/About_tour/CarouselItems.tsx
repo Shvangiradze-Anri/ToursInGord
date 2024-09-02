@@ -1,6 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+import { AppDispatch, RootState } from "../../../redux/redux";
 
 type CloudImage = {
   asset_id: string;
@@ -34,15 +35,16 @@ type Image = {
 
 type Images = {
   items: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   image?: Image[] | any;
 };
 
-const CarouselItmes: React.FC<Images> = ({ items, image }) => {
-  const user = useSelector((state: any) => state.user.users);
+const CarouselItems: React.FC<Images> = ({ items, image }) => {
+  const user = useSelector((state: RootState) => state.user.users);
 
   const location = useLocation();
 
-  const dispatch = useDispatch<any>();
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleDelete = (id: number) => {
     import("../../../redux/getImages").then(({ deleteImage }) => {
@@ -107,4 +109,4 @@ const CarouselItmes: React.FC<Images> = ({ items, image }) => {
   );
 };
 
-export default React.memo(CarouselItmes);
+export default React.memo(CarouselItems);

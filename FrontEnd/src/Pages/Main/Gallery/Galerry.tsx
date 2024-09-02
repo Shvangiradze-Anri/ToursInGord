@@ -23,11 +23,11 @@ const Galerry = () => {
   );
   const filteredImageNotFound = useMemo(
     () => images.filter((item) => item.page === "imagenotfound"),
-    []
+    [images]
   );
   const filteredImages = useMemo(
     () => images.filter((item) => item.page === "gallery"),
-    []
+    [images]
   );
 
   const [imageURL, setImageURL] = useState<string | null>(null);
@@ -39,14 +39,14 @@ const Galerry = () => {
     }
 
     function addAnimation() {
-      scrollers.forEach((scroller: any, scrollerKey: number) => {
-        scroller.setAttribute("data-animated", true);
+      scrollers.forEach((scroller, scrollerKey: number) => {
+        scroller.setAttribute("data-animated", "true");
 
         const scrollerInner = scroller.querySelector(".scroller__inner");
-        const scrollerContent = Array.from(scrollerInner.children);
+        const scrollerContent = Array.from(scrollerInner?.children || []);
 
-        scrollerContent.forEach((item: any) => {
-          const dublicateItem = item.cloneNode(true);
+        scrollerContent.forEach((item ) => {
+          const dublicateItem = item.cloneNode(true) as HTMLElement; 
           // Customize based on the keys
           if (scrollerKey % 2 === 0) {
             // Every even scroller
@@ -56,12 +56,13 @@ const Galerry = () => {
             dublicateItem.classList.add("odd-scroller-item");
           }
           dublicateItem.addEventListener("click", handleImageClick);
-          scrollerInner.appendChild(dublicateItem);
+          scrollerInner?.appendChild(dublicateItem);
         });
       });
     }
-    function handleImageClick(event: any) {
-      const clickedImageURL = event.target.getAttribute("src");
+    function handleImageClick(event: MouseEvent) {
+      const target = event.target as HTMLImageElement;
+      const clickedImageURL = target.getAttribute("src");
       setImageURL(clickedImageURL);
     }
   }, [images]);
@@ -97,7 +98,7 @@ const Galerry = () => {
           <ul className="flex tag-list scroller__inner">
             {filteredImages
               .filter((_, index) => index % 2 !== 0)
-              .map((item, index): any => {
+              .map((item, index) => {
                 return (
                   <li key={index} className="flex gap-8">
                     <div className="w-[23rem] aspect-video min-1200:h-60">
@@ -119,7 +120,7 @@ const Galerry = () => {
           <ul className="flex tag-list scroller__inner">
             {filteredImages
               .filter((_, index) => index % 2 === 0)
-              .map((item, index): any => {
+              .map((item, index): JSX.Element => {
                 return (
                   <li key={index} className="flex gap-8">
                     <div className="w-[23rem] aspect-video min-1200:h-60">

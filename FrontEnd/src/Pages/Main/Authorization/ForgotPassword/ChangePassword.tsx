@@ -12,12 +12,13 @@ import { useSelector } from "react-redux";
 import { Helmet } from "react-helmet-async";
 import CryptoJS from "crypto-js";
 import { axiosUser } from "../../../../api/axios";
+import { RootState } from "../../../../redux/redux";
 
 function ChangePassword() {
   const [email, setEmail] = useState<string>("");
 
   const [errorEmail, setErrorEmail] = useState<string>("");
-  const darkMode = useSelector((state: any) => state.theme.darkMode);
+  const darkMode = useSelector((state: RootState) => state.theme.darkMode);
 
   useEffect(() => {
     emailValidation(email, setErrorEmail);
@@ -50,6 +51,7 @@ function ChangePassword() {
 
   const handleCode: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
+    
     const GenerateSecretKey = () => {
       const array = new Uint8Array(16);
       window.crypto.getRandomValues(array);
@@ -57,20 +59,21 @@ function ChangePassword() {
         ("0" + (byte & 0xff).toString(16)).slice(-2)
       ).join("");
     };
+  
     const defaultNumber = Math.floor(100000 + Math.random() * 900000);
-
+  
     if (!errorEmail) {
+      const codeSecretKey = GenerateSecretKey();
+      const encryptedData = CryptoJS.AES.encrypt(
+        JSON.stringify({ defaultNumber, email }),
+        codeSecretKey
+      ).toString();
+  
+      navigate("/Authorization/Change_Password/Get_Code", {
+        state: { encryptedData, codeSecretKey },
+      });
+  
       try {
-        const codeSecretKey = GenerateSecretKey();
-        const encryptedData = CryptoJS.AES.encrypt(
-          JSON.stringify({ defaultNumber, email }),
-          codeSecretKey
-        ).toString();
-
-        navigate("/Authorization/Change_Password/Get_Code", {
-          state: { encryptedData, codeSecretKey },
-        });
-
         const res = await axiosUser.post(
           `/Authorization/Registration/ConfrimCode`,
           {
@@ -78,18 +81,17 @@ function ChangePassword() {
             codeSecretKey,
           }
         );
-
-        if (res.status === 200) {
-          import("react-toastify").then(({ toast }) =>
-            toast.success("Code is Sended")
-          );
-        } else {
-          import("react-toastify").then(({ toast }) =>
-            toast.error("Code doesn't Send")
-          );
-        }
-      } catch (error: any) {
-        throw error;
+  
+        import("react-toastify").then(({ toast }) => {
+          if (res.status === 200) {
+            toast.success("Code is Sent");
+          } else {
+            toast.error("Code didn't Send");
+          }
+        });
+      } catch (error: unknown) {
+        // Handle the error or log it if necessary
+        console.error("An error occurred:", error);
       }
     }
   };
