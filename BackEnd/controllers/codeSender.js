@@ -45,7 +45,7 @@ const CodeSender = async (req, res) => {
       return res
         .status(400)
         .send("Decrypted data does not contain expected properties");
-    } else if (user.email === email && req.path == "/registration") {
+    } else if (user.email === email) {
       return res.status(400).send("Email  already exist");
     }
 

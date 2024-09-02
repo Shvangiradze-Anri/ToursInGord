@@ -52,7 +52,7 @@ const route = createBrowserRouter(
     <Route
       path="/"
       element={<App />}
-      loader={() => store.dispatch(fetchImages())}
+      loader={() =>{}}
     >
       <Route index element={<Main />} />
       <Route
