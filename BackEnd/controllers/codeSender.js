@@ -2,8 +2,8 @@ import nodemailer from "nodemailer";
 import CryptoJS from "crypto-js";
 import { User } from "../models/user.js";
 
-const Email = (options) => {
-  let transporter = nodemailer.createTransport({
+const Email = (options, callback) => {
+  const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 465,
     secure: true,
@@ -12,10 +12,14 @@ const Email = (options) => {
       pass: process.env.PASSWORD,
     },
   });
+
   transporter.sendMail(options, (err, info) => {
     if (err) {
-      return err;
+      console.error("Error sending email:", err);
+      return callback(err); // Pass the error to callback for further handling
     }
+    console.log("Email sent: " + info.response);
+    callback(null, info); // Email was successfully sent
   });
 };
 
@@ -39,51 +43,35 @@ const CodeSender = async (req, res) => {
     }
 
     const { defaultNumber, email } = decryptedData;
+    console.log(email, defaultNumber);
 
     const user = await User.findOne({ email });
+    console.log("user", user);
+
     if (!defaultNumber || !email) {
       return res
         .status(400)
         .send("Decrypted data does not contain expected properties");
-    } else if (user.email === email && req.path == "/registration") {
-      return res.status(400).send("Email  already exist");
+    } else if (user && user.email === email && req.path == "/registration") {
+      return res.status(400).send("Email already exists");
     }
 
     let options = {
-      from: `mayHost 🛍️ `,
+      from: `mayHost 🛍️`,
       to: email,
       subject: "Message From Henrys_Dev",
-      html: `
-        <div style="width: 100%; background-color: #f3f9ff; padding: 5rem 0">
-        <div style="max-width: 700px; background-color: white; margin: 0 auto">
-          <div style="width: 100%; background-color: #00efbc; padding: 20px 0">
-          <a href="${"https://henrys-web-dev.netlify.app/"}" ><img
-              src="https://res.cloudinary.com/dywchsrms/image/upload/v1707414670/Portfolio%20Images/henry_yrgo6e.svg"
-              style="width: 100%; height: 70px; object-fit: contain"
-            /></a> 
-          </div>
-          <div style="width: 100%; gap: 10px; padding: 30px 0; display: grid">
-            <p style="font-weight: 800; font-size: 1.2rem; padding: 0 30px">
-             Code: <b>${defaultNumber}</b>
-            </p> 
-          </div>
-          <div style="width: 100%; gap: 10px; padding: 30px 0; display: grid; margin-top: 3rem;">
-          <p style="font-weight: 600; font-size: 1.1rem; padding: 0 30px">
-          Thank you for reaching out!
-          Your inquiry has been received and I will do my best to respond to you promptly. Your support and interest in my work truly inspire me to continue pursuing my passion.
-          <br></br>
-          <br>Best regards</br>
-          </p> 
-        </div>
-        </div>
-      </div>
-        `,
+      html: `<div>Code: <b>${defaultNumber}</b></div>`,
     };
 
-    Email(options);
-
-    res.status(200).send("code sent");
+    // Call Email with error handling
+    Email(options, (err, info) => {
+      if (err) {
+        return res.status(500).send("Failed to send email");
+      }
+      res.status(200).send("Code sent");
+    });
   } catch (error) {
+    console.error("Error processing data:", error);
     res.status(500).send("Error processing data");
   }
 };

@@ -1,6 +1,14 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, Outlet, useLocation } from "react-router-dom";
+import { updateUserImage } from "../../redux/getUser";
 
 import { useDispatch, useSelector } from "react-redux";
 import useWindowResize from "../../Hooks/useWindowResize";
@@ -22,35 +30,46 @@ import Cookies from "js-cookie";
 
 import Map from "../../Components/Footer/Map";
 import { Libraries, useJsApiLoader } from "@react-google-maps/api";
+import { AppDispatch, RootState } from "../../redux/redux";
+import { toast } from "react-toastify";
 
 const libraries: Libraries = ["places"];
 
 const Home = () => {
   const location = useLocation();
   const { width } = useWindowResize();
-  const darkMode = useSelector((state: any) => state.theme.darkMode);
+  const darkMode = useSelector((state: RootState) => state.theme.darkMode);
 
-  const componentRefs = useSelector((state: any) => state.getComponentsRef);
+  const componentRefs = useSelector(
+    (state: RootState) => state.getComponentsRef
+  );
 
   const [openProfile, setOpenProfile] = useState<boolean>(false);
 
   const profileRef = useRef<HTMLDivElement | null>(null);
 
-  const user = useSelector((state: any) => state.user.users);
+  const user = useSelector((state: RootState) => state.user.users);
 
-  console.log(user);
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
 
-  const dispatch = useDispatch<any>();
+  const dispatch = useDispatch<AppDispatch>();
 
   const [menuButt, setMenuButt] = useState(false);
 
   useEffect(() => {
-    document.addEventListener("mousedown", (event) => {
+    const handleClickOutside = (event: MouseEvent) => {
       if (!profileRef.current?.contains(event.target as HTMLElement)) {
         setOpenProfile(false);
       }
-    });
-  }, [openProfile]);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [profileRef]);
 
   // const [isLoad, setIsLoaded] = useState(false);
 
@@ -77,17 +96,21 @@ const Home = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-  const scrollToGallery = (userefElement: any) => {
-    window.scrollTo({
-      top: userefElement,
-      behavior: "smooth",
-    });
+  const scrollToGallery = (userefElement: number) => {
+    if (userefElement) {
+      window.scrollTo({
+        top: userefElement,
+        behavior: "smooth",
+      });
+    }
   };
-  const scrollToComponent = (userefElement: any) => {
-    window.scrollTo({
-      top: userefElement,
-      behavior: "smooth",
-    });
+  const scrollToComponent = (userefElement: number) => {
+    if (userefElement) {
+      window.scrollTo({
+        top: userefElement,
+        behavior: "smooth",
+      });
+    }
   };
 
   const [loggedIn, setloggedIn] = useState<boolean>(false);
@@ -96,9 +119,9 @@ const Home = () => {
     if (Cookies.get("accessT")) {
       setloggedIn(true);
     } else {
-      setloggedIn(false);
+      false;
     }
-  }, [loggedIn]);
+  }, []);
 
   const [userImage, setUserImage] = useState<string | ArrayBuffer | null>(null);
 
@@ -114,23 +137,30 @@ const Home = () => {
       setUserImage(null);
     }
   };
+  const handleupdateUserImage = useCallback(async () => {
+    const email = user[0]?.email;
+    const imageSize = ((userImage as string).length * (3 / 4)) / 1024; // Convert base64 size to KB
+    console.log("image size", imageSize);
 
-  const handleupdateUserImage = async () => {
-    import("../../redux/getUser").then(({ updateUserImage }) => {
-      dispatch(updateUserImage({ email: user[0].email, userImage: userImage }));
-    });
-  };
+    if (email && userImage && imageSize <= 120) {
+      dispatch(updateUserImage({ email, userImage }));
+    } else {
+      toast.error("Image size exceeds 120 KB.");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, user[0]?.email, userImage]);
 
   useEffect(() => {
-    if (userImage !== null) {
+    if (userImage) {
       handleupdateUserImage();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userImage]);
 
   type Image = {
     id: number;
     image: {
-      secure_url: string;
+      url: string;
     };
     page: string;
   };
@@ -145,17 +175,77 @@ const Home = () => {
     (state: { images: ImagesState }) => state.images
   );
 
-  const filteredImagesL = useMemo(
-    () => images.filter((item) => item.page === "footerlightbg"),
-    [images]
-  );
-  const filteredImagesD = useMemo(
-    () => images.filter((item) => item.page === "footerdarkbg"),
-    [images]
-  );
   const filteredImageNotFound = useMemo(
-    () => images.filter((item) => item.page === "imagenotfound"),
+    () =>
+      images ? images.filter((item) => item?.page === "imagenotfound") : [],
     [images]
+  );
+  const renderProfileImage = () => {
+    const defaultImageUrl = filteredImageNotFound[0]?.image?.url;
+    const userImageUrl =
+      typeof user[0]?.image === "object"
+        ? user[0]?.image?.url
+        : defaultImageUrl;
+
+    return (
+      <div className="relative w-14 h-14">
+        <div className="absolute -top-2 right-0">
+          <label
+            htmlFor="imgchange"
+            className="inline-block text-center w-full h-full text-black py-1 px-1 bg-sky-300 dark:bg-orange-300 rounded-full select-none cursor-pointer"
+          >
+            <div className="grid w-full h-full place-items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="16"
+                viewBox="0 0 24 22"
+                fill="none"
+              >
+                <path
+                  d="M21.5 5.5H18.33L16.5 3.5H10.5V5.5H15.62L17.45 7.5H21.5V19.5H5.5V10.5H3.5V19.5C3.5 20.6 4.4 21.5 5.5 21.5H21.5C22.6 21.5 23.5 20.6 23.5 19.5V7.5C23.5 6.4 22.6 5.5 21.5 5.5ZM8.5 13.5C8.5 16.26 10.74 18.5 13.5 18.5C16.26 18.5 18.5 16.26 18.5 13.5C18.5 10.74 16.26 8.5 13.5 8.5C10.74 8.5 8.5 10.74 8.5 13.5ZM13.5 10.5C15.15 10.5 16.5 11.85 16.5 13.5C16.5 15.15 15.15 16.5 13.5 16.5C11.85 16.5 10.5 15.15 10.5 13.5C10.5 11.85 11.85 10.5 13.5 10.5ZM5.5 5.5H8.5V3.5H5.5V0.5H3.5V3.5H0.5V5.5H3.5V8.5H5.5V5.5Z"
+                  fill="black"
+                />
+              </svg>
+            </div>
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            id="imgchange"
+            required
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file && file.type.substring(0, 5) === "image") {
+                transformFile(file);
+              }
+            }}
+            className="[display:none]"
+          />
+        </div>
+        <img
+          src={userImageUrl}
+          className="w-full h-full aspect-video rounded-full"
+          alt="Profile Image"
+        />
+      </div>
+    );
+  };
+  const profileContent = useMemo(
+    () => (
+      <div className="flex gap-4">
+        {renderProfileImage()}
+        <div className="grid gap-1">
+          <p className="text-res-md-sm text-orange-400 dark:text-blue-600 self-baseline whitespace-nowrap">
+            {`${user[0]?.name} ${user[0]?.lastname}`}
+          </p>
+          <p className="text-res-sm text-orange-400 dark:text-blue-600">{`${user[0]?.gender}`}</p>
+          <p className="text-res-sm text-orange-400 dark:text-blue-600">{`${user[0]?.birthday}`}</p>
+        </div>
+      </div>
+    ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [user, filteredImageNotFound]
   );
 
   return (
@@ -254,26 +344,7 @@ const Home = () => {
                   </svg>
                 )}
                 {menuButt && width <= 600 ? (
-                  <div
-                    style={
-                      darkMode
-                        ? {
-                            backgroundImage: `url(${
-                              filteredImagesD[0]?.image !== undefined
-                                ? filteredImagesD[0].image.secure_url
-                                : ""
-                            })`,
-                          }
-                        : {
-                            backgroundImage: `url(${
-                              filteredImagesL[0]?.image !== undefined
-                                ? filteredImagesL[0].image.secure_url
-                                : ""
-                            })`,
-                          }
-                    }
-                    className="absolute grid content-center justify-center top-0 left-0 w-full h-[100dvh]  bg-cover  bg-no-repeat shadow-whole-white dark:shadow-bot-black z-10 "
-                  >
+                  <div className="absolute grid content-center justify-center top-0 left-0 w-full h-[100dvh]  bg-slate-300 dark:bg-slate-900  bg-cover  bg-no-repeat shadow-whole-white dark:shadow-bot-black z-10 ">
                     <div className="grid w-fit gap-12  p-16  bg-[#080707a5] rounded-2xl text-white text-xl min-300:p-20   min-300:text-2xl min-400:p-32">
                       <Link to="/#about">
                         <span
@@ -416,8 +487,7 @@ const Home = () => {
                 <div className="flex flex-col  relative">
                   <div
                     className="flex justify-around  align-bottom
-                            min-600:absolute min-600:-top-5 min-600:right-0 min-400:gap-4
-            "
+                            min-600:absolute min-600:-top-5 min-600:right-0 min-400:gap-4"
                   >
                     {user && user[0]?.role === "admin" ? (
                       <Link to="/admin">
@@ -482,8 +552,8 @@ const Home = () => {
                           <img
                             src={
                               typeof user[0]?.image === "object"
-                                ? user[0].image.secure_url
-                                : filteredImageNotFound[0]?.image?.secure_url
+                                ? user[0]?.image.url
+                                : filteredImageNotFound[0]?.image?.url
                             }
                             className="h-full rounded-full"
                             alt="Profile Image"
@@ -511,114 +581,12 @@ const Home = () => {
                               }}
                               className="absolute grid h-fit overflow-hidden border-2 border-blue-300 dark:border-slate-800 place-items-center z-10 right-0 top-12 gap-4  bg-sky-200  dark:bg-slate-700 p-2 rounded-lg min-800:p-4 min-800:w-72"
                             >
-                              <div className="flex gap-4 ">
-                                {typeof user[0].image !== "object" ? (
-                                  <div className=" w-11 h-11 min-600:w-14 min-600:h-14">
-                                    <label
-                                      htmlFor="img"
-                                      className="inline-block text-center w-full h-full text-black py-1 px-1 bg-sky-300 dark:bg-orange-300 rounded-full  select-none cursor-pointer 
-                                     "
-                                    >
-                                      <div className="grid w-full h-full place-items-center ">
-                                        <svg
-                                          width="24"
-                                          height="24"
-                                          viewBox="0 0 24 24"
-                                          fill="none"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          className="mb-1"
-                                        >
-                                          <path
-                                            d="M18 15V18H6V15H4V18C4 19.1 4.9 20 6 20H18C19.1 20 20 19.1 20 18V15H18ZM7 9L8.41 10.41L11 7.83V16H13V7.83L15.59 10.41L17 9L12 4L7 9Z"
-                                            fill="black"
-                                          />
-                                        </svg>{" "}
-                                      </div>
-                                    </label>
-                                    <input
-                                      type="file"
-                                      accept="image/*"
-                                      id="img"
-                                      required
-                                      onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (
-                                          file &&
-                                          file.type.substring(0, 5) === "image"
-                                        ) {
-                                          transformFile(file);
-                                        } else {
-                                          return null;
-                                        }
-                                      }}
-                                      className="[display:none]"
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="relative w-14 h-14">
-                                    <div className="absolute -top-2 right-0">
-                                      <label
-                                        htmlFor="imgchange"
-                                        className="inline-block text-center w-full h-full text-black py-1 px-1 bg-sky-300 dark:bg-orange-300 rounded-full  select-none cursor-pointer 
-                                     "
-                                      >
-                                        <div className="grid w-full h-full place-items-center ">
-                                          <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="18"
-                                            height="16"
-                                            viewBox="0 0 24 22"
-                                            fill="none"
-                                          >
-                                            <path
-                                              d="M21.5 5.5H18.33L16.5 3.5H10.5V5.5H15.62L17.45 7.5H21.5V19.5H5.5V10.5H3.5V19.5C3.5 20.6 4.4 21.5 5.5 21.5H21.5C22.6 21.5 23.5 20.6 23.5 19.5V7.5C23.5 6.4 22.6 5.5 21.5 5.5ZM8.5 13.5C8.5 16.26 10.74 18.5 13.5 18.5C16.26 18.5 18.5 16.26 18.5 13.5C18.5 10.74 16.26 8.5 13.5 8.5C10.74 8.5 8.5 10.74 8.5 13.5ZM13.5 10.5C15.15 10.5 16.5 11.85 16.5 13.5C16.5 15.15 15.15 16.5 13.5 16.5C11.85 16.5 10.5 15.15 10.5 13.5C10.5 11.85 11.85 10.5 13.5 10.5ZM5.5 5.5H8.5V3.5H5.5V0.5H3.5V3.5H0.5V5.5H3.5V8.5H5.5V5.5Z"
-                                              fill="black"
-                                            />
-                                          </svg>
-                                        </div>
-                                      </label>
-                                      <input
-                                        type="file"
-                                        accept="image/*"
-                                        id="imgchange"
-                                        required
-                                        onChange={(e) => {
-                                          const file = e.target.files?.[0];
-                                          if (
-                                            file &&
-                                            file.type.substring(0, 5) ===
-                                              "image"
-                                          ) {
-                                            transformFile(file);
-                                          } else {
-                                            return null;
-                                          }
-                                        }}
-                                        className="[display:none]"
-                                      />
-                                    </div>
-                                    <img
-                                      src={
-                                        typeof user[0].image === "object"
-                                          ? user[0].image.secure_url
-                                          : filteredImageNotFound[0]?.image
-                                              ?.secure_url
-                                      }
-                                      className="w-full h-full aspect-video rounded-full  "
-                                      alt="Profile Image"
-                                    />
-                                  </div>
-                                )}
-
-                                <div className="grid gap-1  ">
-                                  <p className="text-res-md-sm text-orange-400 dark:text-blue-600 self-baseline whitespace-nowrap">{`${user[0].name} ${user[0].lastname}`}</p>
-                                  <p className="text-res-sm text-orange-400 dark:text-blue-600 ">{`${user[0].gender}`}</p>
-                                  <p className="text-res-sm text-orange-400 dark:text-blue-600 ">{`${user[0].birthday}`}</p>
-                                </div>
-                              </div>
+                              {profileContent}
                               <button
                                 onClick={() => {
                                   Cookies.remove("accessT");
+                                  Cookies.remove("refreshT");
+                                  Cookies.remove("csrfT");
                                   if (!Cookies.get("accessT")) {
                                     setOpenProfile(false);
                                     window.location.replace("/");
@@ -676,7 +644,7 @@ const Home = () => {
                             scrollToComponent(componentRefs.contactRef);
                           }}
                           className="before:content-[''] before:absolute before:rounded-md before:bg-orange-500 dark:before:bg-blue-800 before:h-1 before:w-full before:left-0 before:-top-[0.1rem] before:scale-x-0 before:origin-right before:transition-transform before:duration-500 before:ease-linear
-               hover:before:scale-100 hover:before:origin-left"
+                                     hover:before:scale-100 hover:before:origin-left"
                         >
                           Contact
                         </span>
@@ -692,28 +660,9 @@ const Home = () => {
         </main>
         {!location.pathname.startsWith("/Authorization") &&
           !location.pathname.startsWith("/admin") && (
-            <footer
-              style={
-                darkMode
-                  ? {
-                      backgroundImage: `url(${
-                        filteredImagesD[0]?.image !== undefined
-                          ? filteredImagesD[0].image.secure_url
-                          : ""
-                      })`,
-                    }
-                  : {
-                      backgroundImage: `url(${
-                        filteredImagesL[0]?.image !== undefined
-                          ? filteredImagesL[0].image.secure_url
-                          : ""
-                      })`,
-                    }
-              }
-              className=" w-full  pt-20 px-4 shadow-whole-white dark:shadow-whole-black bg-cover bg-center bg-no-repeat bottom-0 left-0 min-700:px-12 min-900:px-20"
-            >
-              <div className="flex flex-col   w-full gap-8 min-900:flex-row min-900:gap-16 min-1200:gap-24 min-1400:gap-44 min-1500:gap-64">
-                <div className="flex  flex-col items-center gap-6 min-w-max min-h-full text-black dark:text-white min-900:items-start min-900:justify-between ">
+            <footer className=" w-full z-0  pt-20 px-4 shadow-whole-white  bg-slate-300 dark:bg-slate-900 dark:shadow-whole-black bg-cover bg-center bg-no-repeat bottom-0 left-0 min-700:px-12 min-900:px-20">
+              <div className="flex flex-col  w-full gap-8 min-900:flex-row min-900:gap-16 min-1200:gap-24 min-1400:gap-44 min-1500:gap-64">
+                <div className="flex  flex-col  items-center gap-6 min-w-max min-h-full text-black dark:text-white min-900:items-start min-900:justify-between ">
                   <div className="grid gap-4  ">
                     <p className="text-res-lg text-center text-[#e89c3e] dark:text-[#1B3C82] mb-6 min-900:text-start">
                       Contact Us

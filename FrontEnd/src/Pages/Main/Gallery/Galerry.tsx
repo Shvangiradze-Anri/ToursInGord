@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
-
+import { useEffect, useMemo, useState, memo } from "react";
 import ScrollGallery from "./ScrollGallery";
 import { useSelector } from "react-redux";
+
+// Memoized ScrollGallery Component
+const MemoizedScrollGallery = memo(ScrollGallery);
 
 const Galerry = () => {
   type Image = {
     id: number;
     image: {
-      secure_url: string;
+      url: string;
     };
     page: string;
   };
@@ -21,10 +23,12 @@ const Galerry = () => {
   const { images } = useSelector(
     (state: { images: ImagesState }) => state.images
   );
+
   const filteredImageNotFound = useMemo(
     () => images.filter((item) => item.page === "imagenotfound"),
     [images]
   );
+
   const filteredImages = useMemo(
     () => images.filter((item) => item.page === "gallery"),
     [images]
@@ -45,8 +49,8 @@ const Galerry = () => {
         const scrollerInner = scroller.querySelector(".scroller__inner");
         const scrollerContent = Array.from(scrollerInner?.children || []);
 
-        scrollerContent.forEach((item ) => {
-          const dublicateItem = item.cloneNode(true) as HTMLElement; 
+        scrollerContent.forEach((item) => {
+          const dublicateItem = item.cloneNode(true) as HTMLElement;
           // Customize based on the keys
           if (scrollerKey % 2 === 0) {
             // Every even scroller
@@ -60,6 +64,7 @@ const Galerry = () => {
         });
       });
     }
+
     function handleImageClick(event: MouseEvent) {
       const target = event.target as HTMLImageElement;
       const clickedImageURL = target.getAttribute("src");
@@ -70,15 +75,8 @@ const Galerry = () => {
   return (
     <div className="relative">
       <section className="grid items-center bg-white dark:bg-black relative">
-        <div
-          className=" max-w-[50%] h-full bg-white dark:bg-black absolute right-[2%] p-1 z-10 
-      min-500:w-44 min-500:right-10 min-700:w-56 min-900:w-72 min-900:right-16 min-900:p-4 min-1200:w-96 min-1200:p-8 min-1200:right-28 min-1500:right-48 min-1500:w-[28rem]"
-        >
-          <div
-            className="flex flex-col h-full items-center  p-1 gap-4 text-black dark:text-white border-[#7c5b32dc] border-x-4  border-dotted
-        min-900:p-4 min-1200:p-8
-        "
-          >
+        <div className="max-w-[50%] h-full bg-white dark:bg-black absolute right-[2%] p-1 z-10 min-500:w-44 min-500:right-10 min-700:w-56 min-900:w-72 min-900:right-16 min-900:p-4 min-1200:w-96 min-1200:p-8 min-1200:right-28 min-1500:right-48 min-1500:w-[28rem]">
+          <div className="flex flex-col h-full items-center p-1 gap-4 text-black dark:text-white border-[#7c5b32dc] border-x-4 border-dotted min-900:p-4 min-1200:p-8">
             <p className="text-res-special-galerry-title text-blue-800 dark:text-[#e89c3e]">
               Tour Gallery
             </p>
@@ -94,61 +92,59 @@ const Galerry = () => {
             </span>
           </div>
         </div>
+
         <div className="scroller">
           <ul className="flex tag-list scroller__inner">
             {filteredImages
               .filter((_, index) => index % 2 !== 0)
-              .map((item, index) => {
-                return (
-                  <li key={index} className="flex gap-8">
-                    <div className="w-[23rem] aspect-video min-1200:h-60">
-                      <ScrollGallery
-                        items={
-                          item.image.secure_url
-                            ? item.image.secure_url
-                            : filteredImageNotFound[0]?.image?.secure_url
-                        }
-                        setImageURL={setImageURL}
-                      />
-                    </div>
-                  </li>
-                );
-              })}
+              .map((item, index) => (
+                <li key={index} className="flex gap-8">
+                  <div className="w-[23rem] aspect-video min-1200:h-60">
+                    <MemoizedScrollGallery
+                      items={
+                        item.image.url
+                          ? item.image.url
+                          : filteredImageNotFound[0]?.image?.url
+                      }
+                      setImageURL={setImageURL}
+                    />
+                  </div>
+                </li>
+              ))}
           </ul>
         </div>
+
         <div className="scroller">
           <ul className="flex tag-list scroller__inner">
             {filteredImages
               .filter((_, index) => index % 2 === 0)
-              .map((item, index): JSX.Element => {
-                return (
-                  <li key={index} className="flex gap-8">
-                    <div className="w-[23rem] aspect-video min-1200:h-60">
-                      <ScrollGallery
-                        items={
-                          item.image.secure_url
-                            ? item.image.secure_url
-                            : filteredImageNotFound[0]?.image?.secure_url
-                        }
-                        setImageURL={setImageURL}
-                      />
-                    </div>
-                  </li>
-                );
-              })}
+              .map((item, index) => (
+                <li key={index} className="flex gap-8">
+                  <div className="w-[23rem] aspect-video min-1200:h-60">
+                    <MemoizedScrollGallery
+                      items={
+                        item.image.url
+                          ? item.image.url
+                          : filteredImageNotFound[0]?.image?.url
+                      }
+                      setImageURL={setImageURL}
+                    />
+                  </div>
+                </li>
+              ))}
           </ul>
         </div>
 
-        {imageURL !== null ? (
+        {imageURL && (
           <dialog
-            open={imageURL !== null}
-            className="fixed inset-0  w-full h-[100dvh] p-8 bg-[rgba(179,238,255,0.56)] dark:bg-[rgba(20,47,54,0.56)] z-50"
+            open={!!imageURL}
+            className="fixed inset-0 w-full h-[100dvh] p-8 bg-[rgba(179,238,255,0.56)] dark:bg-[rgba(20,47,54,0.56)] z-50"
           >
             <div className="flex items-center justify-center w-full h-full bg-[rgba(88,183,209,0.97)] dark:bg-[rgba(62,24,77,0.97)] rounded-lg p-4">
               <img
                 src={imageURL}
                 alt="Full Screen"
-                className=" w-2/4  rounded-lg "
+                className="w-2/4 rounded-lg"
               />
             </div>
             <svg
@@ -173,7 +169,7 @@ const Galerry = () => {
               />
             </svg>
           </dialog>
-        ) : null}
+        )}
       </section>
     </div>
   );

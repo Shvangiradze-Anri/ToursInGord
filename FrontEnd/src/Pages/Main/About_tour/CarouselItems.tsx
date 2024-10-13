@@ -1,64 +1,50 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { AppDispatch, RootState } from "../../../redux/redux";
 
-type CloudImage = {
-  asset_id: string;
-  public_id: string;
-  version: number;
-  version_id: string;
-  signature: string;
-  width: number;
-  height: number;
-  format: string;
-  resource_type: string;
-  created_at: string;
-  tags: string[];
-  pages: number;
-  bytes: number;
-  type: string;
-  etag: string;
-  placeholder: boolean;
-  url: string;
-  secure_url: string;
-  folder: string;
-  access_mode: string;
-  api_key: string;
-};
-
 type Image = {
-  id: string;
-  image: CloudImage[];
+  _id: string;
+  image: {
+    public_id: string;
+    url: string;
+  };
   page: string;
 };
 
 type Images = {
-  items: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  image?: Image[] | any;
+  items: { public_id: string; url: string };
+  image?: Image[];
 };
 
 const CarouselItems: React.FC<Images> = ({ items, image }) => {
   const user = useSelector((state: RootState) => state.user.users);
 
   const location = useLocation();
-
   const dispatch = useDispatch<AppDispatch>();
 
-  const handleDelete = (id: number) => {
-    import("../../../redux/getImages").then(({ deleteImage }) => {
-      dispatch(deleteImage(id));
-    });
-  };
+  // Memoize the deletion handler to avoid unnecessary re-renders
+  const handleDelete = useCallback(
+    (imageToDelete: Image) => {
+      console.log("Image to delete:", imageToDelete);
+      import("../../../redux/getImages").then(({ deleteImage }) => {
+        dispatch(deleteImage(imageToDelete));
+      });
+    },
+    [dispatch] // Dependencies
+  );
+
+  // Memoize the user role and pathname check to optimize conditional rendering
+  const isAdminPage = useMemo(
+    () => user[0]?.role === "admin" && location.pathname.startsWith("/admin"),
+    [user, location.pathname]
+  );
 
   return (
     <div className="relative w-full h-full">
-      {image &&
-      user[0].role === "admin" &&
-      location.pathname.startsWith("/admin") ? (
+      {image && isAdminPage ? (
         <svg
-          onClick={() => handleDelete(image._id)}
+          onClick={() => handleDelete(image[0])}
           className="absolute right-1 top-1 bg-[#faf7f796] dark:bg-[#c298fc96] rounded-md p-1 cursor-pointer z-10"
           xmlns="http://www.w3.org/2000/svg"
           width="32"
@@ -103,10 +89,13 @@ const CarouselItems: React.FC<Images> = ({ items, image }) => {
           />
         </svg>
       ) : null}
-
-      <img src={items} alt="Tour Images" className="w-full h-full" />
+      <img src={items?.url} alt="Tour Images" className="w-full h-full" />
     </div>
   );
 };
 
-export default React.memo(CarouselItems);
+export default React.memo(
+  CarouselItems,
+  (prevProps, nextProps) =>
+    prevProps.items === nextProps.items && prevProps.image === nextProps.image
+);

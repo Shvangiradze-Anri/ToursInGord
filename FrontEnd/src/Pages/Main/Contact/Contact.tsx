@@ -1,6 +1,5 @@
 import { FormEventHandler, useEffect, useState } from "react";
 import { emailValidation } from "../Authorization/validation/validation";
-import Cookies from "js-cookie";
 
 import { axiosUser } from "../../../api/axios";
 
@@ -15,18 +14,8 @@ function Contact() {
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     if (!sendEmailError && sendEmail) {
-      const accessT = Cookies.get("accessT") as string;
       await axiosUser
-        .post(
-          "/subscribers",
-          { sendEmail },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${accessT}`, // Assuming you store the token in localStorage
-            },
-          }
-        )
+        .post("/subscribers", { sendEmail })
         .then((res) => {
           if (res.data.error) {
             import("react-toastify").then(({ toast }) => {

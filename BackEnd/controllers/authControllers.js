@@ -54,7 +54,7 @@ const registration = async (req, res) => {
       lastname,
       email,
       password: hashedPassword,
-      image: "",
+      image: { public_id: "", url: "" },
       gender,
       birthday,
       role: "user",
@@ -90,28 +90,24 @@ const refreshToken = (req, res) => {
       const newRefreshToken = createRefreshToken(user);
       refreshTokens.push(newRefreshToken);
 
-      const domain = 'toursingord';
+      const domain = "localhost";
 
       return res
-        .cookie("accessToken", newAccessToken, {
-          httpOnly: true,
-          secure: true, // Enable only for HTTPS
+        .cookie("accessT", newAccessToken, {
+          httpOnly: false,
+          secure: false, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
           domain: domain,
-          path:"/",
-          expires: new Date(
-            Date.now() + 90  * 24 * 60 * 60 * 1000
-        ),
+          path: "/",
+          expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("refreshT", newRefreshToken, {
-          httpOnly: true,
-          secure: true, // Enable only for HTTPS
+          httpOnly: false,
+          secure: false, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
           domain: domain,
-          path:"/",
-          expires: new Date(
-            Date.now() + 90  * 24 * 60 * 60 * 1000
-        ),
+          path: "/",
+          expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .send("succeed");
     });
@@ -191,39 +187,33 @@ const logIn = async (req, res) => {
 
       return res
         .cookie("accessT", accessT, {
-          httpOnly: true,
-          secure: true, // Enable only for HTTPS
+          httpOnly: false,
+          secure: false, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
-          domain: 'toursingord',
-          path:"/",
-          expires: new Date(
-            Date.now() + 90  * 24 * 60 * 60 * 1000
-        ),
+          domain: "localhost",
+          path: "/",
+          expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("refreshT", refreshT, {
-          httpOnly: true,
-          secure: true, // Enable only for HTTPS
+          httpOnly: false,
+          secure: false, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
-          domain: 'toursingord',
-          path:"/",
-          expires: new Date(
-            Date.now() + 90  * 24 * 60 * 60 * 1000
-        ),
+          domain: "localhost",
+          path: "/",
+          expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("csrfT", csrfToken, {
-          httpOnly: true,
-          secure: true, // Enable only for HTTPS
+          httpOnly: false,
+          secure: false, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
-          domain: 'toursingord',
-          path:"/",
-          expires: new Date(
-            Date.now() + 90  * 24 * 60 * 60 * 1000
-        ),
-          })
-          .json({ message: "vataaaaa" });
-      }
+          domain: "localhost",
+          path: "/",
+          expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+        })
+        .json({ message: "succeed" });
+    }
 
-      return res.json({ error: "Wrong password" }); // Use return to avoid further execution
+    return res.json({ error: "Wrong password" }); // Use return to avoid further execution
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "Internal server error" }); // Use return to avoid further execution
@@ -265,9 +255,12 @@ const newPassword = async (req, res) => {
 
 const uploadImagesByUser = async (req, res) => {
   const { userImage } = req.body;
+  console.log(userImage);
   try {
     // Find the user by email
+
     const user = await User.findOne({ email: req.params.email });
+    console.log(user);
 
     if (user && userImage) {
       // Upload image to Cloudinary
@@ -277,6 +270,7 @@ const uploadImagesByUser = async (req, res) => {
       const cloudRes = await cloudinary.uploader.upload(userImage, {
         upload_preset: "site_images_preset",
       });
+      console.log(cloudRes);
 
       if (cloudRes) {
         // Update the user's image state in MongoDB
@@ -287,28 +281,24 @@ const uploadImagesByUser = async (req, res) => {
         const newRefreshToken = createRefreshToken(newUser);
         refreshTokens.push(newRefreshToken);
 
-        const domain = 'toursingord';
+        const domain = "localhost";
 
         return res
-          .cookie("accessToken", newAccessToken, {
-            httpOnly: true,
-            secure: true, // Enable only for HTTPS
+          .cookie("accessT", newAccessToken, {
+            httpOnly: false,
+            secure: false, // Enable only for HTTPS
             sameSite: "lax", // Adjust based on your requirements
             domain: domain,
-            path:"/",
-            expires: new Date(
-            Date.now() + 90 * 24 * 60 * 60 * 1000
-        ),
+            path: "/",
+            expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
           })
           .cookie("refreshT", newRefreshToken, {
-            httpOnly: true,
-            secure: true, // Enable only for HTTPS
+            httpOnly: false,
+            secure: false, // Enable only for HTTPS
             sameSite: "lax", // Adjust based on your requirements
             domain: domain,
-            path:"/",
-            expires: new Date(
-            Date.now() + 90 * 24 * 60 * 60 * 1000
-        ),
+            path: "/",
+            expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
           })
           .status(200)
           .send("Image updated");

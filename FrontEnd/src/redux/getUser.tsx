@@ -11,7 +11,7 @@ interface User {
   lastname: string;
   email: string;
   password: string;
-  image: string;
+  image: { url: string };
   birthday: string;
   gender: string;
   role: string;
@@ -20,7 +20,7 @@ interface User {
 // Define the initial state type
 interface UserState {
   loading: boolean;
-  users: User[] ;
+  users: User[];
   error: string;
 }
 
@@ -31,15 +31,14 @@ const initialState: UserState = {
 };
 export let cachedUser: User | null = null;
 // Define the async thunk to fetch users
+let usera = 1;
 export const fetchUser = createAsyncThunk("user/fetchUser", async () => {
   try {
-    console.log("fetch user");
-
     if (cachedUser !== null) {
       return cachedUser;
     } else {
       const token = Cookies.get("accessT");
-
+      console.log("fetch user : ", (usera += 1));
       if (!token) {
         throw new Error("Token not found in cookie");
       }
@@ -61,11 +60,9 @@ export const updateUserImage = createAsyncThunk(
     }: { email: string; userImage: string | ArrayBuffer | null },
     { dispatch }
   ) => {
-    console.log("update user image");
     try {
       const accessT = Cookies.get("accessT") as string;
       const csrfToken = Cookies.get("csrfT");
-      // Assuming userImage is a base64 encoded string
 
       const response = await axiosAdmin.put(
         `/users/update/image/${email}`,
@@ -74,21 +71,21 @@ export const updateUserImage = createAsyncThunk(
           headers: {
             "Content-Type": "application/json",
             "CSRF-Token": csrfToken,
-            Authorization: `Bearer ${accessT}`, // Assuming you store the token in localStorage
+            Authorization: `Bearer ${accessT}`,
           },
         }
       );
 
       if (response.status !== 404 && response.data.length > 0) {
-        console.log("dalogda");
         cachedUser = null;
-        toast.success(`${response.status}`);
-        // Dispatch fetchUser action separately
+        toast.success(`${response.data}`);
+
+        // Fetch the updated user data after the image update
         dispatch(fetchUser());
       }
     } catch (error) {
       console.log(error);
-      throw error; // Ensure to re-throw the error to be handled in the rejected case
+      throw error;
     }
   }
 );

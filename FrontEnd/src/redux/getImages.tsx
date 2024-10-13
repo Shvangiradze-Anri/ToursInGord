@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import { axiosAdmin } from "../api/axios";
+import { AxiosError } from "axios";
 
 // Define the initial state type
 interface ImageState {
@@ -53,24 +54,33 @@ export const fetchImages = createAsyncThunk(
     }
   }
 );
+type Image = {
+  _id: string;
+  image: {
+    public_id: string;
+    url: string;
+  };
+  page: string;
+};
 
 export const deleteImage = createAsyncThunk(
   "tourImages/deleteImage",
-  async (id: number) => {
+  async (image: Image) => {
     try {
       const accessT = Cookies.get("accessT") as string;
       const csrfToken = Cookies.get("csrfT");
-      const response = await axiosAdmin.delete(`/images/delete/${id}`, {
+
+      const response = await axiosAdmin.delete(`/images/delete/${image._id}`, {
         headers: {
           "Content-Type": "application/json",
           "CSRF-Token": csrfToken,
           Authorization: `Bearer ${accessT}`,
         },
       });
-
       if (response.status === 200) {
         toast.success("Image deleted");
-        return { id }; // Return deleted image ID
+
+        return { _id: image._id }; // Return only the deleted image ID
       } else {
         toast.error("Failed to delete image");
         return Promise.reject("Failed to delete image");
@@ -81,25 +91,28 @@ export const deleteImage = createAsyncThunk(
     }
   }
 );
+// Define the expected structure of the error response
+interface ErrorResponse {
+  error: string;
+}
 
 type ImageFile = {
-  image: string | ArrayBuffer | null; // Assuming this is the data URL of the image
-  page: string; // Assuming this is the page number associated with the image
+  image: string | ArrayBuffer | null;
+  page: string;
 };
 
 type uploadImagePayload = {
   image: ImageFile;
-  setLoadingUpload: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const uploadImage = createAsyncThunk(
   "tourImages/uploadImage",
-  async ({ image, setLoadingUpload }: uploadImagePayload) => {
+  async ({ image }: uploadImagePayload, { rejectWithValue }) => {
     try {
       const accessT = Cookies.get("accessT") as string;
       const csrfToken = Cookies.get("csrfT");
 
-      console.log(`Authorization header: Bearer ${accessT}`);
+      console.log(image);
 
       const res = await axiosAdmin.post("/uploadImages", image, {
         headers: {
@@ -109,17 +122,28 @@ export const uploadImage = createAsyncThunk(
         },
       });
       console.log(res.data);
-      if (res.data.error) {
-        console.log(res.data.error);
-      } else {
-        toast.success("Image is uploaded");
-        setLoadingUpload(false);
+      if (res.status === 200) {
+        toast.success("Successfully uploaded");
       }
       cachedImages = null;
 
       return res.data;
     } catch (error) {
-      console.log(error);
+      // Check if the error is an instance of AxiosError
+      if (error instanceof AxiosError) {
+        const axiosError = error as AxiosError<ErrorResponse>; // Type assertion
+        if (axiosError.response) {
+          const errorMessage =
+            axiosError.response.data?.error || "An error occurred";
+          console.error("Error uploading image:", errorMessage); // Logs error from backend
+          toast.error(errorMessage); // Display error message to the user
+          return rejectWithValue(errorMessage);
+        }
+      } else {
+        console.error("Unexpected error:", (error as Error).message);
+        toast.error("An unexpected error occurred. Please try again.");
+        return rejectWithValue((error as Error).message);
+      }
     }
   }
 );
@@ -159,16 +183,19 @@ const imageSlice = createSlice({
         state.deleteImageState = "pending";
       })
       .addCase(deleteImage.fulfilled, (state, action) => {
-        const deletedId = action.payload.id;
+        const deletedId = action.payload._id;
+        console.log(state.images);
+
         state.images = state.images.filter((image) => image._id !== deletedId);
       })
       .addCase(deleteImage.rejected, (state) => {
         state.deleteImageState = "rejected";
       })
       .addMatcher(
-        (action) => [uploadImage.fulfilled].includes(action.type),
+        (action) =>
+          [uploadImage.fulfilled, deleteImage.fulfilled].includes(action.type),
         () => {
-          fetchImages();
+          fetchImages(); // Re-fetch images after upload or delete
         }
       );
   },

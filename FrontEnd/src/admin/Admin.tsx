@@ -1,40 +1,49 @@
-import { Fragment, useCallback, useEffect } from "react";
-import { Helmet } from "react-helmet-async";
+import { Fragment, useCallback, useEffect, Suspense, lazy } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
 import { Link, useLocation } from "react-router-dom";
 import { AppDispatch, RootState } from "../redux/redux";
+import { fetchUser } from "../redux/getUser";
+
+// Dynamic imports using React.lazy
+const Helmet = lazy(() =>
+  import("react-helmet-async").then((module) => ({ default: module.Helmet }))
+);
 
 function Admin() {
   const user = useSelector((state: RootState) => state.user.users);
   const location = useLocation();
-
   const dispatch: AppDispatch = useDispatch();
 
+  // Memoizing fetchUser function
   const fetchUserMemoized = useCallback(() => {
-    import("../redux/getUser").then(({ fetchUser }) => {
-      dispatch(fetchUser());
-    });
+    dispatch(fetchUser());
   }, [dispatch]);
 
+  // Re-fetching user data when component mounts or when user data changes
   useEffect(() => {
     fetchUserMemoized();
   }, [fetchUserMemoized]);
 
+  const isAdmin =
+    user &&
+    user.length > 0 &&
+    user[0].role === "admin" &&
+    location.pathname.startsWith("/admin");
+
   return (
     <Fragment>
-      <Helmet>
-        <title>Admin Page</title>
-        <meta
-          name="description"
-          content="Admin page where the admin has the ability to change the website and user data."
-        />
-        <link rel="canonical" href="/admin" />
-      </Helmet>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Helmet>
+          <title>Admin Page</title>
+          <meta
+            name="description"
+            content="Admin page where the admin has the ability to change the images and user data."
+          />
+          <link rel="canonical" href="http://localhost:5173/admin" />
+        </Helmet>
+      </Suspense>
       <section className="">
-        {user &&
-        user[0].role === "admin" &&
-        location.pathname.startsWith("/admin") ? (
+        {isAdmin ? (
           <div className="grid gap-8  grid-flow-row h-[100dvh] py-[70%] place-items-center px-4 min-500:py-0 min-500:grid-flow-col min-700:px-12   pt min-900:px-28 bg-[#03e2ff7d] dark:bg-purple-950">
             <div
               title="Galley Images"

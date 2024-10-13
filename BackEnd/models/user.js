@@ -7,7 +7,7 @@ const userSchema = new Schema({
   lastname: String,
   email: { type: String, uniqe: true },
   password: String,
-  image: { type: Object },
+  image: { public_id: String, url: String },
   gender: String,
   birthday: String,
   role: String,

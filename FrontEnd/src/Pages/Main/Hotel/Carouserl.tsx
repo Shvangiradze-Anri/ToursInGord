@@ -1,12 +1,13 @@
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useMemo, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
 import CarouselItems from "../About_tour/CarouselItems";
 
 function Carouserl() {
   type Image = {
-    id: number;
+    _id: string;
     image: {
-      secure_url: string;
+      public_id: string;
+      url: string;
     };
     page: string;
   };
@@ -16,6 +17,7 @@ function Carouserl() {
     images: Image[];
     error: string | null;
   };
+
   const [activeIndex, setActiveIndex] = useState(0);
 
   const { images, error } = useSelector(
@@ -26,51 +28,50 @@ function Carouserl() {
     () => images.filter((item) => item.page === "hotel"),
     [images]
   );
+
   const filteredImageNotFound = useMemo(
     () => images.filter((item) => item.page === "imagenotfound"),
     [images]
   );
 
-  const updateIndex = (newIndex: number) => {
-    if (newIndex < 0) {
-      newIndex = 0;
-    } else if (newIndex >= filteredImages.length) {
-      newIndex = filteredImages.length - 1;
-    }
-    setActiveIndex(newIndex);
-  };
+  const updateIndex = useCallback(
+    (newIndex: number) => {
+      if (newIndex < 0) {
+        newIndex = 0;
+      } else if (newIndex >= filteredImages.length) {
+        newIndex = filteredImages.length - 1;
+      }
+      setActiveIndex(newIndex);
+    },
+    [filteredImages.length]
+  );
 
   return (
     <Fragment>
-      <div className="flex flex-col gap-y-2   justify-center rounded-2xl overflow-hidden w-full min-400:w-4/5 min-700:w-3/4 min-800:w-2/3 min-900:w-[35rem]">
+      <div className="flex flex-col gap-y-2 justify-center rounded-2xl overflow-hidden w-full min-400:w-4/5 min-700:w-3/4 min-800:w-2/3 min-900:w-[35rem]">
         <div
           style={{ transform: `translate(-${activeIndex * 100}%)` }}
           className="whitespace-nowrap transition-transform duration-300 [&>div]:inline-flex"
         >
           {!error && filteredImages.length > 0 ? (
-            filteredImages.map((item, index) => (
+            filteredImages.map((item) => (
               <CarouselItems
-                key={index} // Using index as key
+                key={item._id} // Using _id as key instead of index
                 items={
-                  item.image.secure_url
-                    ? item.image.secure_url
-                    : filteredImageNotFound[0]?.image?.secure_url
+                  item.image ? item.image : filteredImageNotFound[0]?.image
                 }
               />
             ))
           ) : (
-            <CarouselItems
-              key={0}
-              items={filteredImageNotFound[0]?.image?.secure_url}
-            />
+            <CarouselItems items={filteredImageNotFound[0]?.image} />
           )}
         </div>
-        <div className="flex flex-col items-end ">
-          <div className="flex gap-x-4 ">
+
+        <div className="flex flex-col items-end">
+          <div className="flex gap-x-4">
             <button
-              onClick={() => {
-                updateIndex(activeIndex - 1);
-              }}
+              onClick={() => updateIndex(activeIndex - 1)}
+              disabled={activeIndex <= 0}
             >
               <svg
                 className="w-6 h-fit min-500:w-8 min-1200:w-9 min-1400:w-10"
@@ -88,9 +89,8 @@ function Carouserl() {
               </svg>
             </button>
             <button
-              onClick={() => {
-                updateIndex(activeIndex + 1);
-              }}
+              onClick={() => updateIndex(activeIndex + 1)}
+              disabled={activeIndex >= filteredImages.length - 1}
             >
               <svg
                 className="w-6 h-fit min-500:w-8 min-1200:w-9 min-1400:w-10"

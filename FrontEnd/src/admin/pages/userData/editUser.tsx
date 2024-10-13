@@ -1,8 +1,9 @@
 import { FormEvent, useEffect, useState } from "react";
-import CryptoJS from "crypto-js";
-import Cookies from "js-cookie";
 import { axiosAdmin } from "../../../api/axios";
 import { QueryObserverResult } from "@tanstack/react-query";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUser } from "../../../redux/getUser";
+import { AppDispatch, RootState } from "../../../redux/redux";
 
 type User = {
   _id?: string;
@@ -24,22 +25,15 @@ type EditUsersProps = {
 const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
 
+  const userA = useSelector((state: RootState) => state.user.users);
+  console.log("useraa", userA);
+
   const [user, setUser] = useState<User>({ ...users });
 
+  const dispatch = useDispatch<AppDispatch>();
+
   useEffect(() => {
-    if (users) {
-      setUser((prevUser) => ({
-        ...prevUser,
-        name: users.name,
-        lastname: users.lastname,
-        email: users.email,
-        password: "",
-        image: "",
-        birthday: users.birthday,
-        gender: users.gender,
-        role: users.role,
-      }));
-    }
+    setUser({ ...users, password: "", image: "" });
   }, [users]);
 
   const transformFile = (file: File | undefined) => {
@@ -48,14 +42,14 @@ const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
     if (file) {
       reader.readAsDataURL(file);
       reader.onloadend = () => {
-        setUser({ ...user, image: reader.result });
+        setUser((prevUser) => ({ ...prevUser, image: reader.result }));
       };
     } else {
-      setUser({ ...user, image: null });
+      setUser((prevUser) => ({ ...prevUser, image: null }));
     }
   };
 
-  const GenerateSecretKey = () => {
+  const generateSecretKey = () => {
     const array = new Uint8Array(16);
     window.crypto.getRandomValues(array);
     return Array.from(array, (byte) =>
@@ -68,10 +62,14 @@ const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
     id: string | undefined
   ) => {
     e.preventDefault();
-    const accessT = Cookies.get("accessT");
-    const csrfToken = Cookies.get("csrfT");
+
     try {
-      const editSecretKey = GenerateSecretKey();
+      console.log(user);
+      const { default: CryptoJS } = await import("crypto-js");
+      const { default: Cookies } = await import("js-cookie");
+      const accessT = Cookies.get("accessT");
+      const csrfToken = Cookies.get("csrfT");
+      const editSecretKey = generateSecretKey();
       const encryptedEditData = CryptoJS.AES.encrypt(
         JSON.stringify({
           name: user.name,
@@ -100,22 +98,27 @@ const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
           },
         }
       );
+
       if (res.data.error) {
         import("react-toastify").then(({ toast }) =>
           toast.error(res.data.error)
         );
       } else {
         import("react-toastify").then(({ toast }) =>
-          toast.success("You've successfully update")
+          toast.success("Successfully updated")
         );
-
-        setShowEditDialog(!showEditDialog);
+        dispatch(fetchUser());
+        setShowEditDialog(false);
         refetch();
+        if (userA[0].role !== "admin") {
+          Cookies.remove("accessT");
+          Cookies.remove("refreshT");
+        }
       }
     } catch (error) {
       console.error("Error during update:", error);
       import("react-toastify").then(({ toast }) =>
-        toast.error("Update user failed")
+        toast.error("Update failed")
       );
     }
   };
@@ -123,7 +126,7 @@ const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
   return (
     <>
       <button
-        onClick={() => setShowEditDialog(!showEditDialog)}
+        onClick={() => setShowEditDialog((prev) => !prev)}
         className="bg-sky-300 dark:bg-purple-400 px-2 py-1 rounded-lg text-res-sm"
       >
         Edit
@@ -134,28 +137,27 @@ const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
             <h2 className="text-xl font-semibold mb-4">Edit User</h2>
             <form onSubmit={(e) => handleEdit(e, users._id)}>
               <div className="mb-4">
-                Name
+                <label htmlFor="name">Name</label>
                 <input
                   id="name"
                   type="text"
                   autoComplete="off"
-                  value={user?.name}
+                  value={user.name}
                   onChange={(e) =>
                     setUser((prevUser) => ({
                       ...prevUser,
                       name: e.target.value,
                     }))
                   }
-                  className="border px-2 py-2 w-full bg-transparent outline-none focus:border-sky-200 dark:focus:border-purple-200 rounded-lg border-sky-400 dark:border-purple-300 "
+                  className="border px-2 py-2 w-full bg-transparent outline-none focus:border-sky-200 dark:focus:border-purple-200 rounded-lg border-sky-400 dark:border-purple-300"
                 />
               </div>
               <div className="mb-4">
-                Lastname
+                <label htmlFor="lastname">Lastname</label>
                 <input
                   id="lastname"
                   type="text"
-                  className="border px-2 py-2 w-full bg-transparent outline-none focus:border-sky-200 dark:focus:border-purple-200 rounded-lg border-sky-400 dark:border-purple-300 "
-                  value={user?.lastname}
+                  value={user.lastname}
                   autoComplete="off"
                   onChange={(e) =>
                     setUser((prevUser) => ({
@@ -163,15 +165,15 @@ const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
                       lastname: e.target.value,
                     }))
                   }
+                  className="border px-2 py-2 w-full bg-transparent outline-none focus:border-sky-200 dark:focus:border-purple-200 rounded-lg border-sky-400 dark:border-purple-300"
                 />
               </div>
               <div className="mb-4">
-                Email
+                <label htmlFor="email">Email</label>
                 <input
                   id="email"
                   type="email"
-                  className="border px-2 py-2 w-full bg-transparent outline-none focus:border-sky-200 dark:focus:border-purple-200 rounded-lg border-sky-400 dark:border-purple-300 "
-                  value={user?.email}
+                  value={user.email}
                   autoComplete="off"
                   onChange={(e) =>
                     setUser((prevUser) => ({
@@ -179,16 +181,16 @@ const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
                       email: e.target.value,
                     }))
                   }
+                  className="border px-2 py-2 w-full bg-transparent outline-none focus:border-sky-200 dark:focus:border-purple-200 rounded-lg border-sky-400 dark:border-purple-300"
                 />
               </div>
               <div className="mb-4">
-                Password
+                <label htmlFor="password">Password</label>
                 <input
                   id="password"
                   type="password"
-                  className="border px-2 py-2 w-full bg-transparent outline-none focus:border-sky-200 dark:focus:border-purple-200 rounded-lg border-sky-400 dark:border-purple-300 placeholder:text-slate-600"
+                  value={user.password}
                   autoComplete="off"
-                  value={user?.password}
                   onChange={(e) =>
                     setUser((prevUser) => ({
                       ...prevUser,
@@ -196,15 +198,15 @@ const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
                     }))
                   }
                   placeholder="New password"
+                  className="border px-2 py-2 w-full bg-transparent outline-none focus:border-sky-200 dark:focus:border-purple-200 rounded-lg border-sky-400 dark:border-purple-300"
                 />
               </div>
               <div className="mb-4">
-                Birthday
+                <label htmlFor="birthday">Birthday</label>
                 <input
                   id="birthday"
                   type="text"
-                  className="border px-2 py-2 w-full bg-transparent outline-none focus:border-sky-200 dark:focus:border-purple-200 rounded-lg border-sky-400 dark:border-purple-300 "
-                  value={user?.birthday}
+                  value={user.birthday}
                   autoComplete="off"
                   onChange={(e) =>
                     setUser((prevUser) => ({
@@ -212,15 +214,15 @@ const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
                       birthday: e.target.value,
                     }))
                   }
+                  className="border px-2 py-2 w-full bg-transparent outline-none focus:border-sky-200 dark:focus:border-purple-200 rounded-lg border-sky-400 dark:border-purple-300"
                 />
-              </div>{" "}
+              </div>
               <div className="mb-4">
-                Gender
+                <label htmlFor="gender">Gender</label>
                 <input
                   id="gender"
                   type="text"
-                  className="border px-2 py-2 w-full bg-transparent outline-none focus:border-sky-200 dark:focus:border-purple-200 rounded-lg border-sky-400 dark:border-purple-300 "
-                  value={user?.gender}
+                  value={user.gender}
                   autoComplete="off"
                   onChange={(e) =>
                     setUser((prevUser) => ({
@@ -228,15 +230,15 @@ const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
                       gender: e.target.value,
                     }))
                   }
+                  className="border px-2 py-2 w-full bg-transparent outline-none focus:border-sky-200 dark:focus:border-purple-200 rounded-lg border-sky-400 dark:border-purple-300"
                 />
               </div>
               <div className="mb-4">
-                Role
+                <label htmlFor="role">Role</label>
                 <input
                   id="role"
                   type="text"
-                  className="border px-2 py-2 w-full bg-transparent outline-none focus:border-sky-200 dark:focus:border-purple-200 rounded-lg border-sky-400 dark:border-purple-300 "
-                  value={user?.role}
+                  value={user.role}
                   autoComplete="off"
                   onChange={(e) =>
                     setUser((prevUser) => ({
@@ -244,14 +246,15 @@ const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
                       role: e.target.value,
                     }))
                   }
+                  className="border px-2 py-2 w-full bg-transparent outline-none focus:border-sky-200 dark:focus:border-purple-200 rounded-lg border-sky-400 dark:border-purple-300"
                 />
               </div>
-              <div className="mb-4   ">
+              <div className="mb-4">
                 <label
                   htmlFor="img"
-                  className="inline-block text-center text-black py-1 px-1 bg-sky-400 dark:bg-purple-500 rounded-lg  text-res-sm select-none cursor-pointer transition-shadow duration-300  hover:shadow-lg hover:shadow-sky-600 dark:hover:shadow-purple-900 "
+                  className="inline-block text-center text-black py-1 px-1 bg-sky-400 dark:bg-purple-500 rounded-lg text-res-sm select-none cursor-pointer transition-shadow duration-300 hover:shadow-lg hover:shadow-sky-600 dark:hover:shadow-purple-900"
                 >
-                  <div className="flex items-center  min-600:p-1">
+                  <div className="flex items-center min-600:p-1">
                     <svg
                       width="24"
                       height="24"
@@ -275,18 +278,18 @@ const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
                     const file = e.target.files?.[0];
                     if (file && file.type.substring(0, 5) === "image") {
                       transformFile(file);
+                      e.target.value = "";
                     } else {
                       return null;
                     }
                   }}
-                  className="[display:none]"
+                  className="hidden"
                 />
               </div>
-              {/* Repeat similar input fields for other user properties */}
               <div className="flex justify-end">
                 <button
-                  onClick={() => setShowEditDialog(false)}
                   type="button"
+                  onClick={() => setShowEditDialog(false)}
                   className="mr-4 px-4 py-2 bg-blue-200 dark:bg-purple-200 text-gray-700 rounded-md"
                 >
                   Cancel

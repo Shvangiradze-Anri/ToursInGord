@@ -1,13 +1,15 @@
-import { Fragment } from "react";
-import DisplayedImages from "./displayedImages";
+import { Fragment, lazy } from "react";
 import { Helmet } from "react-helmet-async";
+
+const DisplayedImages = lazy(() => import("./displayedImages"));
 
 function Gallery() {
   return (
     <Fragment>
+      {" "}
       <Helmet>
-        <title>Gallery Images</title>
-        <meta name="description" content="Gallery images data" />
+        <title>Site Images</title>
+        <meta name="description" content="Site images data" />
         <link rel="canonical" href="/ImagesData/Gallery" />
       </Helmet>
       <section className="bg-sky-500 dark:bg-purple-700 p-4 rounded-xl min-600:p-6">
@@ -16,7 +18,6 @@ function Gallery() {
             Gallery Images
           </p>
         </div>
-
         <DisplayedImages page="gallery" />
       </section>
     </Fragment>

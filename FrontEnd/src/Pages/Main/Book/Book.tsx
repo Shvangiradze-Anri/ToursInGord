@@ -1,11 +1,14 @@
-import { Fragment, useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
+import { Fragment, lazy, Suspense, useEffect, useState } from "react";
+import { toast } from "react-toastify";
+const Helmet = lazy(() =>
+  import("react-helmet-async").then((module) => ({ default: module.Helmet }))
+);
 
 function Book() {
   const [group, setGroup] = useState<boolean>(false);
   const [hotel, setHotel] = useState<boolean>(false);
   const [membersAmount, setMembersAmount] = useState<number>(1);
-  const [totalPrice, setTotalPrice] = useState<number>();
+  const [totalPrice, setTotalPrice] = useState<number>(0);
 
   useEffect(() => {
     if (hotel) {
@@ -20,16 +23,26 @@ function Book() {
       setMembersAmount(1);
     }
   }, [group]);
+
+  const validatePersonsInput = (persons: number) => {
+    // Convert input to a number
+    if (persons < 2 || persons > 10) {
+      return "Person should be between 1-10";
+    }
+    return persons;
+  };
   return (
     <Fragment>
-      <Helmet>
-        <title>Book</title>
-        <meta
-          name="description"
-          content="On this page you can purchase tickets"
-        />
-        <link rel="canonical" href="/Book" />
-      </Helmet>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Helmet>
+          <title>Book</title>
+          <meta
+            name="description"
+            content="On this page you can purchase tickets"
+          />
+          <link rel="canonical" href="/Book" />
+        </Helmet>
+      </Suspense>
       <section className=" bg-white dark:bg-black pt-[17.25rem] shadow-whole-white dark:shadow-whole-black">
         <div className="flex flex-col w-full h-full px-4 py-20 min-600:p-12 min-900:p-20 min-1000:flex-row items-start gap-32 shadow-whole-white-Book  dark:shadow-whole-black-Book bg-[#00e1ff3a] dark:bg-[#00e1ff0f] ">
           <div className="flex flex-col w-full gap-9 text-black dark:text-white">
@@ -125,23 +138,25 @@ function Book() {
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
-                    min={5}
-                    max={20}
-                    value={membersAmount}
+                    min={2}
+                    max={10}
+                    value={membersAmount || ""} // Bind the input to the state
                     className="px-3 py-2 rounded-lg bg-transparent border-2 border-[#ffbc69] dark:border-blue-950 outline-none !text-black dark:!text-white"
                     onChange={(e) => {
-                      setMembersAmount(e.target.valueAsNumber);
+                      // Parse the number from the input
+                      const numberValue = e.target.valueAsNumber;
+
+                      // Validate the input
+                      const validationMessage =
+                        validatePersonsInput(numberValue);
+                      if (typeof validationMessage === "string") {
+                        toast.error(validationMessage); // Show validation error
+                        setMembersAmount(numberValue);
+                      } else {
+                        setMembersAmount(numberValue); // Update state if valid
+                      }
                     }}
                   />
-                  {Number.isNaN(membersAmount) ? (
-                    <span className="text-res-md-sm  text-red-500">
-                      Please fill the box
-                    </span>
-                  ) : (
-                    <span className="text-res-md-sm text-black dark:text-white">
-                      {500 * membersAmount}
-                    </span>
-                  )}
                 </div>
               )}
             </div>

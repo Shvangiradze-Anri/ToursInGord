@@ -43,17 +43,11 @@ const Gallery = lazy(() => import("./admin/pages/siteImage/gallery"));
 const Hotel = lazy(() => import("./admin/pages/siteImage/hotel"));
 const PageNotFound = lazy(() => import("./Components/PageNotFound"));
 
-
-
 const rootContainer = document.getElementById("root") as HTMLElement;
 
 const route = createBrowserRouter(
   createRoutesFromElements(
-    <Route
-      path="/"
-      element={<App />}
-      
-    >
+    <Route path="/" element={<App />}>
       <Route index element={<Main />} />
       <Route
         path="BookTour"
@@ -242,7 +236,7 @@ if (rootContainer) {
     <React.StrictMode>
       <HelmetProvider>
         <Provider store={store}>
-          <RouterProvider router={route} />{" "}
+          <RouterProvider router={route} />
         </Provider>
       </HelmetProvider>
     </React.StrictMode>

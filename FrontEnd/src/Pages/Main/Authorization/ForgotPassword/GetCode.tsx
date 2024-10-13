@@ -1,6 +1,8 @@
 import {
   FormEventHandler,
   Fragment,
+  lazy,
+  Suspense,
   useEffect,
   useMemo,
   useRef,
@@ -9,15 +11,17 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { useSelector } from "react-redux";
-import { Helmet } from "react-helmet-async";
 import CryptoJS from "crypto-js";
 import { RootState } from "../../../../redux/redux";
+const Helmet = lazy(() =>
+  import("react-helmet-async").then((module) => ({ default: module.Helmet }))
+);
 
 function GetCode() {
   type Image = {
     id: number;
     image: {
-      secure_url: string;
+      url: string;
     };
     page: string;
   };
@@ -32,8 +36,8 @@ function GetCode() {
   );
 
   const filteredImagesAuth = useMemo(() => {
-    const filteredL = images.filter((item) => item.page === "authlightbg");
-    const filteredD = images.filter((item) => item.page === "authdarkbg");
+    const filteredL = images.filter((item) => item.page === "authbgl");
+    const filteredD = images.filter((item) => item.page === "authbgd");
     return { light: filteredL, dark: filteredD };
   }, [images]);
 
@@ -94,24 +98,24 @@ function GetCode() {
       );
     }
   };
+  const backgroundImage = useMemo(
+    () =>
+      darkMode
+        ? `url(${filteredImagesAuth.dark[0]?.image.url})`
+        : `url(${filteredImagesAuth.light[0]?.image.url})`,
+    [darkMode, filteredImagesAuth]
+  );
 
   return (
     <Fragment>
-      <Helmet>
-        <title>Get Code</title>
-        <meta name="description" content="Enter the code sent" />
-        <link rel="canonical" href="/Authorization/Change_Password/Get_Code" />
-      </Helmet>
+      <Suspense fallback={<div>Loading Helmet...</div>}>
+        <Helmet>
+          <title>Write code</title>
+          <meta name="description" content="write code to acces changes" />
+        </Helmet>
+      </Suspense>
       <div
-        style={
-          darkMode
-            ? {
-                backgroundImage: `url(${filteredImagesAuth.dark[0].image.secure_url})`,
-              }
-            : {
-                backgroundImage: `url(${filteredImagesAuth.light[0].image.secure_url})`,
-              }
-        }
+        style={{ backgroundImage }}
         className="grid place-items-center  h-[100dvh] bg-cover bg-center bg-no-repeat  px-4 min-700:px-12 min-900:px-28 bg-white dark:bg-black"
       >
         <form

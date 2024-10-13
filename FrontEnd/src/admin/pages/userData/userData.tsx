@@ -1,13 +1,23 @@
 import { useSelector } from "react-redux";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import FetchUsers from "./fetchUsers";
-import { Helmet } from "react-helmet-async";
 import { RootState } from "../../../redux/redux";
+import { lazy } from "react";
+
+const Helmet = lazy(() =>
+  import("react-helmet-async").then((module) => ({ default: module.Helmet }))
+);
 
 function UserData() {
   const user = useSelector((state: RootState) => state.user.users);
+  const queryClient = new QueryClient();
 
-  const queryClient = new QueryClient({});
+  const isAdmin =
+    user &&
+    user.length > 0 &&
+    user[0].role === "admin" &&
+    location.pathname.startsWith("/admin");
+
   return (
     <QueryClientProvider client={queryClient}>
       <Helmet>
@@ -15,9 +25,7 @@ function UserData() {
         <meta name="description" content="Users data" />
         <link rel="canonical" href="/UsersData" />
       </Helmet>
-      {user &&
-      user[0].role === "admin" &&
-      location.pathname.startsWith("/admin") ? (
+      {isAdmin ? (
         <section className="bg-sky-500 dark:bg-purple-700 min-h-[100dvh] p-4 min-800:p-6">
           <div className="place-items-center">
             <div className="w-full">
@@ -31,14 +39,14 @@ function UserData() {
                   <thead className="bg-sky-300 dark:bg-purple-400 rounded-lg">
                     <tr className="text-res-md-sm">
                       <th className="text-start px-3 py-2 rounded-tl-lg">
-                        name
+                        Name
                       </th>
-                      <th className="text-start px-3 py-2">last name</th>
-                      <th className="text-start px-3 py-2">email</th>
-                      <th className="text-start px-3 py-2">birthday</th>
-                      <th className="text-start px-3 py-2">gender</th>
+                      <th className="text-start px-3 py-2">Last Name</th>
+                      <th className="text-start px-3 py-2">Email</th>
+                      <th className="text-start px-3 py-2">Birthday</th>
+                      <th className="text-start px-3 py-2">Gender</th>
                       <th className="text-start px-3 py-2 rounded-tr-lg">
-                        role
+                        Role
                       </th>
                     </tr>
                   </thead>

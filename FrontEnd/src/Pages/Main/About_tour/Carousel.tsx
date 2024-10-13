@@ -1,25 +1,12 @@
-import { useMemo, useState } from "react";
-import CarouselItems from "./CarouselItems";
+import { useMemo, useState, Suspense, lazy } from "react";
+import { RootState } from "../../../redux/redux";
 import { useSelector } from "react-redux";
 
 function Carousel() {
-  type Image = {
-    id: number;
-    image: {
-      secure_url: string;
-    };
-    page: string;
-  };
+  // Dynamically import `useSelector` from `react-redux`
+  const { images, error } = useSelector((state: RootState) => state.images);
 
-  type ImagesState = {
-    loading: boolean;
-    images: Image[];
-    error: string | null;
-  };
-
-  const { images, error } = useSelector(
-    (state: { images: ImagesState }) => state.images
-  );
+  const CarouselItems = lazy(() => import("./CarouselItems"));
 
   const filteredImages = useMemo(() => {
     const tourImages = [];
@@ -53,23 +40,20 @@ function Carousel() {
         style={{ transform: `translate(-${activeIndex * 100}%)` }}
         className="whitespace-nowrap transition-transform duration-300 [&>div]:inline-flex"
       >
-        {!error && filteredImages.tour.length > 0 ? (
-          filteredImages.tour.map((item, index) => (
-            <CarouselItems
-              key={index} // Using index as key
-              items={
-                item.image.secure_url
-                  ? item.image.secure_url
-                  : filteredImages.notFound[0]?.image.secure_url
-              }
-            />
-          ))
-        ) : (
-          <CarouselItems
-            key={0}
-            items={filteredImages.notFound[0]?.image.secure_url}
-          />
-        )}
+        <Suspense fallback={<div>Loading...</div>}>
+          {!error && filteredImages.tour.length > 0 ? (
+            filteredImages.tour.map((item, index) => (
+              <CarouselItems
+                key={index} // Using index as key
+                items={
+                  item.image ? item.image : filteredImages.notFound[0]?.image
+                }
+              />
+            ))
+          ) : (
+            <CarouselItems key={0} items={filteredImages.notFound[0]?.image} />
+          )}
+        </Suspense>
       </div>
       <div className="flex gap-x-4">
         <button
@@ -98,7 +82,7 @@ function Carousel() {
           }}
         >
           <svg
-            className="w-6 h-fit min-500:w-8 min-1200:w-9  min-1400:w-10"
+            className="w-6 h-fit min-500:w-8 min-1200:w-9 min-1400:w-10"
             viewBox="0 0 24 24"
             fill="none"
           >

@@ -1,14 +1,14 @@
 import {
   FormEventHandler,
   Fragment,
+  lazy,
+  Suspense,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import CryptoJS from "crypto-js";
-
 import {
   emailValidation,
   lastnameValidation,
@@ -16,10 +16,13 @@ import {
   passwordValidation,
 } from "./validation/validation";
 import { useSelector } from "react-redux";
-import { Helmet } from "react-helmet-async";
 import { axiosUser } from "../../../api/axios";
-import { RootState } from "../../../redux/redux"
+import { RootState } from "../../../redux/redux";
+import CryptoJS from "crypto-js";
 
+const Helmet = lazy(() =>
+  import("react-helmet-async").then((module) => ({ default: module.Helmet }))
+);
 
 interface MatchCode {
   confrimCode: number | null;
@@ -29,23 +32,23 @@ function Registration() {
   const navigate = useNavigate();
   const darkMode = useSelector((state: RootState) => state.theme.darkMode);
 
-  const [name, setName] = useState<string>('');
-  const [lastname, setLastname] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  
-  const [gender, setGender] = useState<string>('Male'); // Default to 'Male'
+  const [name, setName] = useState<string>("");
+  const [lastname, setLastname] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+
+  const [gender, setGender] = useState<string>("Male"); // Default to 'Male'
   const maleRef = useRef<HTMLInputElement | null>(null);
   const femaleRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    setGender(femaleRef.current?.checked ? 'Female' : 'Male');
+    setGender(femaleRef.current?.checked ? "Female" : "Male");
   }, [femaleRef, maleRef]);
 
-  const [errorName, setErrorName] = useState<string>('');
-  const [errorLastname, setErrorLastname] = useState<string>('');
-  const [errorEmail, setErrorEmail] = useState<string>('');
-  const [errorPassword, setErrorPassword] = useState<string>('');
+  const [errorName, setErrorName] = useState<string>("");
+  const [errorLastname, setErrorLastname] = useState<string>("");
+  const [errorEmail, setErrorEmail] = useState<string>("");
+  const [errorPassword, setErrorPassword] = useState<string>("");
 
   useEffect(() => {
     const debounceValidation = setTimeout(() => {
@@ -59,17 +62,30 @@ function Registration() {
   }, [name, lastname, email, password]);
 
   const Day = Array.from({ length: 31 }, (_, i) => i + 1);
-  const Month = ['Jan', 'Feb', 'March', 'April', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const Month = [
+    "Jan",
+    "Feb",
+    "March",
+    "April",
+    "May",
+    "Jun",
+    "July",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   const Year = Array.from({ length: 104 }, (_, i) => 1920 + i);
 
-  const [selectedDay, setSelectedDay] = useState<string>('');
+  const [selectedDay, setSelectedDay] = useState<string>("");
   const [dayOpen, setDayOpen] = useState<boolean>(false);
-  
-  const [selectedMonth, setSelectedMonth] = useState<string>('');
+
+  const [selectedMonth, setSelectedMonth] = useState<string>("");
   const [monthAsNumber, setMonthASNUmber] = useState<number | null>(null);
   const [monthOpen, setMonthOpen] = useState<boolean>(false);
 
-  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [selectedYear, setSelectedYear] = useState<string>("");
   const [yearOpen, setYearOpen] = useState<boolean>(false);
 
   const [birthday, setBirthday] = useState<string | null>(null);
@@ -87,7 +103,10 @@ function Registration() {
       if (dayRef.current && !dayRef.current.contains(event.target as Node)) {
         setDayOpen(false);
       }
-      if (monthRef.current && !monthRef.current.contains(event.target as Node)) {
+      if (
+        monthRef.current &&
+        !monthRef.current.contains(event.target as Node)
+      ) {
         setMonthOpen(false);
       }
       if (yearRef.current && !yearRef.current.contains(event.target as Node)) {
@@ -95,67 +114,28 @@ function Registration() {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const [openCodeSender, setOpenCodeSender] = useState<boolean>(false);
-  const [matchCode, setMatchedCode] = useState<MatchCode>({ confrimCode: null, generatedCode: null });
+  const [matchCode, setMatchedCode] = useState<MatchCode>({
+    confrimCode: null,
+    generatedCode: null,
+  });
 
   const handleCode: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
-    if (errorName || errorLastname || errorEmail || errorPassword || !birthday) {
+    if (
+      errorName ||
+      errorLastname ||
+      errorEmail ||
+      errorPassword ||
+      !birthday
+    ) {
       return; // Do not proceed if there are validation errors
     }
-
-    try {
-      const defaultNumber = Math.floor(100000 + Math.random() * 900000);
-      setOpenCodeSender(true);
-      setMatchedCode((prev) => ({ ...prev, generatedCode: defaultNumber }));
-
-      const codeSecretKey = generateSecretKey();
-      const encryptedData = CryptoJS.AES.encrypt(
-        JSON.stringify({ defaultNumber, email }),
-        codeSecretKey
-      ).toString();
-
-      const res = await axiosUser.post('/Authorization/Registration/ConfrimCode', {
-        encryptedData,
-        codeSecretKey,
-      });
-
-      import('react-toastify').then(({ toast }) => {
-        if (res.status === 200) {
-          toast.success('Code is Sended');
-        } else {
-          toast.error("Code doesn't Send");
-        }
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        import('react-toastify').then(({ toast }) =>
-          toast.error('An error occurred while sending the code')
-        );
-      } else {
-        console.error('An unexpected error occurred');
-        import('react-toastify').then(({ toast }) =>
-          toast.error('An unexpected error occurred')
-        );
-      }
-    }
-  };
-
-  const generateSecretKey = (): string => {
-    const array = new Uint8Array(16);
-    window.crypto.getRandomValues(array);
-    return Array.from(array, (byte) => ('0' + byte.toString(16)).slice(-2)).join('');
-  };
-
-
-  const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
-    e.preventDefault();
     const GenerateSecretKey = () => {
       const array = new Uint8Array(16);
       window.crypto.getRandomValues(array);
@@ -163,6 +143,57 @@ function Registration() {
         ("0" + (byte & 0xff).toString(16)).slice(-2)
       ).join("");
     };
+    const CryptoJS = (await import("crypto-js")).default;
+    try {
+      const defaultNumber = Math.floor(100000 + Math.random() * 900000);
+      setOpenCodeSender(true);
+      setMatchedCode((prev) => ({ ...prev, generatedCode: defaultNumber }));
+
+      const codeSecretKey = GenerateSecretKey();
+      const encryptedData = CryptoJS.AES.encrypt(
+        JSON.stringify({ defaultNumber, email }),
+        codeSecretKey
+      ).toString();
+
+      const res = await axiosUser.post(
+        "/Authorization/Registration/ConfrimCode",
+        {
+          encryptedData,
+          codeSecretKey,
+        }
+      );
+
+      import("react-toastify").then(({ toast }) => {
+        if (res.status === 200) {
+          toast.success("Code is Sended");
+        } else {
+          toast.error("Code doesn't Send");
+        }
+      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        import("react-toastify").then(({ toast }) =>
+          toast.error("An error occurred while sending the code")
+        );
+      } else {
+        console.error("An unexpected error occurred");
+        import("react-toastify").then(({ toast }) =>
+          toast.error("An unexpected error occurred")
+        );
+      }
+    }
+  };
+  const GenerateSecretKey = () => {
+    const array = new Uint8Array(16);
+    window.crypto.getRandomValues(array);
+    return Array.from(array, (byte) =>
+      ("0" + (byte & 0xff).toString(16)).slice(-2)
+    ).join("");
+  };
+  const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
+
     try {
       if (matchCode.generatedCode === matchCode.confrimCode) {
         const signSecretKey = GenerateSecretKey();
@@ -210,7 +241,7 @@ function Registration() {
   type Image = {
     id: number;
     image: {
-      secure_url: string;
+      url: string;
     };
     page: string;
   };
@@ -225,28 +256,30 @@ function Registration() {
   );
 
   const filteredImagesAuth = useMemo(() => {
-    const filteredL = images.filter((item) => item.page === "authlightbg");
-    const filteredD = images.filter((item) => item.page === "authdarkbg");
+    const filteredL = images.filter((item) => item.page === "authbgl");
+    const filteredD = images.filter((item) => item.page === "authbgd");
     return { light: filteredL, dark: filteredD };
   }, [images]);
 
+  const backgroundImage = useMemo(
+    () =>
+      darkMode
+        ? `url(${filteredImagesAuth.dark[0]?.image.url})`
+        : `url(${filteredImagesAuth.light[0]?.image.url})`,
+    [darkMode, filteredImagesAuth]
+  );
+
   return (
     <Fragment>
-      <Helmet>
-        <title>Registration</title>
-        <meta name="description" content="Create account" />
-        <link rel="canonical" href="/Authorization/Registration" />
-      </Helmet>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Helmet>
+          <title>Registration</title>
+          <meta name="description" content="Create account" />
+          <link rel="canonical" href="/Authorization/Registration" />
+        </Helmet>
+      </Suspense>
       <div
-        style={
-          darkMode
-            ? {
-                backgroundImage: `url(${filteredImagesAuth.dark[0].image.secure_url})`,
-              }
-            : {
-                backgroundImage: `url(${filteredImagesAuth.light[0].image.secure_url})`,
-              }
-        }
+        style={{ backgroundImage }}
         className=" grid h-[100dvh] place-items-center bg-cover bg-center bg-no-repeat  px-4 min-700:px-12 min-900:px-28 bg-white dark:bg-black"
       >
         {openCodeSender ? (

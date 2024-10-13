@@ -16,7 +16,7 @@ const adminRouter = express.Router();
 adminRouter.use(
   cors({
     credentials: true,
-    origin: "https://toursingord.netlify.app",
+    origin: "http://localhost:5173",
   })
 );
 
@@ -27,7 +27,7 @@ adminRouter.use(
 adminRouter.post("/uploadImages", authenticateToken, uploadImages);
 adminRouter.get("/images", getImages);
 adminRouter.get("/users", authenticateToken, getUsers);
-adminRouter.delete("/images/delete/:id", authenticateToken, deleteImage);
+adminRouter.delete("/images/delete/:_id", authenticateToken, deleteImage);
 adminRouter.delete("/users/delete/:id", authenticateToken, deleteUser);
 adminRouter.put("/users/update/:id", authenticateToken, updateUser);
 

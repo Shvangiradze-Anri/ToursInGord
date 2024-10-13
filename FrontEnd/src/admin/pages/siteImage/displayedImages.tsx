@@ -1,8 +1,13 @@
+import { useCallback, useEffect, useState, Suspense, lazy } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import CarouselItems from "../../../Pages/Main/About_tour/CarouselItems";
 import { ThreeDots } from "react-loader-spinner";
-import { useCallback, useEffect, useState } from "react";
 import { AppDispatch } from "../../../redux/redux";
+import { toast } from "react-toastify";
+
+// Dynamically import CarouselItems
+const CarouselItems = lazy(
+  () => import("../../../Pages/Main/About_tour/CarouselItems")
+);
 
 type Page = {
   page: string;
@@ -10,9 +15,10 @@ type Page = {
 
 function DisplayedImages({ page }: Page) {
   type Image = {
-    id: number;
+    _id: string;
     image: {
-      secure_url: string;
+      public_id: string;
+      url: string;
     };
     page: string;
   };
@@ -29,13 +35,16 @@ function DisplayedImages({ page }: Page) {
   };
 
   const [image, setIMG] = useState<ImageFile>({ image: "", page: page });
+  const [err, setErr] = useState(false);
   const [loadingUpload, setLoadingUpload] = useState(false);
+  const [uploadKey, setUploadKey] = useState(Date.now());
 
   const dispatch = useDispatch<AppDispatch>();
 
   const { loading, images, error } = useSelector(
     (state: { images: ImagesState }) => state.images
   );
+  console.log("DISPLAY IMAGES", error);
 
   const transformFile = (file: File | undefined) => {
     const reader = new FileReader();
@@ -44,35 +53,65 @@ function DisplayedImages({ page }: Page) {
       reader.readAsDataURL(file);
       reader.onloadend = () => {
         setIMG({ ...image, image: reader.result });
+        setUploadKey(Date.now()); // Update key to force re-render
       };
     } else {
       setIMG({ image: "", page: page });
     }
   };
-  
   const handleSubmit = useCallback(async () => {
     setLoadingUpload(true);
+
     const { uploadImage } = await import("../../../redux/getImages");
-    dispatch(uploadImage({ image, setLoadingUpload }));
-  }, [dispatch, image, setLoadingUpload]);
-  
+
+    try {
+      // Check image size on the frontend before uploading
+      const imageSize = ((image.image as string).length * (3 / 4)) / 1024; // Convert base64 size to KB
+      console.log("image size", imageSize);
+
+      if (imageSize > 120) {
+        toast.error("Image size exceeds 120 KB.");
+        setLoadingUpload(false);
+        return;
+      }
+
+      // Dispatch uploadImage and handle success or error
+      const resultAction = await dispatch(uploadImage({ image })).unwrap();
+
+      console.log("Image uploaded successfully:", resultAction); // Handle success case
+    } catch (error) {
+      console.error("Error uploading image:", error); // Handle error case
+
+      // Check if error is an instance of Error and get the message
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
+      toast.error(errorMessage); // Notify user of the error
+      setErr(true);
+    } finally {
+      setLoadingUpload(false);
+    }
+  }, [dispatch, image]);
+
   useEffect(() => {
     if (image.image !== "") {
       handleSubmit();
     }
-  }, [handleSubmit, image.image]);
+  }, [handleSubmit, image.image, uploadKey]);
 
-  const filteredImages = images.filter((item) => item.page === page);
+  const filteredImages = images
+    ? images.filter((item) => item?.page === page)
+    : [];
 
   return (
     <section className="flex flex-col w-full place-items-center">
       <form className="grid gap-2 p-6 min-400:p-8">
         <label
           htmlFor="img"
-          className="inline-block uppercase text-center text-black py-2 px-2 bg-sky-400 dark:bg-purple-500 rounded-lg tracking-wider text-res-sm select-none cursor-pointer transition-shadow duration-300  hover:shadow-lg hover:shadow-sky-600 dark:hover:shadow-purple-900 "
+          className="inline-block uppercase text-center text-black py-2 px-2 bg-sky-400 dark:bg-purple-500 rounded-lg tracking-wider text-res-sm select-none cursor-pointer transition-shadow duration-300 hover:shadow-lg hover:shadow-sky-600 dark:hover:shadow-purple-900 "
         >
           {!loadingUpload ? (
-            <div className="flex items-center  min-600:p-1">
+            <div className="flex items-center min-600:p-1">
               <svg
                 width="24"
                 height="24"
@@ -110,6 +149,7 @@ function DisplayedImages({ page }: Page) {
             const file = e.target.files?.[0];
             if (file && file.type.substring(0, 5) === "image") {
               transformFile(file);
+              e.target.value = "";
             } else {
               return null;
             }
@@ -117,16 +157,14 @@ function DisplayedImages({ page }: Page) {
           className="[display:none]"
         />
       </form>
-      <div className="grid gap-4 relative grid-cols-1 min-500:grid-cols-2 min-800:grid-cols-3 min-1200:grid-cols-4 min-2000:grid-cols-5 [&>div>img]:h-full [&>div>img]:rounded-lg ">
-        {!error &&
-          !loading &&
-          filteredImages.map((item, index) => (
-            <CarouselItems
-              key={index}
-              image={item}
-              items={item.image.secure_url}
-            />
-          ))}
+      <div className="grid gap-4 relative grid-cols-1 min-500:grid-cols-2 min-800:grid-cols-3 min-1200:grid-cols-4 min-2000:grid-cols-5 [&>div>img]:h-full [&>div>img]:rounded-lg">
+        <Suspense fallback={<div>Loading...</div>}>
+          {!loading && !err && !error && filteredImages.length > 0
+            ? filteredImages.map((item, index) => (
+                <CarouselItems key={index} image={[item]} items={item.image} />
+              ))
+            : null}
+        </Suspense>
       </div>
     </section>
   );

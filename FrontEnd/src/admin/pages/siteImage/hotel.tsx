@@ -1,13 +1,14 @@
-import { Fragment } from "react";
-import DisplayedImages from "./displayedImages";
+import { Fragment, lazy } from "react";
 import { Helmet } from "react-helmet-async";
+
+const DisplayedImages = lazy(() => import("./displayedImages"));
 
 function Hotel() {
   return (
     <Fragment>
       <Helmet>
-        <title>Hotel Images</title>
-        <meta name="description" content="Hotel images data" />
+        <title>Site Images</title>
+        <meta name="description" content="Site images data" />
         <link rel="canonical" href="/ImagesData/Hotel" />
       </Helmet>
       <section className="bg-sky-500 dark:bg-purple-700 p-4 rounded-xl min-600:p-6">
@@ -16,7 +17,6 @@ function Hotel() {
             Hotel Images
           </p>
         </div>
-
         <DisplayedImages page="hotel" />
       </section>
     </Fragment>

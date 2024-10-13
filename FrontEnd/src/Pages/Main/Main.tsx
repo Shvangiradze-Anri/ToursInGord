@@ -2,33 +2,22 @@ import AboutTour from "./About_tour/AboutTour";
 import Galerry from "./Gallery/Galerry";
 import Hotel from "./Hotel/Hotel";
 import Contact from "./Contact/Contact";
-import Cookies from "js-cookie";
 
 import { Link } from "react-router-dom";
 import { Fragment, useEffect, useMemo, useRef } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 import { updateRefs } from "../../redux/componentRef";
-import { cachedUser } from "../../redux/getUser";
-
-const ok = () => {
-  console.log("cachedUser",cachedUser);
-
-  const allCookies = Cookies.get();
-
-  console.log("All cookies:", allCookies);
-  const token = Cookies.get("accessToken");
-  console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", token); // Added logging for debugging
-}
+import { AppDispatch, RootState } from "../../redux/redux";
 
 const Main = () => {
-  const darkMode = useSelector((state: any) => state.theme.darkMode);
-  const dispatch = useDispatch<any>();
+  const darkMode = useSelector((state: RootState) => state.theme.darkMode);
+  const dispatch = useDispatch<AppDispatch>();
 
-  const aboutTourRef = useRef<HTMLDivElement>(null);
-  const galleryRef = useRef<HTMLDivElement>(null);
-  const hotelRef = useRef<HTMLDivElement>(null);
-  const contactRef = useRef<HTMLDivElement>(null);
+  const aboutTourRef = useRef<HTMLElement>(null);
+  const galleryRef = useRef<HTMLElement>(null);
+  const hotelRef = useRef<HTMLElement>(null);
+  const contactRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const getOffset = async () => {
@@ -59,7 +48,7 @@ const Main = () => {
   type Image = {
     id: number;
     image: {
-      secure_url: string;
+      url: string;
     };
     page: string;
   };
@@ -69,59 +58,55 @@ const Main = () => {
     images: Image[];
     error: string | null;
   };
+  interface ImageItem {
+    image: { url: string };
+  }
+  interface FilteredData {
+    light: ImageItem[];
+    dark: ImageItem[];
+  }
 
   const { images } = useSelector(
     (state: { images: ImagesState }) => state.images
   );
 
-  const filteredImagesL = useMemo(
-    () => images.filter((item) => item.page === "lightbg"),
-    [images]
-  );
-  const filteredImagesD = useMemo(
-    () => images.filter((item) => item.page === "darkbg"),
-    [images]
-  );
-  const filteredTourL = useMemo(
-    () => images.filter((item) => item.page === "tourbgl"),
-    [images]
-  );
-  const filteredTourD = useMemo(
-    () => images.filter((item) => item.page === "tourbgd"),
-    [images]
-  );
-  const filteredHotelL = useMemo(
-    () => images.filter((item) => item.page === "hotelbgl"),
-    [images]
-  );
-  const filteredHotelD = useMemo(
-    () => images.filter((item) => item.page === "hotelbgd"),
-    [images]
-  );
+  const filteredData = useMemo(() => {
+    const filteredImagesL = images.filter((item) => item.page === "lightbg");
+    const filteredImagesD = images.filter((item) => item.page === "darkbg");
+
+    const filteredTourL = images.filter((item) => item.page === "tourbgl");
+    const filteredTourD = images.filter((item) => item.page === "tourbgd");
+
+    const filteredHotelL = images.filter((item) => item.page === "hotelbgl");
+    const filteredHotelD = images.filter((item) => item.page === "hotelbgd");
+
+    return {
+      images: { light: filteredImagesL, dark: filteredImagesD },
+      tour: { light: filteredTourL, dark: filteredTourD },
+      hotel: { light: filteredHotelL, dark: filteredHotelD },
+    };
+  }, [images]);
+
+  const backgroundImages = useMemo(() => {
+    const getImageUrl = (data: FilteredData) =>
+      darkMode
+        ? `url(${data.dark[0]?.image.url})`
+        : `url(${data.light[0]?.image.url})`;
+
+    return {
+      image: getImageUrl(filteredData.images),
+      tour: getImageUrl(filteredData.tour),
+      hotel: getImageUrl(filteredData.hotel),
+    };
+  }, [darkMode, filteredData]);
 
   return (
     <Fragment>
       <section
-        style={
-          darkMode
-            ? {
-                backgroundImage: `url(${
-                  filteredImagesD[0]?.image !== undefined
-                    ? filteredImagesD[0].image.secure_url
-                    : ""
-                })`,
-              }
-            : {
-                backgroundImage: `url(${
-                  filteredImagesL[0]?.image !== undefined
-                    ? filteredImagesL[0].image.secure_url
-                    : ""
-                })`,
-              }
-        }
-        className="flex flex-col h-[100dvh] w-full  items-center justify-between text-center bg-cover  bg-no-repeat  shadow-bot-white dark:shadow-bot-black "
+        style={{ backgroundImage: backgroundImages.image }}
+        className="flex flex-col h-[100dvh] w-full  items-center justify-between text-center bg-cover   bg-no-repeat  shadow-bot-white dark:shadow-bot-black "
       >
-        <span onClick={ok} className=" text-res-xl text-blue-900 dark:text-[#e89c3e] leading-[2rem] mx-3 absolute top-2/4 -translate-y-2/4 min-400:leading-[3rem] min-1000:leading-[4rem]">
+        <span className=" text-res-xl text-blue-900 dark:text-[#e89c3e] leading-[2rem] mx-3 absolute top-2/4 -translate-y-2/4 min-400:leading-[3rem] min-1000:leading-[4rem]">
           Travel with your loved ones <br />
           <span className="text-[#ff742a] dark:text-blue-900">
             Collect memories
@@ -190,23 +175,7 @@ const Main = () => {
       </section>
       <section
         ref={aboutTourRef}
-        style={
-          darkMode
-            ? {
-                backgroundImage: `url(${
-                  filteredTourD[0]?.image !== undefined
-                    ? filteredTourD[0]?.image?.secure_url
-                    : ""
-                })`,
-              }
-            : {
-                backgroundImage: `url(${
-                  filteredTourL[0]?.image !== undefined
-                    ? filteredTourL[0]?.image?.secure_url
-                    : ""
-                })`,
-              }
-        }
+        style={{ backgroundImage: backgroundImages.tour }}
         className="grid items-center min-h-[100dvh]  px-4 py-20 bg-no-repeat bg-cover  shadow-whole-white dark:shadow-whole-black min-700:px-12"
       >
         <AboutTour />
@@ -217,23 +186,7 @@ const Main = () => {
       <section
         id="hotelref"
         ref={hotelRef}
-        style={
-          darkMode
-            ? {
-                backgroundImage: `url(${
-                  filteredHotelD[0]?.image !== undefined
-                    ? filteredHotelD[0]?.image?.secure_url
-                    : ""
-                })`,
-              }
-            : {
-                backgroundImage: `url(${
-                  filteredHotelL[0]?.image !== undefined
-                    ? filteredHotelL[0].image.secure_url
-                    : ""
-                })`,
-              }
-        }
+        style={{ backgroundImage: backgroundImages.hotel }}
         className=" grid  items-center content-center w-full min-h-[100dvh] px-4 py-20 bg-cover bg-center bg-no-repeat bottom-0 left-0 relative shadow-whole-white dark:shadow-whole-black min-700:px-12 min-900:gap-8"
       >
         <Hotel />

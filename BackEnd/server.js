@@ -9,8 +9,6 @@ dotenv.config();
 const app = express();
 
 const bodyParserOptions = { limit: "200kb" };
-const IMAGE_COOKIE_MAX_SIZE = 200 * 1024;
-
 mongoose
   .connect(process.env.MongoDB_URL)
   .then(() => console.log("Database connected"))
@@ -19,6 +17,13 @@ mongoose
 app.use(express.json(bodyParserOptions));
 app.use(express.urlencoded({ extended: true, ...bodyParserOptions }));
 app.use(cookieParser());
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self' http://localhost:5173; script-src 'self' https://trusted-cdn.com"
+  );
+  next();
+});
 
 app.use("/", router);
 app.use("/", adminRouter);

@@ -3,7 +3,7 @@ import { mongoose } from "mongoose";
 const { Schema } = mongoose;
 
 const imagesSchema = new Schema({
-  image: { type: Object, required: true },
+  image: { public_id: String, url: String },
   page: String,
 });
 

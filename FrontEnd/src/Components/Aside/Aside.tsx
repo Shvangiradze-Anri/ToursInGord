@@ -25,9 +25,9 @@ function Aside() {
         setScrollUp(false);
       }
     };
-  
+
     window.addEventListener("scroll", handleScroll);
-  
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
@@ -54,7 +54,7 @@ function Aside() {
         element.classList.remove("dark");
         break;
     }
-  }, [darkMode,element]);
+  }, [darkMode, element]);
 
   const location = useLocation();
   return (
