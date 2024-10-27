@@ -36,7 +36,7 @@ function Admin() {
             name="description"
             content="Admin page where the admin has the ability to change the images and user data."
           />
-          <link rel="canonical" href="http://localhost:5173/admin" />
+          <link rel="canonical" href="toursingord.netlify.app" />
         </Helmet>
       </Suspense>
       <section className="">

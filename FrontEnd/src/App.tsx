@@ -109,7 +109,7 @@ const App = () => {
           name="description"
           content="Welcome to ToursInGord! Explore Georgia's Zeda Gordi. On this page you can learn about us, learn about our services, and view the photo gallery."
         />
-        <link rel="canonical" href="http://localhost:5173/" />
+        <link rel="canonical" href="toursingord.netlify.app" />
       </Helmet>
       <Home />
     </Fragment>

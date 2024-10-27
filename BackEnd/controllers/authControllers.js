@@ -136,24 +136,24 @@ const logIn = async (req, res) => {
 
       return res
         .cookie("accessT", accessT, {
-          httpOnly: false,
-          secure: false, // Enable only for HTTPS
+          httpOnly: true,
+          secure: true, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
           domain: "toursingord.netlify.app",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("refreshT", refreshT, {
-          httpOnly: false,
-          secure: false, // Enable only for HTTPS
+          httpOnly: true,
+          secure: true, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
           domain: "toursingord.netlify.app",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("csrfT", csrfToken, {
-          httpOnly: false,
-          secure: false, // Enable only for HTTPS
+          httpOnly: true,
+          secure: true, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
           domain: "toursingord.netlify.app",
           path: "/",
@@ -171,22 +171,22 @@ const logIn = async (req, res) => {
 const logOut = (req, res) => {
   return res
     .clearCookie("accessT", {
-      httpOnly: false,
-      secure: false, // Enable only for HTTPS
+      httpOnly: true,
+      secure: true, // Enable only for HTTPS
       sameSite: "lax", // Adjust based on your requirements
       domain: "toursingord.netlify.app",
       path: "/",
     })
     .clearCookie("refreshT", {
-      httpOnly: false,
-      secure: false, // Enable only for HTTPS
+      httpOnly: true,
+      secure: true, // Enable only for HTTPS
       sameSite: "lax", // Adjust based on your requirements
       domain: "toursingord.netlify.app",
       path: "/",
     })
     .clearCookie("csrfT", {
-      httpOnly: false,
-      secure: false, // Enable only for HTTPS
+      httpOnly: true,
+      secure: true, // Enable only for HTTPS
       sameSite: "lax", // Adjust based on your requirements
       domain: "toursingord.netlify.app",
       path: "/",
@@ -258,16 +258,16 @@ const uploadImagesByUser = async (req, res) => {
 
         return res
           .cookie("accessT", newAccessToken, {
-            httpOnly: false,
-            secure: false, // Enable only for HTTPS
+            httpOnly: true,
+            secure: true, // Enable only for HTTPS
             sameSite: "lax", // Adjust based on your requirements
             domain: domain,
             path: "/",
             expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
           })
           .cookie("refreshT", newRefreshToken, {
-            httpOnly: false,
-            secure: false, // Enable only for HTTPS
+            httpOnly: true,
+            secure: true, // Enable only for HTTPS
             sameSite: "lax", // Adjust based on your requirements
             domain: domain,
             path: "/",
