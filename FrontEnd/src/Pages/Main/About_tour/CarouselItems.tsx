@@ -18,7 +18,7 @@ type Images = {
 };
 
 const CarouselItems: React.FC<Images> = ({ items, image }) => {
-  const user = useSelector((state: RootState) => state.user.users);
+  const user = useSelector((state: RootState) => state.user.user);
 
   const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
@@ -36,7 +36,7 @@ const CarouselItems: React.FC<Images> = ({ items, image }) => {
 
   // Memoize the user role and pathname check to optimize conditional rendering
   const isAdminPage = useMemo(
-    () => user[0]?.role === "admin" && location.pathname.startsWith("/admin"),
+    () => user?.[0]?.role === "admin" && location.pathname.startsWith("/admin"),
     [user, location.pathname]
   );
 

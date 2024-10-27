@@ -1,12 +1,10 @@
 import Home from "./Pages/Main/Home";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Fragment, lazy, useEffect, useState } from "react";
 import { fetchImages } from "./redux/getImages";
 import { fetchUser } from "./redux/getUser"; // Combined imports
 import { axiosAdmin, axiosUser } from "./api/axios";
-import Cookies from "js-cookie";
-import { jwtDecode } from "jwt-decode";
-import { AppDispatch } from "./redux/redux";
+import { AppDispatch, RootState } from "./redux/redux";
 
 // Lazy load Helmet for optimization
 const Helmet = lazy(() =>
@@ -16,20 +14,15 @@ const Helmet = lazy(() =>
 const App = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<null | string>(null);
-  const dispatch: AppDispatch = useDispatch();
 
-  // Combined useEffect to handle both image and user fetching
+  const dispatch: AppDispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.user.user);
+
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
         // Fetch images
         await dispatch(fetchImages());
-
-        // Fetch user if token exists
-        const token = Cookies.get("accessT");
-        if (token) {
-          await dispatch(fetchUser());
-        }
       } catch (err) {
         setError("Failed to load data");
       } finally {
@@ -39,15 +32,27 @@ const App = () => {
     fetchInitialData();
   }, [dispatch]);
 
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      const expDate = localStorage.getItem("expDate");
+      try {
+        if (!user && expDate && expDate !== undefined) {
+          await dispatch(fetchUser());
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setError("Failed to load data");
+      }
+    };
+
+    fetchInitialData();
+  }, [dispatch, user]);
+
   const refreshToken = async () => {
     try {
-      console.log("refreshtoken");
-
-      const refreshT = Cookies.get("refreshT") as string;
-      const res = await axiosUser.post("/refresh", {
-        refreshToken: refreshT,
-      });
-      return res.data;
+      const res = await axiosUser.post("/refresh", { withCredentials: true });
+      console.log("refreshtoken res", res);
+      localStorage.setItem("expDate", res.data.expDate);
     } catch (err) {
       console.log("Error refreshing token", err);
     }
@@ -55,32 +60,16 @@ const App = () => {
 
   axiosAdmin.interceptors.request.use(
     async (config) => {
-      try {
-        const token = Cookies.get("accessT");
-        const currentDate = new Date();
+      const expDate = Number(localStorage.getItem("expDate"));
+      const currentTime = Date.now();
 
-        if (token) {
-          const decodedToken = jwtDecode<{ exp: number }>(token);
-
-          // Check token expiration
-          if (decodedToken.exp * 1000 < currentDate.getTime()) {
-            const data = await refreshToken();
-            if (data) {
-              const newAccessToken = Cookies.get("accessT");
-              config.headers["authorization"] = `Bearer ${newAccessToken}`;
-            }
-          } else {
-            config.headers["authorization"] = `Bearer ${token}`;
-          }
-        }
-      } catch (error) {
-        console.log("Error in request interceptor", error);
+      if (expDate && !isNaN(expDate) && expDate < currentTime) {
+        await refreshToken();
       }
+
       return config;
     },
-    (error) => {
-      return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
   );
 
   if (loading)

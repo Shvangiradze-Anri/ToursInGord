@@ -2,7 +2,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { axiosAdmin } from "../../../api/axios";
 import { QueryObserverResult } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUser } from "../../../redux/getUser";
+import { clearUserProfile, fetchUser } from "../../../redux/getUser";
 import { AppDispatch, RootState } from "../../../redux/redux";
 
 type User = {
@@ -25,7 +25,7 @@ type EditUsersProps = {
 const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
 
-  const userA = useSelector((state: RootState) => state.user.users);
+  const userA = useSelector((state: RootState) => state.user.user);
   console.log("useraa", userA);
 
   const [user, setUser] = useState<User>({ ...users });
@@ -66,9 +66,7 @@ const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
     try {
       console.log(user);
       const { default: CryptoJS } = await import("crypto-js");
-      const { default: Cookies } = await import("js-cookie");
-      const accessT = Cookies.get("accessT");
-      const csrfToken = Cookies.get("csrfT");
+
       const editSecretKey = generateSecretKey();
       const encryptedEditData = CryptoJS.AES.encrypt(
         JSON.stringify({
@@ -84,20 +82,10 @@ const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
         editSecretKey
       ).toString();
 
-      const res = await axiosAdmin.put(
-        `/users/update/${id}`,
-        {
-          encryptedEditData,
-          editSecretKey,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "CSRF-Token": csrfToken,
-            Authorization: `Bearer ${accessT}`,
-          },
-        }
-      );
+      const res = await axiosAdmin.put(`/users/update/${id}`, {
+        encryptedEditData,
+        editSecretKey,
+      });
 
       if (res.data.error) {
         import("react-toastify").then(({ toast }) =>
@@ -110,9 +98,18 @@ const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
         dispatch(fetchUser());
         setShowEditDialog(false);
         refetch();
-        if (userA[0].role !== "admin") {
-          Cookies.remove("accessT");
-          Cookies.remove("refreshT");
+        if (userA?.[0]?.role !== "admin") {
+          try {
+            const res = await axiosAdmin.post("/logout", {
+              withCredentials: true,
+            });
+            console.log("log out", res);
+            dispatch(clearUserProfile());
+            localStorage.removeItem("expDate");
+            window.location.replace("/ ");
+          } catch (error) {
+            console.error("Logout error:", error);
+          }
         }
       }
     } catch (error) {

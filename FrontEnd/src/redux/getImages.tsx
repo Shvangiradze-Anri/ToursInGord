@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
-import Cookies from "js-cookie";
 import { axiosAdmin } from "../api/axios";
 import { AxiosError } from "axios";
 
@@ -67,16 +66,7 @@ export const deleteImage = createAsyncThunk(
   "tourImages/deleteImage",
   async (image: Image) => {
     try {
-      const accessT = Cookies.get("accessT") as string;
-      const csrfToken = Cookies.get("csrfT");
-
-      const response = await axiosAdmin.delete(`/images/delete/${image._id}`, {
-        headers: {
-          "Content-Type": "application/json",
-          "CSRF-Token": csrfToken,
-          Authorization: `Bearer ${accessT}`,
-        },
-      });
+      const response = await axiosAdmin.delete(`/images/delete/${image._id}`);
       if (response.status === 200) {
         toast.success("Image deleted");
 
@@ -109,18 +99,9 @@ export const uploadImage = createAsyncThunk(
   "tourImages/uploadImage",
   async ({ image }: uploadImagePayload, { rejectWithValue }) => {
     try {
-      const accessT = Cookies.get("accessT") as string;
-      const csrfToken = Cookies.get("csrfT");
-
       console.log(image);
 
-      const res = await axiosAdmin.post("/uploadImages", image, {
-        headers: {
-          "Content-Type": "application/json",
-          "CSRF-Token": csrfToken,
-          Authorization: `Bearer ${accessT}`,
-        },
-      });
+      const res = await axiosAdmin.post("/uploadImages", image);
       console.log(res.data);
       if (res.status === 200) {
         toast.success("Successfully uploaded");

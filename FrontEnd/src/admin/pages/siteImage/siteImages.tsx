@@ -9,7 +9,7 @@ const Helmet = lazy(() =>
 );
 
 function SiteImages() {
-  const user = useSelector((state: RootState) => state.user.users);
+  const user = useSelector((state: RootState) => state.user.user);
 
   return (
     <Fragment>

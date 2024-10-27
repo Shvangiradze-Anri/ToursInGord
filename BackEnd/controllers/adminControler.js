@@ -127,6 +127,16 @@ const getUsers = async (req, res) => {
     res.status(500).send(error);
   }
 };
+const getUser = async (req, res) => {
+  try {
+    const user = await User.find().select("-password");
+
+    res.status(200).send(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(error);
+  }
+};
 
 const deleteUser = async (req, res) => {
   try {
@@ -204,6 +214,7 @@ export {
   uploadImages,
   getImages,
   getUsers,
+  getUser,
   deleteImage,
   deleteUser,
   updateUser,

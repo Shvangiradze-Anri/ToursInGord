@@ -8,7 +8,7 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { updateUserImage } from "../../redux/getUser";
+import { clearUserProfile, updateUserImage } from "../../redux/getUser";
 
 import { useDispatch, useSelector } from "react-redux";
 import useWindowResize from "../../Hooks/useWindowResize";
@@ -26,14 +26,13 @@ import tiktokDark from "../../public/images/Footer/TIKTOK.png";
 import gmailLight from "../../public/images/Footer/Gmail-light.png";
 import gmailDark from "../../public/images/Footer/GMAIL.png";
 
-import Cookies from "js-cookie";
-
-import Map from "../../Components/Footer/Map";
-import { Libraries, useJsApiLoader } from "@react-google-maps/api";
+// import Map from "../../Components/Footer/Map";
+// import { Libraries, useJsApiLoader } from "@react-google-maps/api";
 import { AppDispatch, RootState } from "../../redux/redux";
 import { toast } from "react-toastify";
+import { axiosUser } from "../../api/axios";
 
-const libraries: Libraries = ["places"];
+// const libraries: Libraries = ["places"];
 
 const Home = () => {
   const location = useLocation();
@@ -48,10 +47,14 @@ const Home = () => {
 
   const profileRef = useRef<HTMLDivElement | null>(null);
 
-  const user = useSelector((state: RootState) => state.user.users);
+  const user = useSelector((state: RootState) => state.user.user);
 
   useEffect(() => {
-    console.log(user);
+    if (user) {
+      console.log(user?.[0].name);
+    } else {
+      console.log("user is undefined");
+    }
   }, [user]);
 
   const dispatch = useDispatch<AppDispatch>();
@@ -73,11 +76,11 @@ const Home = () => {
 
   // const [isLoad, setIsLoaded] = useState(false);
 
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: "AIzaSyApMFdRvD68YKbYHcfutZwPvh3I7kmvrE0",
-    libraries,
-  });
+  // const { isLoaded } = useJsApiLoader({
+  //   id: "google-map-script",
+  //   googleMapsApiKey: "AIzaSyApMFdRvD68YKbYHcfutZwPvh3I7kmvrE0",
+  //   libraries,
+  // });
 
   // useEffect(() => {
   //   setIsLoaded(isGoogleMapsLoaded);
@@ -116,12 +119,13 @@ const Home = () => {
   const [loggedIn, setloggedIn] = useState<boolean>(false);
 
   useEffect(() => {
-    if (Cookies.get("accessT")) {
+    if (user !== null || undefined) {
       setloggedIn(true);
+      console.log("user on home log in true");
     } else {
       false;
     }
-  }, []);
+  }, [user]);
 
   const [userImage, setUserImage] = useState<string | ArrayBuffer | null>(null);
 
@@ -138,7 +142,7 @@ const Home = () => {
     }
   };
   const handleupdateUserImage = useCallback(async () => {
-    const email = user[0]?.email;
+    const email = user?.[0].email;
     const imageSize = ((userImage as string).length * (3 / 4)) / 1024; // Convert base64 size to KB
     console.log("image size", imageSize);
 
@@ -148,7 +152,7 @@ const Home = () => {
       toast.error("Image size exceeds 120 KB.");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, user[0]?.email, userImage]);
+  }, [dispatch, user?.[0].email, userImage]);
 
   useEffect(() => {
     if (userImage) {
@@ -183,8 +187,8 @@ const Home = () => {
   const renderProfileImage = () => {
     const defaultImageUrl = filteredImageNotFound[0]?.image?.url;
     const userImageUrl =
-      typeof user[0]?.image === "object"
-        ? user[0]?.image?.url
+      typeof user?.[0].image === "object"
+        ? user?.[0].image?.url
         : defaultImageUrl;
 
     return (
@@ -231,16 +235,31 @@ const Home = () => {
       </div>
     );
   };
+
+  const logoutUser = async () => {
+    console.log("ruuns");
+
+    try {
+      const res = await axiosUser.post("/logout", { withCredentials: true });
+      console.log("log out", res);
+      dispatch(clearUserProfile());
+      localStorage.removeItem("expDate");
+      setOpenProfile(false);
+      window.location.replace("/  ");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
   const profileContent = useMemo(
     () => (
       <div className="flex gap-4">
         {renderProfileImage()}
         <div className="grid gap-1">
-          <p className="text-res-md-sm text-orange-400 dark:text-blue-600 self-baseline whitespace-nowrap">
-            {`${user[0]?.name} ${user[0]?.lastname}`}
+          <p className="text-res-md-sm text-orange-400 dark:text-blue-950 self-baseline whitespace-nowrap">
+            {`${user?.[0].name} ${user?.[0].lastname}`}
           </p>
-          <p className="text-res-sm text-orange-400 dark:text-blue-600">{`${user[0]?.gender}`}</p>
-          <p className="text-res-sm text-orange-400 dark:text-blue-600">{`${user[0]?.birthday}`}</p>
+          <p className="text-res-sm text-orange-400 dark:text-blue-950">{`${user?.[0].gender}`}</p>
+          <p className="text-res-sm text-orange-400 dark:text-blue-950">{`${user?.[0].birthday}`}</p>
         </div>
       </div>
     ),
@@ -489,7 +508,7 @@ const Home = () => {
                     className="flex justify-around  align-bottom
                             min-600:absolute min-600:-top-5 min-600:right-0 min-400:gap-4"
                   >
-                    {user && user[0]?.role === "admin" ? (
+                    {user && user?.[0].role === "admin" ? (
                       <Link to="/admin">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -551,8 +570,8 @@ const Home = () => {
                         >
                           <img
                             src={
-                              typeof user[0]?.image === "object"
-                                ? user[0]?.image.url
+                              typeof user?.[0].image === "object"
+                                ? user?.[0].image.url
                                 : filteredImageNotFound[0]?.image?.url
                             }
                             className="h-full rounded-full"
@@ -583,15 +602,7 @@ const Home = () => {
                             >
                               {profileContent}
                               <button
-                                onClick={() => {
-                                  Cookies.remove("accessT");
-                                  Cookies.remove("refreshT");
-                                  Cookies.remove("csrfT");
-                                  if (!Cookies.get("accessT")) {
-                                    setOpenProfile(false);
-                                    window.location.replace("/");
-                                  }
-                                }}
+                                onClick={logoutUser}
                                 className="bg-orange-400 p-2 rounded-md text-res-sm text-blue-600 dark:text-orange-400 dark:bg-blue-800"
                               >
                                 Log Out
@@ -704,7 +715,7 @@ const Home = () => {
                   </div>
                 </div>
                 <div className="w-full  rounded-lg overflow-hidden">
-                  {isLoaded ? <Map /> : "Loading"}
+                  {/* {isLoaded ? <Map /> : "Loading"} */}
                 </div>
               </div>
               <div className="flex flex-col w-full items-center mt-20 gap-4">

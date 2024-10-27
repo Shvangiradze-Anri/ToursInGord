@@ -1,56 +1,53 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import Cookies from "js-cookie";
-import { JwtPayload, jwtDecode } from "jwt-decode";
 import { axiosAdmin } from "../api/axios";
 import { toast } from "react-toastify";
 
-// Define the type for the user data
+interface UserImage {
+  url: string; // Add other properties as needed
+}
+
 interface User {
   _id: string;
   name: string;
   lastname: string;
   email: string;
-  password: string;
-  image: { url: string };
-  birthday: string;
+  password: string; // Consider excluding this from state if not needed
+  image: UserImage; // More specific type for image
   gender: string;
+  birthday: string;
   role: string;
+  __v: number;
 }
 
-// Define the initial state type
 interface UserState {
+  user: User[] | null;
   loading: boolean;
-  users: User[];
-  error: string;
+  error: string | null;
 }
 
 const initialState: UserState = {
+  user: null,
   loading: false,
-  users: [], // Initialize users as an empty array
-  error: "",
+  error: null,
 };
+
 export let cachedUser: User | null = null;
-// Define the async thunk to fetch users
-let usera = 1;
+
+// Define the async thunk to fetch user data
 export const fetchUser = createAsyncThunk("user/fetchUser", async () => {
   try {
-    if (cachedUser !== null) {
-      return cachedUser;
-    } else {
-      const token = Cookies.get("accessT");
-      console.log("fetch user : ", (usera += 1));
-      if (!token) {
-        throw new Error("Token not found in cookie");
-      }
-      const decodedToken: JwtPayload & User = jwtDecode(token);
-      cachedUser = decodedToken;
-      return decodedToken;
-    }
+    const response = await axiosAdmin.get("/user", {
+      withCredentials: true,
+    });
+    console.log(response.data);
+    return response.data; // Return user data from the server
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching user:", error);
+    throw error; // Rethrow the error for proper handling in rejected case
   }
 });
 
+// Async thunk for updating the user image
 export const updateUserImage = createAsyncThunk(
   "user/updateUserImage",
   async (
@@ -61,20 +58,9 @@ export const updateUserImage = createAsyncThunk(
     { dispatch }
   ) => {
     try {
-      const accessT = Cookies.get("accessT") as string;
-      const csrfToken = Cookies.get("csrfT");
-
-      const response = await axiosAdmin.put(
-        `/users/update/image/${email}`,
-        { userImage },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "CSRF-Token": csrfToken,
-            Authorization: `Bearer ${accessT}`,
-          },
-        }
-      );
+      const response = await axiosAdmin.put(`/users/update/image/${email}`, {
+        userImage,
+      });
 
       if (response.status !== 404 && response.data.length > 0) {
         cachedUser = null;
@@ -84,37 +70,56 @@ export const updateUserImage = createAsyncThunk(
         dispatch(fetchUser());
       }
     } catch (error) {
-      console.log(error);
-      throw error;
+      console.error("Error updating user image:", error);
+      toast.error("Failed to update user image."); // Notify the user
+      throw error; // Rethrow the error for proper handling
     }
   }
 );
 
-// Create the user slice
+// Async thunk for logging out the user
+export const logoutUser = createAsyncThunk(
+  "user/logoutUser",
+  async (_, { dispatch }) => {
+    try {
+      await axiosAdmin.post("/api/user/logout", {}, { withCredentials: true });
+      dispatch(clearUserProfile()); // Clears the user data from state
+      toast.success("Successfully logged out."); // Notify the user
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast.error("Logout failed."); // Notify the user
+      throw error; // Rethrow the error for proper handling
+    }
+  }
+);
+
+// Define the clearUserProfile reducer
 const userSlice = createSlice({
   name: "user",
   initialState,
-  reducers: {},
+  reducers: {
+    clearUserProfile(state) {
+      state.user = null; // Reset user profile
+      state.loading = false; // Reset loading state
+      state.error = null; // Reset error state
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchUser.pending, (state) => {
         state.loading = true;
-        state.error = "";
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
         state.loading = false;
-
-        state.users = [action.payload as User];
-
-        state.error = "";
+        state.user = action.payload; // Store user data in state
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.loading = false;
-        state.users = [];
-        state.error = action.error.message || "An error occurred";
+        state.error = action.error.message || "An error occurred"; // Handle error
       });
   },
 });
 
-// Export the async thunk and the slice reducer
-export default userSlice.reducer;
+// Export the action creator and slice reducer
+export const { clearUserProfile } = userSlice.actions; // Export the action creator
+export default userSlice.reducer; // Export the reducer

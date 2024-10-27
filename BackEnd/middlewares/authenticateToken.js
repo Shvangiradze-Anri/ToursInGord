@@ -1,15 +1,25 @@
 import jwt from "jsonwebtoken";
-import { csrfToken } from "../controllers/authControllers.js";
+import { csrfToken } from "./refreshToken.js";
 
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const csrfT = req.headers["csrf-token"];
-  if (authHeader && csrfToken === csrfT) {
-    const token = authHeader.split(" ")[1];
+  const token = req.cookies.accessT;
+  const csrfT = req.cookies.csrfT;
+  // console.log("Access Token from Cookies:", token);
 
+  if (!token) {
+    return res
+      .status(401)
+      .json({ message: "Access denied. No token provided." });
+  }
+  if (csrfT !== csrfToken) {
+    return res.status(401).json("You are not ablle to access on platform");
+  }
+  // Check if CSRF token matches
+  if (token) {
     jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user) => {
       if (err) {
-        return res.status(403).json("Token is not valid!");
+        console.error("JWT Error:", err);
+        return res.status(403).json("Token is not valid!sdnaldajldla");
       }
 
       req.user = user;

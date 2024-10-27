@@ -9,14 +9,11 @@ const Helmet = lazy(() =>
 );
 
 function UserData() {
-  const user = useSelector((state: RootState) => state.user.users);
+  const user = useSelector((state: RootState) => state.user.user);
   const queryClient = new QueryClient();
 
-  const isAdmin =
-    user &&
-    user.length > 0 &&
-    user[0].role === "admin" &&
-    location.pathname.startsWith("/admin");
+  const isAdmin = user;
+  user?.[0]?.role === "admin" && location.pathname.startsWith("/admin");
 
   return (
     <QueryClientProvider client={queryClient}>

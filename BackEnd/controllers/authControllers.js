@@ -5,6 +5,8 @@ import { Subscriber } from "../models/subscribers.js";
 import { hashePassword, comparedassword } from "../helpers/hashpass.js";
 import { cloudinary } from "../utils/cloudinary.js";
 import CryptoJS from "crypto-js";
+import refreshTokens from "../middlewares/refershtokens.js";
+import { csrfToken } from "../middlewares/refreshToken.js";
 
 const subscribers = async (req, res) => {
   try {
@@ -66,57 +68,6 @@ const registration = async (req, res) => {
   }
 };
 
-let refreshTokens = [];
-
-console.log(refreshTokens);
-
-const refreshToken = (req, res) => {
-  try {
-    const refreshToken = req.body.refreshToken;
-
-    if (!refreshToken) return res.status(401).json("You are not authenticated");
-    if (!refreshTokens.includes(refreshToken))
-      return res.status(403).json("Refresh token is not valid");
-    jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, (err, user) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json({ error: "Internal server error" });
-      }
-      refreshTokens = refreshTokens.filter(
-        (filteredToken) => filteredToken !== refreshToken
-      );
-
-      const newAccessToken = createAccessToken(user);
-      const newRefreshToken = createRefreshToken(user);
-      refreshTokens.push(newRefreshToken);
-
-      const domain = "localhost";
-
-      return res
-        .cookie("accessT", newAccessToken, {
-          httpOnly: false,
-          secure: false, // Enable only for HTTPS
-          sameSite: "lax", // Adjust based on your requirements
-          domain: domain,
-          path: "/",
-          expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-        })
-        .cookie("refreshT", newRefreshToken, {
-          httpOnly: false,
-          secure: false, // Enable only for HTTPS
-          sameSite: "lax", // Adjust based on your requirements
-          domain: domain,
-          path: "/",
-          expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-        })
-        .send("succeed");
-    });
-  } catch (error) {
-    console.log(error);
-    return res.json(error);
-  }
-};
-
 const createAccessToken = (user) => {
   return jwt.sign(
     {
@@ -144,10 +95,10 @@ const createRefreshToken = (user) => {
       birthday: user.birthday,
       role: user.role,
     },
-    process.env.JWT_REFRESH_KEY
+    process.env.JWT_REFRESH_KEY,
+    { expiresIn: "30d" }
   );
 };
-export let csrfToken = null;
 
 const logIn = async (req, res) => {
   const decryptData = (encryptedData, secretKey) => {
@@ -183,14 +134,12 @@ const logIn = async (req, res) => {
       const refreshT = createRefreshToken(user);
       refreshTokens.push(refreshT);
 
-      csrfToken = crypto.randomUUID();
-
       return res
         .cookie("accessT", accessT, {
           httpOnly: false,
           secure: false, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
-          domain: "localhost",
+          domain: "toursingord.netlify.app",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
@@ -198,7 +147,7 @@ const logIn = async (req, res) => {
           httpOnly: false,
           secure: false, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
-          domain: "localhost",
+          domain: "toursingord.netlify.app",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
@@ -206,11 +155,11 @@ const logIn = async (req, res) => {
           httpOnly: false,
           secure: false, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
-          domain: "localhost",
+          domain: "toursingord.netlify.app",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
-        .json({ message: "succeed" });
+        .json({ expDate: Date.now() + 10 * 1000 });
     }
 
     return res.json({ error: "Wrong password" }); // Use return to avoid further execution
@@ -219,7 +168,31 @@ const logIn = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" }); // Use return to avoid further execution
   }
 };
-
+const logOut = (req, res) => {
+  return res
+    .clearCookie("accessT", {
+      httpOnly: false,
+      secure: false, // Enable only for HTTPS
+      sameSite: "lax", // Adjust based on your requirements
+      domain: "toursingord.netlify.app",
+      path: "/",
+    })
+    .clearCookie("refreshT", {
+      httpOnly: false,
+      secure: false, // Enable only for HTTPS
+      sameSite: "lax", // Adjust based on your requirements
+      domain: "toursingord.netlify.app",
+      path: "/",
+    })
+    .clearCookie("csrfT", {
+      httpOnly: false,
+      secure: false, // Enable only for HTTPS
+      sameSite: "lax", // Adjust based on your requirements
+      domain: "toursingord.netlify.app",
+      path: "/",
+    })
+    .json({ expDate: 0 });
+};
 const newPassword = async (req, res) => {
   const decryptData = (encryptedData, codeSecretKey) => {
     try {
@@ -281,7 +254,7 @@ const uploadImagesByUser = async (req, res) => {
         const newRefreshToken = createRefreshToken(newUser);
         refreshTokens.push(newRefreshToken);
 
-        const domain = "localhost";
+        const domain = "toursingord.netlify.app";
 
         return res
           .cookie("accessT", newAccessToken, {
@@ -300,7 +273,7 @@ const uploadImagesByUser = async (req, res) => {
             path: "/",
             expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
           })
-          .status(200)
+          .json({ expDate: Date.now() + 10 * 1000 })
           .send("Image updated");
       } else {
         return res.status(404).send("User not found or no image provided");
@@ -319,6 +292,6 @@ export {
   registration,
   logIn,
   newPassword,
-  refreshToken,
   uploadImagesByUser,
+  logOut,
 };

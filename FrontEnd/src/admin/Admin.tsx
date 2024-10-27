@@ -10,7 +10,7 @@ const Helmet = lazy(() =>
 );
 
 function Admin() {
-  const user = useSelector((state: RootState) => state.user.users);
+  const user = useSelector((state: RootState) => state.user.user);
   const location = useLocation();
   const dispatch: AppDispatch = useDispatch();
 
@@ -25,10 +25,7 @@ function Admin() {
   }, [fetchUserMemoized]);
 
   const isAdmin =
-    user &&
-    user.length > 0 &&
-    user[0].role === "admin" &&
-    location.pathname.startsWith("/admin");
+    user && user[0].role === "admin" && location.pathname.startsWith("/admin");
 
   return (
     <Fragment>

@@ -1,6 +1,5 @@
 import { UseQueryOptions, useQuery } from "@tanstack/react-query";
 import EditUsers from "./editUser";
-import Cookies from "js-cookie";
 import { axiosAdmin } from "../../../api/axios";
 import { useCallback } from "react";
 
@@ -18,16 +17,7 @@ type User = {
 type FetchUsersResponse = User[];
 
 const fetchUsers = async (): Promise<FetchUsersResponse> => {
-  const accessT = Cookies.get("accessT");
-  const csrfToken = Cookies.get("csrfT");
-
-  const response = await axiosAdmin.get("/users", {
-    headers: {
-      "Content-Type": "application/json",
-      "CSRF-Token": csrfToken,
-      Authorization: `Bearer ${accessT}`,
-    },
-  });
+  const response = await axiosAdmin.get("/users");
   console.log(response?.data);
 
   return response?.data;
@@ -51,16 +41,8 @@ function FetchUsers() {
 
   const handleDelete = useCallback(
     async (id: string) => {
-      const accessT = Cookies.get("accessT");
-      const csrfToken = Cookies.get("csrfT");
       try {
-        const response = await axiosAdmin.delete(`/users/delete/${id}`, {
-          headers: {
-            "Content-Type": "application/json",
-            "CSRF-Token": csrfToken,
-            Authorization: `Bearer ${accessT}`,
-          },
-        });
+        const response = await axiosAdmin.delete(`/users/delete/${id}`);
 
         refetch();
         const { toast } = await import("react-toastify");

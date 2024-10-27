@@ -53,10 +53,13 @@ function LogIn() {
       });
 
       const { data } = response;
+      const expDate = data.expDate;
+      console.log("expdate from log in :", expDate);
 
       if (data.error) {
         toast.error(`${data.error}`);
       } else {
+        localStorage.setItem("expDate", expDate);
         setEmail("");
         setPassword("");
         window.location.replace("/");
