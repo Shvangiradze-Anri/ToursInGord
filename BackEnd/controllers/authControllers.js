@@ -139,7 +139,6 @@ const logIn = async (req, res) => {
           httpOnly: true,
           secure: true, // Enable only for HTTPS
           sameSite: "None", // Adjust based on your requirements
-          domain: "https://toursingord.netlify.app/",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
@@ -147,7 +146,6 @@ const logIn = async (req, res) => {
           httpOnly: true,
           secure: true, // Enable only for HTTPS
           sameSite: "None", // Adjust based on your requirements
-          domain: "https://toursingord.netlify.app/",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
@@ -155,7 +153,6 @@ const logIn = async (req, res) => {
           httpOnly: true,
           secure: true, // Enable only for HTTPS
           sameSite: "None", // Adjust based on your requirements
-          domain: "https://toursingord.netlify.app/",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
