@@ -61,7 +61,6 @@ const refreshToken = (req, res) => {
           httpOnly: true, // Make cookies HTTP only
           secure: true, // Enable for HTTPS in production
           sameSite: "None", // Adjust based on your requirements
-          domain: "https://toursingord.netlify.app/",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // Set expiration for 90 days
         })
@@ -69,7 +68,6 @@ const refreshToken = (req, res) => {
           httpOnly: true,
           secure: true,
           sameSite: "None",
-          domain: "https://toursingord.netlify.app/",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
@@ -77,7 +75,6 @@ const refreshToken = (req, res) => {
           httpOnly: true,
           secure: true, // Enable only for HTTPS
           sameSite: "None", // Adjust based on your requirements
-          domain: "https://toursingord.netlify.app/",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
