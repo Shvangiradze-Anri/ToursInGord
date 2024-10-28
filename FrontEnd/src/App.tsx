@@ -50,7 +50,7 @@ const App = () => {
 
   const refreshToken = async () => {
     try {
-      const res = await axiosUser.post("/refresh", { withCredentials: true });
+      const res = await axiosUser.post("/refresh");
       console.log("refreshtoken res", res);
       localStorage.setItem("expDate", res.data.expDate);
     } catch (err) {

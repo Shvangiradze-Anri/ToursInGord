@@ -80,7 +80,7 @@ const createAccessToken = (user) => {
       role: user.role,
     },
     process.env.JWT_SECRET_KEY,
-    { expiresIn: "10s" }
+    { expiresIn: "50s" }
   );
 };
 
@@ -159,7 +159,7 @@ const logIn = async (req, res) => {
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
-        .json({ expDate: Date.now() + 10 * 1000 });
+        .json({ expDate: Date.now() + 50 * 1000 });
     }
 
     return res.json({ error: "Wrong password" }); // Use return to avoid further execution
@@ -191,7 +191,7 @@ const logOut = (req, res) => {
       domain: "toursingord.netlify.app",
       path: "/",
     })
-    .json({ expDate: 0 });
+    .json({ expDate: undefined });
 };
 const newPassword = async (req, res) => {
   const decryptData = (encryptedData, codeSecretKey) => {
@@ -273,7 +273,7 @@ const uploadImagesByUser = async (req, res) => {
             path: "/",
             expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
           })
-          .json({ expDate: Date.now() + 10 * 1000 })
+          .json(expDate)
           .send("Image updated");
       } else {
         return res.status(404).send("User not found or no image provided");

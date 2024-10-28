@@ -36,9 +36,7 @@ export let cachedUser: User | null = null;
 // Define the async thunk to fetch user data
 export const fetchUser = createAsyncThunk("user/fetchUser", async () => {
   try {
-    const response = await axiosAdmin.get("/user", {
-      withCredentials: true,
-    });
+    const response = await axiosAdmin.get("/user");
     console.log(response.data);
     return response.data; // Return user data from the server
   } catch (error) {

@@ -13,7 +13,7 @@ const createAccessToken = (user) => {
       role: user.role,
     },
     process.env.JWT_SECRET_KEY,
-    { expiresIn: "10s" }
+    { expiresIn: "50s" }
   );
 };
 const createRefreshToken = (user) => {
@@ -58,30 +58,30 @@ const refreshToken = (req, res) => {
 
       return res
         .cookie("accessT", newAccessToken, {
-          httpOnly: true, // Make cookies HTTP only
-          secure: true, // Enable for HTTPS in production
+          httpOnly: false, // Make cookies HTTP only
+          secure: false, // Enable for HTTPS in production
           sameSite: "lax", // Adjust based on your requirements
           domain: "toursingord.netlify.app",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // Set expiration for 90 days
         })
         .cookie("refreshT", newRefreshToken, {
-          httpOnly: true,
-          secure: true,
+          httpOnly: false,
+          secure: false,
           sameSite: "lax",
           domain: "toursingord.netlify.app",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("csrfT", csrfToken, {
-          httpOnly: true,
-          secure: true, // Enable only for HTTPS
+          httpOnly: false,
+          secure: false, // Enable only for HTTPS
           sameSite: "lax", // Adjust based on your requirements
           domain: "toursingord.netlify.app",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
-        .json({ expDate: Date.now() + 10 * 1000 });
+        .json({ expDate: Date.now() + 50 * 1000 });
     });
   } catch (error) {
     console.error(error);
