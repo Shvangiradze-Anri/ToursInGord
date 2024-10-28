@@ -139,7 +139,7 @@ const logIn = async (req, res) => {
           httpOnly: true,
           secure: true, // Enable only for HTTPS
           sameSite: "None", // Adjust based on your requirements
-          domain: "toursingord.netlify.app",
+          domain: "https://toursingord.netlify.app/",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
@@ -147,7 +147,7 @@ const logIn = async (req, res) => {
           httpOnly: true,
           secure: true, // Enable only for HTTPS
           sameSite: "None", // Adjust based on your requirements
-          domain: "toursingord.netlify.app",
+          domain: "https://toursingord.netlify.app/",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
@@ -155,7 +155,7 @@ const logIn = async (req, res) => {
           httpOnly: true,
           secure: true, // Enable only for HTTPS
           sameSite: "None", // Adjust based on your requirements
-          domain: "toursingord.netlify.app",
+          domain: "https://toursingord.netlify.app/",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
@@ -174,21 +174,21 @@ const logOut = (req, res) => {
       httpOnly: true,
       secure: true, // Enable only for HTTPS
       sameSite: "None", // Adjust based on your requirements
-      domain: "toursingord.netlify.app",
+      domain: "https://toursingord.netlify.app/",
       path: "/",
     })
     .clearCookie("refreshT", {
       httpOnly: true,
       secure: true, // Enable only for HTTPS
       sameSite: "None", // Adjust based on your requirements
-      domain: "toursingord.netlify.app",
+      domain: "https://toursingord.netlify.app/",
       path: "/",
     })
     .clearCookie("csrfT", {
       httpOnly: true,
       secure: true, // Enable only for HTTPS
       sameSite: "None", // Adjust based on your requirements
-      domain: "toursingord.netlify.app",
+      domain: "https://toursingord.netlify.app/",
       path: "/",
     })
     .json({ expDate: undefined });
@@ -254,7 +254,7 @@ const uploadImagesByUser = async (req, res) => {
         const newRefreshToken = createRefreshToken(newUser);
         refreshTokens.push(newRefreshToken);
 
-        const domain = "toursingord.netlify.app";
+        const domain = "https://toursingord.netlify.app/";
 
         return res
           .cookie("accessT", newAccessToken, {
