@@ -4,7 +4,7 @@ import { csrfToken } from "./refreshToken.js";
 const authenticateToken = (req, res, next) => {
   const token = req.cookies.accessT;
   const csrfT = req.cookies.csrfT;
-  // console.log("Access Token from Cookies:", token);
+  console.log("Access Token from Cookies:", token);
 
   if (!token) {
     return res
