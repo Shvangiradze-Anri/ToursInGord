@@ -138,21 +138,21 @@ const logIn = async (req, res) => {
         .cookie("accessT", accessT, {
           httpOnly: true,
           secure: true, // Enable only for HTTPS
-          sameSite: "lax", // Adjust based on your requirements
+          sameSite: "None", // Adjust based on your requirements
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("refreshT", refreshT, {
           httpOnly: true,
           secure: true, // Enable only for HTTPS
-          sameSite: "lax", // Adjust based on your requirements
+          sameSite: "None", // Adjust based on your requirements
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("csrfT", csrfToken, {
           httpOnly: true,
           secure: true, // Enable only for HTTPS
-          sameSite: "lax", // Adjust based on your requirements
+          sameSite: "None", // Adjust based on your requirements
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
