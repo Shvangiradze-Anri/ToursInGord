@@ -27,16 +27,27 @@ const CarouselItems: React.FC<Images> = ({ items, image }) => {
   const handleDelete = useCallback(
     (imageToDelete: Image) => {
       console.log("Image to delete:", imageToDelete);
-      import("../../../redux/getImages").then(({ deleteImage }) => {
-        dispatch(deleteImage(imageToDelete));
-      });
+
+      const performDelete = async () => {
+        try {
+          const { deleteImage, fetchImages } = await import(
+            "../../../redux/getImages"
+          );
+          await dispatch(deleteImage(imageToDelete));
+          dispatch(fetchImages(imageToDelete.page));
+        } catch (error) {
+          console.error("Failed to delete image:", error);
+        }
+      };
+
+      performDelete();
     },
-    [dispatch] // Dependencies
+    [dispatch] // Make sure to include any other dependencies if needed
   );
 
   // Memoize the user role and pathname check to optimize conditional rendering
   const isAdminPage = useMemo(
-    () => user?.[0]?.role === "admin" && location.pathname.startsWith("/admin"),
+    () => user?.role === "admin" && location.pathname.startsWith("/admin"),
     [user, location.pathname]
   );
 
@@ -89,7 +100,13 @@ const CarouselItems: React.FC<Images> = ({ items, image }) => {
           />
         </svg>
       ) : null}
-      <img src={items?.url} alt="Tour Images" className="w-full h-full" />
+      <img
+        loading="lazy"
+        decoding="async"
+        src={items?.url}
+        alt="Tour Images"
+        className="w-full h-full"
+      />
     </div>
   );
 };

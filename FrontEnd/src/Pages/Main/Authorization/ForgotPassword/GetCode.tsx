@@ -18,29 +18,6 @@ const Helmet = lazy(() =>
 );
 
 function GetCode() {
-  type Image = {
-    id: number;
-    image: {
-      url: string;
-    };
-    page: string;
-  };
-
-  type ImagesState = {
-    loading: boolean;
-    images: Image[];
-    error: string | null;
-  };
-  const { images } = useSelector(
-    (state: { images: ImagesState }) => state.images
-  );
-
-  const filteredImagesAuth = useMemo(() => {
-    const filteredL = images.filter((item) => item.page === "authbgl");
-    const filteredD = images.filter((item) => item.page === "authbgd");
-    return { light: filteredL, dark: filteredD };
-  }, [images]);
-
   const codeRef = useRef<HTMLInputElement | null>(null);
 
   const darkMode = useSelector((state: RootState) => state.theme.darkMode);
@@ -98,14 +75,16 @@ function GetCode() {
       );
     }
   };
-  const backgroundImage = useMemo(
-    () =>
+  const backgroundImages = useMemo(() => {
+    const getMainImageUrl = () =>
       darkMode
-        ? `url(${filteredImagesAuth.dark[0]?.image.url})`
-        : `url(${filteredImagesAuth.light[0]?.image.url})`,
-    [darkMode, filteredImagesAuth]
-  );
+        ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1726513496/Site%20Images/sizukkags7wsoqh8hl17.jpg"
+        : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1726513492/Site%20Images/otjl6yqje0ds0dcda3ap.jpg";
 
+    return {
+      image: getMainImageUrl(),
+    };
+  }, [darkMode]);
   return (
     <Fragment>
       <Suspense fallback={<div>Loading Helmet...</div>}>
@@ -115,7 +94,7 @@ function GetCode() {
         </Helmet>
       </Suspense>
       <div
-        style={{ backgroundImage }}
+        style={{ backgroundImage: `url(${backgroundImages?.image})` }}
         className="grid place-items-center  h-[100dvh] bg-cover bg-center bg-no-repeat  px-4 min-700:px-12 min-900:px-28 bg-white dark:bg-black"
       >
         <form

@@ -1,7 +1,6 @@
-import { Fragment, lazy, Suspense } from "react";
-const Helmet = lazy(() =>
-  import("react-helmet-async").then((module) => ({ default: module.Helmet }))
-);
+import { Fragment, Suspense } from "react";
+import { Helmet } from "react-helmet-async";
+
 function Bucket() {
   return (
     <Fragment>

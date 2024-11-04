@@ -1,31 +1,17 @@
-import { Fragment, useCallback, useEffect, Suspense, lazy } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { Fragment, Suspense } from "react";
+import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
-import { AppDispatch, RootState } from "../redux/redux";
-import { fetchUser } from "../redux/getUser";
-
-// Dynamic imports using React.lazy
-const Helmet = lazy(() =>
-  import("react-helmet-async").then((module) => ({ default: module.Helmet }))
-);
+import { RootState } from "../redux/redux";
+import { Helmet } from "react-helmet-async";
 
 function Admin() {
   const user = useSelector((state: RootState) => state.user.user);
+  console.log("admin user", user);
+
   const location = useLocation();
-  const dispatch: AppDispatch = useDispatch();
-
-  // Memoizing fetchUser function
-  const fetchUserMemoized = useCallback(() => {
-    dispatch(fetchUser());
-  }, [dispatch]);
-
-  // Re-fetching user data when component mounts or when user data changes
-  useEffect(() => {
-    fetchUserMemoized();
-  }, [fetchUserMemoized]);
 
   const isAdmin =
-    user && user[0].role === "admin" && location.pathname.startsWith("/admin");
+    user && user.role === "admin" && location.pathname.startsWith("/admin");
 
   return (
     <Fragment>

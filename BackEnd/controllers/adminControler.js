@@ -1,4 +1,4 @@
-import { Images } from "../models/ImagesData.js";
+import { Galleryimage, Hotelimage, Tourimage } from "../models/ImagesData.js";
 import { User } from "../models/user.js";
 import { cloudinary } from "../utils/cloudinary.js";
 import { hashePassword } from "../helpers/hashpass.js";
@@ -8,104 +8,141 @@ const uploadImages = async (req, res) => {
   try {
     const { image, page } = req.body;
 
-    const images = await Images.find({ url: image });
+    // Verify `page` and upload image to Cloudinary
+    let ImageModel;
+    if (page === "tour") {
+      ImageModel = Tourimage;
+    } else if (page === "gallery") {
+      ImageModel = Galleryimage;
+    } else if (page === "hotel") {
+      ImageModel = Hotelimage;
+    } else {
+      // Invalid page value
+      return res.status(400).json({ error: "Invalid page value" });
+    }
 
-    if (images) {
-      const cloudRes = await cloudinary.uploader.upload(image, {
-        upload_preset: "site_images_preset",
+    // Upload image to Cloudinary if not found or proceed with duplicate logic if needed
+    const cloudRes = await cloudinary.uploader.upload(image, {
+      upload_preset: "site_images_preset",
+    });
+
+    if (cloudRes) {
+      // Save new image in the database
+      const newImage = new ImageModel({
+        image: {
+          public_id: cloudRes.public_id,
+          url: cloudRes.secure_url,
+        },
+        page,
       });
-      if (cloudRes) {
-        const Image = new Images({
-          image: {
-            public_id: cloudRes.public_id,
-            url: cloudRes.secure_url,
-          },
-          page,
-        });
-        const saveImage = await Image.save();
+      const savedImage = await newImage.save();
 
-        res.setHeader("Content-Type", "application/json");
-        res.setHeader("Cache-Control", "public, max-age=7776000000");
+      // Set headers and send response
+      res.setHeader("Content-Type", "application/json");
+      res.setHeader("Cache-Control", "public, max-age=7776000000");
 
-        res.status(200).send(saveImage);
-      }
+      return res.status(200).send(savedImage);
+    } else {
+      return res.status(500).json({ error: "Cloudinary upload failed" });
     }
   } catch (error) {
     if (error.message && error.message.includes("request entity too large")) {
-      return res.status(413).send({
-        error: "Image size is large.",
+      return res.status(413).json({
+        error: "Image size is too large.",
       });
     }
-    res.status(500).send({
+    console.error("Error during image upload:", error);
+    res.status(500).json({
       error: "An error occurred while uploading the image. Please try again.",
     });
   }
 };
 
-let cachedImages = null;
-const CACHE_DURATION_MS = 7776000000;
-let cacheTimestamp = null;
-
-const listenForChanges = () => {
-  const changeStream = Images.watch();
-
-  changeStream.on("change", async (change) => {
-    try {
-      invalidateCache();
-      console.log("changeeeeed");
-    } catch (error) {
-      console.log(error);
-    }
-  });
-};
-
-const getImages = async (req, res) => {
+const getTourImages = async (req, res) => {
   try {
-    const currentTime = Date.now();
-
-    // Check if cache is valid
-    if (cachedImages && currentTime - cacheTimestamp < CACHE_DURATION_MS) {
-      return res.json(cachedImages);
-    }
-
-    // Fetch images from database
-    const images = await Images.find();
-    updateCache(images);
+    const images = await Tourimage.find(); // Fetches fresh data each time
 
     res.setHeader("Content-Type", "application/json");
-    res.setHeader("Cache-Control", "public, max-age=7776000000");
-
+    res.setHeader("Cache-Control", "no-store"); // Prevents caching on client side
     res.json(images);
   } catch (error) {
+    console.error("Error fetching tour images:", error);
     res.status(500).send("Internal Server Error");
   }
 };
 
-const updateCache = (images) => {
-  cachedImages = images;
-  cacheTimestamp = Date.now();
+const getGalleryImages = async (req, res) => {
+  try {
+    const images = await Galleryimage.find(); // Fetches fresh data each time
+
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Cache-Control", "no-store"); // Prevents caching on client side
+    res.json(images);
+  } catch (error) {
+    console.error("Error fetching tour images:", error);
+    res.status(500).send("Internal Server Error");
+  }
 };
 
-const invalidateCache = () => {
-  cachedImages = null;
-  cacheTimestamp = null;
-};
+const getHotelImages = async (req, res) => {
+  try {
+    const images = await Hotelimage.find(); // Fetches fresh data each time
 
-listenForChanges();
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Cache-Control", "no-store"); // Prevents caching on client side
+    res.json(images);
+  } catch (error) {
+    console.error("Error fetching tour images:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
 
 const deleteImage = async (req, res) => {
   try {
-    console.log(req.params); // Should show _id
-    const image = await Images.findById(req.params._id);
-    if (!image) return res.status(404).send("Image not found");
+    const { page } = req.query; // Extract the page parameter
+    console.log(page);
 
-    const publicId = image.image.public_id;
-    const destroyResponse = await cloudinary.uploader.destroy(publicId);
+    if (page) {
+      let deleteImageDb;
 
-    if (destroyResponse.result === "ok") {
-      const deleteImageDb = await Images.findOneAndDelete({
-        _id: req.params._id,
-      });
+      // Check the page type and delete from the correct collection
+      if (page === "tour") {
+        const image = await Tourimage.findById(req.params._id);
+        if (!image) return res.status(404).send("Image not found");
+
+        const destroyResponse = await cloudinary.uploader.destroy(
+          image.image.public_id
+        );
+        if (destroyResponse)
+          deleteImageDb = await Tourimage.findByIdAndDelete(req.params._id);
+      } else if (page === "gallery") {
+        const image = await Galleryimage.findById(req.params._id);
+        if (!image) return res.status(404).send("Image not found");
+
+        const destroyResponse = await cloudinary.uploader.destroy(
+          image.image.public_id
+        );
+        if (destroyResponse)
+          deleteImageDb = await Galleryimage.findByIdAndDelete(req.params._id);
+      } else if (page === "hotel") {
+        const image = await Hotelimage.findById(req.params._id);
+        if (!image) return res.status(404).send("Image not found");
+
+        const destroyResponse = await cloudinary.uploader.destroy(
+          image.image.public_id
+        );
+        if (destroyResponse)
+          deleteImageDb = await Hotelimage.findByIdAndDelete(req.params._id);
+      } else {
+        return res.status(400).send("Invalid page type");
+      }
+
+      if (!deleteImageDb) {
+        return res
+          .status(404)
+          .send("Image not found in the specified collection");
+      }
+
       res.status(200).send(deleteImageDb);
     } else {
       console.log("Failed to delete image from Cloudinary");
@@ -117,8 +154,9 @@ const deleteImage = async (req, res) => {
   }
 };
 
-const getUsers = async (req, res) => {
+const adminusers = async (req, res) => {
   try {
+    if (!req.user) res.send("you are not authenticated");
     const users = await User.find().select("-password");
 
     res.status(200).send(users);
@@ -127,9 +165,21 @@ const getUsers = async (req, res) => {
     res.status(500).send(error);
   }
 };
+
+// let counter = 0;
 const getUser = async (req, res) => {
   try {
-    const user = await User.find().select("-password");
+    // Use an object with the email field as a filter
+    const user = await User.findOne({ email: req.user.email }).select(
+      "-password"
+    );
+    // if (user) {
+    //   console.log(`get User  ${counter++} : `, user);
+    // }
+
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
 
     res.status(200).send(user);
   } catch (error) {
@@ -211,9 +261,11 @@ const updateUser = async (req, res) => {
 };
 
 export {
+  getTourImages,
+  getGalleryImages,
+  getHotelImages,
   uploadImages,
-  getImages,
-  getUsers,
+  adminusers,
   getUser,
   deleteImage,
   deleteUser,

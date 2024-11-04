@@ -1,17 +1,19 @@
 import { configureStore } from "@reduxjs/toolkit";
 import themeMode from "./theme";
 import componentsRef from "./componentRef";
-import userReducer from "./getUser";
+import userSlice from "./getUser";
 import fetchImages from "./getImages";
 import csrfToken from "./csrf";
+import adminUserSlice from "./getAdminUsers";
 
 const store = configureStore({
   reducer: {
     theme: themeMode,
     getComponentsRef: componentsRef,
-    user: userReducer,
+    user: userSlice,
     images: fetchImages,
     csrfToken: csrfToken,
+    adminUsers: adminUserSlice,
   },
 });
 

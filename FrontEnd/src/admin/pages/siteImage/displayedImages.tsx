@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ThreeDots } from "react-loader-spinner";
 import { AppDispatch } from "../../../redux/redux";
 import { toast } from "react-toastify";
+import { fetchImages } from "../../../redux/getImages";
 
 // Dynamically import CarouselItems
 const CarouselItems = lazy(
@@ -41,10 +42,13 @@ function DisplayedImages({ page }: Page) {
 
   const dispatch = useDispatch<AppDispatch>();
 
+  useEffect(() => {
+    dispatch(fetchImages(page));
+  }, [dispatch, page]);
+
   const { loading, images, error } = useSelector(
     (state: { images: ImagesState }) => state.images
   );
-  console.log("DISPLAY IMAGES", error);
 
   const transformFile = (file: File | undefined) => {
     const reader = new FileReader();

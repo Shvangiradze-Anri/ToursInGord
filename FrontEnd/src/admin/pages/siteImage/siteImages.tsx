@@ -1,12 +1,10 @@
-import { Fragment, Suspense, lazy } from "react";
+import { Fragment, Suspense } from "react";
 import { useSelector } from "react-redux";
 import { Link, Outlet } from "react-router-dom";
 import { RootState } from "../../../redux/redux";
+import { Helmet } from "react-helmet-async";
 
 // Dynamically import Helmet
-const Helmet = lazy(() =>
-  import("react-helmet-async").then((module) => ({ default: module.Helmet }))
-);
 
 function SiteImages() {
   const user = useSelector((state: RootState) => state.user.user);
@@ -22,7 +20,7 @@ function SiteImages() {
       </Suspense>
       <section>
         {user &&
-        user[0].role === "admin" &&
+        user.role === "admin" &&
         location.pathname.startsWith("/admin") ? (
           <div className="flex flex-col min-h-[100dvh] bg-sky-600 dark:bg-purple-950">
             <div className="grid place-items-center h-fit p-4 min-800:p-6">

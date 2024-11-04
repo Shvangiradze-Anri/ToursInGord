@@ -1,10 +1,10 @@
 import Home from "./Pages/Main/Home";
-import { useDispatch, useSelector } from "react-redux";
-import { Fragment, lazy, useEffect, useState } from "react";
-import { fetchImages } from "./redux/getImages";
-import { fetchUser } from "./redux/getUser"; // Combined imports
+import { Fragment, lazy, useEffect } from "react";
+
 import { axiosAdmin, axiosUser } from "./api/axios";
+import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./redux/redux";
+import { fetchUser } from "./redux/getUser";
 
 // Lazy load Helmet for optimization
 const Helmet = lazy(() =>
@@ -12,36 +12,21 @@ const Helmet = lazy(() =>
 );
 
 const App = () => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<null | string>(null);
+  const { user, loading, error } = useSelector(
+    (state: RootState) => state.user
+  );
 
-  const dispatch: AppDispatch = useDispatch();
-  const user = useSelector((state: RootState) => state.user.user);
-
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        // Fetch images
-        await dispatch(fetchImages());
-      } catch (err) {
-        setError("Failed to load data");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchInitialData();
-  }, [dispatch]);
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     const fetchInitialData = async () => {
       const expDate = localStorage.getItem("expDate");
       try {
-        if (!user && expDate && expDate !== undefined) {
+        if (!user && expDate) {
           await dispatch(fetchUser());
         }
       } catch (err) {
         console.error("Fetch error:", err);
-        setError("Failed to load data");
       }
     };
 

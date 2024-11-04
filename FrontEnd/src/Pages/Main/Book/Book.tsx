@@ -1,8 +1,5 @@
-import { Fragment, lazy, Suspense, useEffect, useState } from "react";
-import { toast } from "react-toastify";
-const Helmet = lazy(() =>
-  import("react-helmet-async").then((module) => ({ default: module.Helmet }))
-);
+import { Fragment, Suspense, useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 
 function Book() {
   const [group, setGroup] = useState<boolean>(false);
@@ -142,7 +139,7 @@ function Book() {
                     max={10}
                     value={membersAmount || ""} // Bind the input to the state
                     className="px-3 py-2 rounded-lg bg-transparent border-2 border-[#ffbc69] dark:border-blue-950 outline-none !text-black dark:!text-white"
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       // Parse the number from the input
                       const numberValue = e.target.valueAsNumber;
 
@@ -150,6 +147,8 @@ function Book() {
                       const validationMessage =
                         validatePersonsInput(numberValue);
                       if (typeof validationMessage === "string") {
+                        const { toast } = await import("react-toastify");
+
                         toast.error(validationMessage); // Show validation error
                         setMembersAmount(numberValue);
                       } else {

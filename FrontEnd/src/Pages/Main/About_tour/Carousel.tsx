@@ -1,38 +1,81 @@
-import { useMemo, useState, Suspense, lazy } from "react";
-import { RootState } from "../../../redux/redux";
-import { useSelector } from "react-redux";
+import {
+  useMemo,
+  useState,
+  Suspense,
+  useCallback,
+  useEffect,
+  lazy,
+} from "react";
+
+import { axiosUser } from "../../../api/axios";
+const CarouselItems = lazy(() => import("./CarouselItems"));
 
 function Carousel() {
-  // Dynamically import `useSelector` from `react-redux`
-  const { images, error } = useSelector((state: RootState) => state.images);
+  type Image = {
+    _id: string;
+    image: {
+      public_id: string;
+      url: string;
+    };
+    page: string;
+  };
 
-  const CarouselItems = lazy(() => import("./CarouselItems"));
+  type ImagesState = {
+    loading: boolean;
+    images: Image[];
+    error: string | null;
+  };
 
-  const filteredImages = useMemo(() => {
-    const tourImages = [];
-    const notFoundImages = [];
+  const [tourImages, setTourImages] = useState<ImagesState>({
+    loading: true,
+    images: [],
+    error: null,
+  });
 
-    for (const item of images) {
-      if (item.page === "tour") {
-        tourImages.push(item);
-      } else if (item.page === "imagenotfound") {
-        notFoundImages.push(item);
+  useEffect(() => {
+    const fetchHotelImages = async () => {
+      try {
+        const response = await axiosUser.get("/tourimages");
+        setTourImages({
+          loading: false,
+          images: response.data,
+          error: null,
+        });
+      } catch (err) {
+        setTourImages({
+          loading: false,
+          images: [],
+          error: "Failed to load hotel images",
+        });
       }
-    }
+    };
 
-    return { tour: tourImages, notFound: notFoundImages };
-  }, [images]);
+    fetchHotelImages();
+  }, []);
+
+  const filteredImageNotFound = {
+    public_id: "not_found",
+    url: "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730293799/Site%20Images/istockphoto-1409329028-612x612_bvpfff.jpg",
+  };
+
+  const memoizedTourImages = useMemo(
+    () => tourImages.images,
+    [tourImages.images]
+  );
 
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const updateIndex = (newIndex: number) => {
-    if (newIndex < 0) {
-      newIndex = 0;
-    } else if (newIndex >= filteredImages.tour.length) {
-      newIndex = filteredImages.tour.length - 1;
-    }
-    setActiveIndex(newIndex);
-  };
+  const updateIndex = useCallback(
+    (newIndex: number) => {
+      if (newIndex < 0) {
+        newIndex = 0;
+      } else if (newIndex >= memoizedTourImages.length) {
+        newIndex = memoizedTourImages.length - 1;
+      }
+      setActiveIndex(newIndex);
+    },
+    [memoizedTourImages.length]
+  );
 
   return (
     <div className="flex flex-col gap-y-2 h-min justify-center rounded-2xl overflow-hidden w-full min-400:w-4/5 min-700:w-3/4 min-800:w-2/3 min-900:w-[35rem]">
@@ -41,17 +84,15 @@ function Carousel() {
         className="whitespace-nowrap transition-transform duration-300 [&>div]:inline-flex"
       >
         <Suspense fallback={<div>Loading...</div>}>
-          {!error && filteredImages.tour.length > 0 ? (
-            filteredImages.tour.map((item, index) => (
+          {!tourImages.error && memoizedTourImages.length > 0 ? (
+            memoizedTourImages.map((item) => (
               <CarouselItems
-                key={index} // Using index as key
-                items={
-                  item.image ? item.image : filteredImages.notFound[0]?.image
-                }
+                key={item._id} // Using _id as key
+                items={item.image ? item.image : filteredImageNotFound} // Pass only the URL
               />
             ))
           ) : (
-            <CarouselItems key={0} items={filteredImages.notFound[0]?.image} />
+            <CarouselItems items={filteredImageNotFound} />
           )}
         </Suspense>
       </div>
@@ -89,13 +130,13 @@ function Carousel() {
             <path
               d="M2.25 12C2.25 11.5858 2.58579 11.25 3 11.25H21C21.4142 11.25 21.75 11.5858 21.75 12C21.75 12.4142 21.4142 12.75 21 12.75H3C2.58579 12.75 2.25 12.4142 2.25 12Z"
               fill={
-                activeIndex >= filteredImages.tour.length - 1 ? "grey" : "white"
+                activeIndex >= memoizedTourImages.length - 1 ? "grey" : "white"
               }
             />
             <path
               d="M14.4697 5.46967C14.7626 5.17678 15.2374 5.17678 15.5303 5.46967L21.5303 11.4697C21.8232 11.7626 21.8232 12.2374 21.5303 12.5303L15.5303 18.5303C15.2374 18.8232 14.7626 18.8232 14.4697 18.5303C14.1768 18.2374 14.1768 17.7626 14.4697 17.4697L19.9393 12L14.4697 6.53033C14.1768 6.23744 14.1768 5.76256 14.4697 5.46967Z"
               fill={
-                activeIndex >= filteredImages.tour.length - 1 ? "grey" : "white"
+                activeIndex >= memoizedTourImages.length - 1 ? "grey" : "white"
               }
             />
           </svg>

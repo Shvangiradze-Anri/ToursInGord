@@ -1,5 +1,5 @@
-import { Fragment } from "react";
-import Carouserl from "./Carouserl";
+import { Fragment, lazy } from "react";
+const Carouserl = lazy(() => import("./Carouserl"));
 
 function Hotel() {
   return (

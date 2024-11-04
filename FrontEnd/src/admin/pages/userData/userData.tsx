@@ -1,29 +1,24 @@
 import { useSelector } from "react-redux";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import FetchUsers from "./fetchUsers";
+import FetchAdminUsers from "./fetchAdminUsers";
 import { RootState } from "../../../redux/redux";
-import { lazy } from "react";
-
-const Helmet = lazy(() =>
-  import("react-helmet-async").then((module) => ({ default: module.Helmet }))
-);
+import { Helmet } from "react-helmet-async";
 
 function UserData() {
   const user = useSelector((state: RootState) => state.user.user);
-  const queryClient = new QueryClient();
+  console.log(user);
 
   const isAdmin = user;
-  user?.[0]?.role === "admin" && location.pathname.startsWith("/admin");
+  user?.role === "admin" && location.pathname.startsWith("/admin");
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <section>
       <Helmet>
         <title>User Data</title>
         <meta name="description" content="Users data" />
         <link rel="canonical" href="/UsersData" />
       </Helmet>
       {isAdmin ? (
-        <section className="bg-sky-500 dark:bg-purple-700 min-h-[100dvh] p-4 min-800:p-6">
+        <div className="bg-sky-500 dark:bg-purple-700 min-h-[100dvh] p-4 min-800:p-6">
           <div className="place-items-center">
             <div className="w-full">
               <div className="grid justify-center text-res-base">
@@ -47,14 +42,14 @@ function UserData() {
                       </th>
                     </tr>
                   </thead>
-                  <FetchUsers />
+                  <FetchAdminUsers />
                 </table>
               </div>
             </div>
           </div>
-        </section>
+        </div>
       ) : null}
-    </QueryClientProvider>
+    </section>
   );
 }
 

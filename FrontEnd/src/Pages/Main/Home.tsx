@@ -8,28 +8,14 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { clearUserProfile, updateUserImage } from "../../redux/getUser";
 
 import { useDispatch, useSelector } from "react-redux";
 import useWindowResize from "../../Hooks/useWindowResize";
 import Aside from "../../Components/Aside/Aside";
 
-import facebookLight from "../../public/images/Footer/FACEBOOK-light.png";
-import facebookDark from "../../public/images/Footer/FACEBOOK.png";
-
-import instagramLIght from "../../public/images/Footer/INSTAGRAM-light.png";
-import instagramDark from "../../public/images/Footer/INSTAGRAM.png";
-
-import tiktokLight from "../../public/images/Footer/TikTok-light.png";
-import tiktokDark from "../../public/images/Footer/TIKTOK.png";
-
-import gmailLight from "../../public/images/Footer/Gmail-light.png";
-import gmailDark from "../../public/images/Footer/GMAIL.png";
-
 // import Map from "../../Components/Footer/Map";
 // import { Libraries, useJsApiLoader } from "@react-google-maps/api";
 import { AppDispatch, RootState } from "../../redux/redux";
-import { toast } from "react-toastify";
 import { axiosUser } from "../../api/axios";
 
 // const libraries: Libraries = ["places"];
@@ -48,14 +34,6 @@ const Home = () => {
   const profileRef = useRef<HTMLDivElement | null>(null);
 
   const user = useSelector((state: RootState) => state.user.user);
-
-  useEffect(() => {
-    if (user) {
-      console.log(user?.[0].name);
-    } else {
-      console.log("user is undefined");
-    }
-  }, [user]);
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -121,7 +99,6 @@ const Home = () => {
   useEffect(() => {
     if (user !== null || undefined) {
       setloggedIn(true);
-      console.log("user on home log in true");
     } else {
       false;
     }
@@ -142,17 +119,21 @@ const Home = () => {
     }
   };
   const handleupdateUserImage = useCallback(async () => {
-    const email = user?.[0].email;
+    const email = user?.email;
     const imageSize = ((userImage as string).length * (3 / 4)) / 1024; // Convert base64 size to KB
     console.log("image size", imageSize);
 
     if (email && userImage && imageSize <= 120) {
+      const { updateUserImage } = await import("../../redux/getUser");
+
       dispatch(updateUserImage({ email, userImage }));
     } else {
-      toast.error("Image size exceeds 120 KB.");
+      import("react-toastify").then(({ toast }) =>
+        toast.error("Image size exceeds 120 KB.")
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, user?.[0].email, userImage]);
+  }, [dispatch, user?.email, userImage]);
 
   useEffect(() => {
     if (userImage) {
@@ -161,35 +142,12 @@ const Home = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userImage]);
 
-  type Image = {
-    id: number;
-    image: {
-      url: string;
-    };
-    page: string;
-  };
-
-  type ImagesState = {
-    loading: boolean;
-    images: Image[];
-    error: string | null;
-  };
-
-  const { images } = useSelector(
-    (state: { images: ImagesState }) => state.images
-  );
-
-  const filteredImageNotFound = useMemo(
-    () =>
-      images ? images.filter((item) => item?.page === "imagenotfound") : [],
-    [images]
-  );
+  const filteredImageNotFound =
+    "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730293799/Site%20Images/istockphoto-1409329028-612x612_bvpfff.jpg";
   const renderProfileImage = () => {
-    const defaultImageUrl = filteredImageNotFound[0]?.image?.url;
+    const defaultImageUrl = filteredImageNotFound;
     const userImageUrl =
-      typeof user?.[0].image === "object"
-        ? user?.[0].image?.url
-        : defaultImageUrl;
+      typeof user?.image === "object" ? user?.image?.url : defaultImageUrl;
 
     return (
       <div className="relative w-14 h-14">
@@ -228,6 +186,8 @@ const Home = () => {
           />
         </div>
         <img
+          loading="lazy"
+          decoding="async"
           src={userImageUrl}
           className="w-full h-full aspect-video rounded-full"
           alt="Profile Image"
@@ -240,8 +200,10 @@ const Home = () => {
     console.log("ruuns");
 
     try {
-      const res = await axiosUser.post("/logout", { withCredentials: true });
+      const res = await axiosUser.post("/logout");
       console.log("log out", res);
+      const { clearUserProfile } = await import("../../redux/getUser");
+
       dispatch(clearUserProfile());
       localStorage.removeItem("expDate");
       setOpenProfile(false);
@@ -256,10 +218,10 @@ const Home = () => {
         {renderProfileImage()}
         <div className="grid gap-1">
           <p className="text-res-md-sm text-orange-400 dark:text-blue-950 self-baseline whitespace-nowrap">
-            {`${user?.[0].name} ${user?.[0].lastname}`}
+            {`${user?.name} ${user?.lastname}`}
           </p>
-          <p className="text-res-sm text-orange-400 dark:text-blue-950">{`${user?.[0].gender}`}</p>
-          <p className="text-res-sm text-orange-400 dark:text-blue-950">{`${user?.[0].birthday}`}</p>
+          <p className="text-res-sm text-orange-400 dark:text-blue-950">{`${user?.gender}`}</p>
+          <p className="text-res-sm text-orange-400 dark:text-blue-950">{`${user?.birthday}`}</p>
         </div>
       </div>
     ),
@@ -508,7 +470,7 @@ const Home = () => {
                     className="flex justify-around  align-bottom
                             min-600:absolute min-600:-top-5 min-600:right-0 min-400:gap-4"
                   >
-                    {user && user?.[0].role === "admin" ? (
+                    {user && user?.role === "admin" ? (
                       <Link to="/admin">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -569,10 +531,12 @@ const Home = () => {
                           className="h-full cursor-pointer"
                         >
                           <img
+                            loading="lazy"
+                            decoding="async"
                             src={
-                              typeof user?.[0].image === "object"
-                                ? user?.[0].image.url
-                                : filteredImageNotFound[0]?.image?.url
+                              typeof user?.image === "object"
+                                ? user?.image.url
+                                : filteredImageNotFound
                             }
                             className="h-full rounded-full"
                             alt="Profile Image"
@@ -693,22 +657,46 @@ const Home = () => {
                   </div>
                   <div className="flex gap-6  w-fit [&>img]:cursor-pointer  min-900:[&>img]:w-10">
                     <img
-                      src={darkMode ? `${facebookDark}` : `${facebookLight}`}
+                      loading="lazy"
+                      decoding="async"
+                      src={
+                        darkMode
+                          ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664581/Site%20Images/FACEBOOK_cptuqr.png"
+                          : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664602/Site%20Images/FACEBOOK-light_ktkwi0.png"
+                      }
                       title="Facebook"
                       className="min-900:hover:scale-125 min-900:transition-all duration-300"
                     />
                     <img
-                      src={darkMode ? `${instagramDark}` : `${instagramLIght}`}
+                      loading="lazy"
+                      decoding="async"
+                      src={
+                        darkMode
+                          ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664627/Site%20Images/INSTAGRAM_nmmuao.png"
+                          : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664634/Site%20Images/INSTAGRAM-light_eiz1ru.png"
+                      }
                       title="Instagram"
                       className="min-900:hover:scale-125 min-900:transition-all duration-300"
                     />
                     <img
-                      src={darkMode ? `${tiktokDark}` : `${tiktokLight}`}
+                      loading="lazy"
+                      decoding="async"
+                      src={
+                        darkMode
+                          ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664641/Site%20Images/TIKTOK_y69a9r.png"
+                          : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664648/Site%20Images/TikTok-light_u70oc6.png"
+                      }
                       title="TikTok"
                       className="min-900:hover:scale-125 min-900:transition-all duration-300"
                     />
                     <img
-                      src={darkMode ? `${gmailDark}` : `${gmailLight}`}
+                      loading="lazy"
+                      decoding="async"
+                      src={
+                        darkMode
+                          ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664611/Site%20Images/GMAIL_vghyvp.png"
+                          : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664619/Site%20Images/Gmail-light_cdl2hk.png"
+                      }
                       title="Gmail"
                       className="min-900:hover:scale-125 min-900:transition-all duration-300"
                     />

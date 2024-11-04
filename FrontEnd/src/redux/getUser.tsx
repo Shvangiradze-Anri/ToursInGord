@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { axiosAdmin } from "../api/axios";
 import { toast } from "react-toastify";
+import { RootState } from "./redux";
 
 interface UserImage {
   url: string; // Add other properties as needed
@@ -20,7 +21,7 @@ interface User {
 }
 
 interface UserState {
-  user: User[] | null;
+  user: User | null;
   loading: boolean;
   error: string | null;
 }
@@ -31,19 +32,26 @@ const initialState: UserState = {
   error: null,
 };
 
-export let cachedUser: User | null = null;
+// let cachedUser: User | null = null;
 
-// Define the async thunk to fetch user data
-export const fetchUser = createAsyncThunk("user/fetchUser", async () => {
-  try {
-    const response = await axiosAdmin.get("/user");
-    console.log(response.data);
-    return response.data; // Return user data from the server
-  } catch (error) {
-    console.error("Error fetching user:", error);
-    throw error; // Rethrow the error for proper handling in rejected case
+export const fetchUser = createAsyncThunk(
+  "user/fetchSingleUser",
+  async (_, { getState }) => {
+    const state = getState() as RootState; // Explicitly type state with RootState
+
+    if (state.user.user) {
+      return state.user.user; // Return existing user data if available
+    }
+
+    try {
+      const response = await axiosAdmin.get("/user");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      throw error;
+    }
   }
-});
+);
 
 // Async thunk for updating the user image
 export const updateUserImage = createAsyncThunk(
@@ -61,11 +69,9 @@ export const updateUserImage = createAsyncThunk(
       });
 
       if (response.status !== 404 && response.data.length > 0) {
-        cachedUser = null;
         toast.success(`${response.data}`);
 
-        // Fetch the updated user data after the image update
-        dispatch(fetchUser());
+        dispatch(fetchUser()); // Fetch the updated user data after the image update
       }
     } catch (error) {
       console.error("Error updating user image:", error);
@@ -80,7 +86,8 @@ export const logoutUser = createAsyncThunk(
   "user/logoutUser",
   async (_, { dispatch }) => {
     try {
-      await axiosAdmin.post("/api/user/logout", {}, { withCredentials: true });
+      await axiosAdmin.post("/api/user/logout");
+
       dispatch(clearUserProfile()); // Clears the user data from state
       toast.success("Successfully logged out."); // Notify the user
     } catch (error) {

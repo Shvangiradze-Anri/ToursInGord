@@ -4,8 +4,8 @@ import { csrfToken } from "./refreshToken.js";
 const authenticateToken = (req, res, next) => {
   const token = req.cookies.accessT;
   const csrfT = req.cookies.csrfT;
-  console.log("Access Token from Cookies:", token);
-
+  // console.log("Access Token from Cookies:", token);
+  // let counter = 0;
   if (!token) {
     return res
       .status(401)
@@ -21,6 +21,7 @@ const authenticateToken = (req, res, next) => {
         console.error("JWT Error:", err);
         return res.status(403).json("Token is not valid!sdnaldajldla");
       }
+      // console.log(`get User  ${(counter = counter + 1)} : `, (req.user = user));
 
       req.user = user;
       next();

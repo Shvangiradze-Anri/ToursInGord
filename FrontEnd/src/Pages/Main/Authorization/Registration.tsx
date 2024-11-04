@@ -18,7 +18,6 @@ import {
 import { useSelector } from "react-redux";
 import { axiosUser } from "../../../api/axios";
 import { RootState } from "../../../redux/redux";
-import CryptoJS from "crypto-js";
 
 const Helmet = lazy(() =>
   import("react-helmet-async").then((module) => ({ default: module.Helmet }))
@@ -238,36 +237,17 @@ function Registration() {
       );
     }
   };
-  type Image = {
-    id: number;
-    image: {
-      url: string;
-    };
-    page: string;
-  };
 
-  type ImagesState = {
-    loading: boolean;
-    images: Image[];
-    error: string | null;
-  };
-  const { images } = useSelector(
-    (state: { images: ImagesState }) => state.images
-  );
-
-  const filteredImagesAuth = useMemo(() => {
-    const filteredL = images.filter((item) => item.page === "authbgl");
-    const filteredD = images.filter((item) => item.page === "authbgd");
-    return { light: filteredL, dark: filteredD };
-  }, [images]);
-
-  const backgroundImage = useMemo(
-    () =>
+  const backgroundImages = useMemo(() => {
+    const getMainImageUrl = () =>
       darkMode
-        ? `url(${filteredImagesAuth.dark[0]?.image.url})`
-        : `url(${filteredImagesAuth.light[0]?.image.url})`,
-    [darkMode, filteredImagesAuth]
-  );
+        ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1726513496/Site%20Images/sizukkags7wsoqh8hl17.jpg"
+        : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1726513492/Site%20Images/otjl6yqje0ds0dcda3ap.jpg";
+
+    return {
+      image: getMainImageUrl(),
+    };
+  }, [darkMode]);
 
   return (
     <Fragment>
@@ -279,7 +259,7 @@ function Registration() {
         </Helmet>
       </Suspense>
       <div
-        style={{ backgroundImage }}
+        style={{ backgroundImage: `url(${backgroundImages?.image})` }}
         className=" grid h-[100dvh] place-items-center bg-cover bg-center bg-no-repeat  px-4 min-700:px-12 min-900:px-28 bg-white dark:bg-black"
       >
         {openCodeSender ? (

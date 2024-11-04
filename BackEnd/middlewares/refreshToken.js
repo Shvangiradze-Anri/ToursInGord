@@ -13,7 +13,7 @@ const createAccessToken = (user) => {
       role: user.role,
     },
     process.env.JWT_SECRET_KEY,
-    { expiresIn: "50s" }
+    { expiresIn: "10s" }
   );
 };
 const createRefreshToken = (user) => {
@@ -78,7 +78,7 @@ const refreshToken = (req, res) => {
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
-        .json({ expDate: Date.now() + 50 * 1000 });
+        .json({ expDate: Date.now() + 10 * 1000 });
     });
   } catch (error) {
     console.error(error);

@@ -20,12 +20,22 @@ app.use(cookieParser());
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'self' http://localhost:5173; script-src 'self' https://trusted-cdn.com"
+    "default-src 'self' https://toursingord.netlify.app; script-src 'self' https://trusted-cdn.com"
   );
   next();
 });
 
-app.use("/", router);
-app.use("/", adminRouter);
+const loadRoutes = async () => {
+  try {
+    const { router } = await import("./routes/authRoutes.js");
+    app.use("/", router);
+
+    const { adminRouter } = await import("./routes/adminRoute.js");
+    app.use("/", adminRouter);
+  } catch (error) {
+    console.error("Error loading routes:", error);
+  }
+};
+loadRoutes();
 
 app.listen(5300, () => console.log("Listening"));

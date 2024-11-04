@@ -1,35 +1,31 @@
-import { UseQueryOptions, useQuery } from "@tanstack/react-query";
-import EditUsers from "./editUser";
 import { axiosAdmin } from "../../../api/axios";
-import { useCallback } from "react";
+import { lazy, useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../redux/redux";
+import { fetchUsersAdmin } from "../../../redux/getAdminUsers";
 
-type User = {
-  _id: string;
-  name: string;
-  lastname: string;
-  email: string;
-  password: string;
-  birthday: string;
-  gender: string;
-  role: string;
-};
+const EditUsers = lazy(() => import("./editUser"));
 
-type FetchUsersResponse = User[];
+function FetchAdminUsers() {
+  type User = {
+    _id: string;
+    name: string;
+    lastname: string;
+    email: string;
+    password: string;
+    birthday: string;
+    gender: string;
+    role: string;
+  };
+  const { adminUsers, loading, error } = useSelector(
+    (state: RootState) => state.adminUsers
+  );
 
-const fetchUsers = async (): Promise<FetchUsersResponse> => {
-  const response = await axiosAdmin.get("/users");
-  console.log(response?.data);
+  const dispatch: AppDispatch = useDispatch();
 
-  return response?.data;
-};
-
-const queryOptions: UseQueryOptions<FetchUsersResponse, Error> = {
-  queryKey: ["users"],
-  queryFn: fetchUsers,
-};
-
-function FetchUsers() {
-  const { data, refetch, isLoading, error } = useQuery(queryOptions);
+  useEffect(() => {
+    dispatch(fetchUsersAdmin());
+  }, [dispatch]);
 
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) {
@@ -44,10 +40,10 @@ function FetchUsers() {
       try {
         const response = await axiosAdmin.delete(`/users/delete/${id}`);
 
-        refetch();
         const { toast } = await import("react-toastify");
         if (response.status === 200) {
           toast.success("User deleted");
+          dispatch(fetchUsersAdmin());
         } else {
           toast.error("Server error");
         }
@@ -55,10 +51,10 @@ function FetchUsers() {
         console.error(error);
       }
     },
-    [refetch]
+    [dispatch]
   );
 
-  if (isLoading)
+  if (loading) {
     return (
       <tbody>
         <tr>
@@ -66,7 +62,9 @@ function FetchUsers() {
         </tr>
       </tbody>
     );
-  if (error)
+  }
+
+  if (error) {
     return (
       <tbody>
         <tr>
@@ -74,11 +72,12 @@ function FetchUsers() {
         </tr>
       </tbody>
     );
+  }
 
   return (
     <tbody>
-      {data && data.length > 0 ? (
-        data.map((user: User, index: number) => (
+      {adminUsers && adminUsers.length > 0 ? (
+        adminUsers.map((user: User, index: number) => (
           <tr key={index}>
             <td className="px-3 py-2 text-res-sm border-opacity-70 border-b-[1px] border-sky-800 dark:border-purple-800">
               {user.name}
@@ -105,7 +104,7 @@ function FetchUsers() {
               {user.role}
             </td>
             <td className="pl-2">
-              <EditUsers users={user} refetch={refetch} />
+              <EditUsers users={user} />
             </td>
             <td>
               <button
@@ -126,4 +125,4 @@ function FetchUsers() {
   );
 }
 
-export default FetchUsers;
+export default FetchAdminUsers;

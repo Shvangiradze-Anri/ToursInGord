@@ -1,14 +1,15 @@
-import { useEffect, useMemo, useState, memo } from "react";
-import ScrollGallery from "./ScrollGallery";
-import { useSelector } from "react-redux";
+import { useEffect, useMemo, useState, memo, lazy } from "react";
+const ScrollGallery = lazy(() => import("./ScrollGallery"));
+import { axiosUser } from "../../../api/axios";
 
 // Memoized ScrollGallery Component
 const MemoizedScrollGallery = memo(ScrollGallery);
 
-const Galerry = () => {
+const Gallery = () => {
   type Image = {
-    id: number;
+    _id: string;
     image: {
+      public_id: string;
       url: string;
     };
     page: string;
@@ -19,22 +20,44 @@ const Galerry = () => {
     images: Image[];
     error: string | null;
   };
+  const [galleryImages, setGalleryImages] = useState<ImagesState>({
+    loading: true,
+    images: [],
+    error: null,
+  });
 
-  const { images } = useSelector(
-    (state: { images: ImagesState }) => state.images
+  const [selectedImageURL, setSelectedImageURL] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchHotelImages = async () => {
+      try {
+        const response = await axiosUser.get("/galleryimages");
+        setGalleryImages({
+          loading: false,
+          images: response.data,
+          error: null,
+        });
+      } catch (err) {
+        setGalleryImages({
+          loading: false,
+          images: [],
+          error: "Failed to load hotel images",
+        });
+      }
+    };
+
+    fetchHotelImages();
+  }, []);
+
+  const filteredImageNotFound = {
+    public_id: "not_found",
+    url: "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730293799/Site%20Images/istockphoto-1409329028-612x612_bvpfff.jpg",
+  };
+
+  const memoizedGalleryImages = useMemo(
+    () => galleryImages.images,
+    [galleryImages.images]
   );
-
-  const filteredImageNotFound = useMemo(
-    () => images.filter((item) => item.page === "imagenotfound"),
-    [images]
-  );
-
-  const filteredImages = useMemo(
-    () => images.filter((item) => item.page === "gallery"),
-    [images]
-  );
-
-  const [imageURL, setImageURL] = useState<string | null>(null);
 
   useEffect(() => {
     const scrollers = document.querySelectorAll(".scroller");
@@ -68,9 +91,9 @@ const Galerry = () => {
     function handleImageClick(event: MouseEvent) {
       const target = event.target as HTMLImageElement;
       const clickedImageURL = target.getAttribute("src");
-      setImageURL(clickedImageURL);
+      setSelectedImageURL(clickedImageURL);
     }
-  }, [images]);
+  }, [galleryImages]);
 
   return (
     <div className="relative">
@@ -95,7 +118,7 @@ const Galerry = () => {
 
         <div className="scroller">
           <ul className="flex tag-list scroller__inner">
-            {filteredImages
+            {memoizedGalleryImages
               .filter((_, index) => index % 2 !== 0)
               .map((item, index) => (
                 <li key={index} className="flex gap-8">
@@ -104,9 +127,9 @@ const Galerry = () => {
                       items={
                         item.image.url
                           ? item.image.url
-                          : filteredImageNotFound[0]?.image?.url
+                          : filteredImageNotFound?.url
                       }
-                      setImageURL={setImageURL}
+                      setImageURL={setSelectedImageURL}
                     />
                   </div>
                 </li>
@@ -116,7 +139,7 @@ const Galerry = () => {
 
         <div className="scroller">
           <ul className="flex tag-list scroller__inner">
-            {filteredImages
+            {memoizedGalleryImages
               .filter((_, index) => index % 2 === 0)
               .map((item, index) => (
                 <li key={index} className="flex gap-8">
@@ -125,9 +148,9 @@ const Galerry = () => {
                       items={
                         item.image.url
                           ? item.image.url
-                          : filteredImageNotFound[0]?.image?.url
+                          : filteredImageNotFound.url
                       }
-                      setImageURL={setImageURL}
+                      setImageURL={setSelectedImageURL}
                     />
                   </div>
                 </li>
@@ -135,20 +158,22 @@ const Galerry = () => {
           </ul>
         </div>
 
-        {imageURL && (
+        {selectedImageURL && (
           <dialog
-            open={!!imageURL}
+            open={!!selectedImageURL}
             className="fixed inset-0 w-full h-[100dvh] p-8 bg-[rgba(179,238,255,0.56)] dark:bg-[rgba(20,47,54,0.56)] z-50"
           >
             <div className="flex items-center justify-center w-full h-full bg-[rgba(88,183,209,0.97)] dark:bg-[rgba(62,24,77,0.97)] rounded-lg p-4">
               <img
-                src={imageURL}
+                loading="lazy"
+                decoding="async"
+                src={selectedImageURL}
                 alt="Full Screen"
                 className="w-2/4 rounded-lg"
               />
             </div>
             <svg
-              onClick={() => setImageURL(null)}
+              onClick={() => setSelectedImageURL(null)}
               className="absolute top-8 right-8 m-2 cursor-pointer p-2 bg-slate-300 rounded-lg"
               width="38"
               height="38"
@@ -175,4 +200,4 @@ const Galerry = () => {
   );
 };
 
-export default Galerry;
+export default Gallery;

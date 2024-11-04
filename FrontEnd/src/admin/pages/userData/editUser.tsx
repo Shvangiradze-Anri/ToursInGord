@@ -1,8 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { axiosAdmin } from "../../../api/axios";
-import { QueryObserverResult } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
-import { clearUserProfile, fetchUser } from "../../../redux/getUser";
 import { AppDispatch, RootState } from "../../../redux/redux";
 
 type User = {
@@ -19,14 +17,12 @@ type User = {
 
 type EditUsersProps = {
   users: User;
-  refetch: () => Promise<QueryObserverResult<User[], Error>>;
 };
 
-const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
+const EditUsers: React.FC<EditUsersProps> = ({ users }) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
 
   const userA = useSelector((state: RootState) => state.user.user);
-  console.log("useraa", userA);
 
   const [user, setUser] = useState<User>({ ...users });
 
@@ -95,14 +91,15 @@ const EditUsers: React.FC<EditUsersProps> = ({ users, refetch }) => {
         import("react-toastify").then(({ toast }) =>
           toast.success("Successfully updated")
         );
-        dispatch(fetchUser());
+        const { fetchUsersAdmin } = await import(
+          "../../../redux/getAdminUsers"
+        );
+        const { clearUserProfile } = await import("../../../redux/getUser");
+        dispatch(fetchUsersAdmin());
         setShowEditDialog(false);
-        refetch();
-        if (userA?.[0]?.role !== "admin") {
+        if (userA?.role !== "admin") {
           try {
-            const res = await axiosAdmin.post("/logout", {
-              withCredentials: true,
-            });
+            const res = await axiosAdmin.post("/logout");
             console.log("log out", res);
             dispatch(clearUserProfile());
             localStorage.removeItem("expDate");

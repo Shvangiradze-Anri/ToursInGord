@@ -80,7 +80,7 @@ const createAccessToken = (user) => {
       role: user.role,
     },
     process.env.JWT_SECRET_KEY,
-    { expiresIn: "50s" }
+    { expiresIn: "10s" }
   );
 };
 
@@ -138,25 +138,25 @@ const logIn = async (req, res) => {
         .cookie("accessT", accessT, {
           httpOnly: true,
           secure: true, // Enable only for HTTPS
-          sameSite: "None", // Adjust based on your requirements
+          sameSite: "lax", // Adjust based on your requirements
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("refreshT", refreshT, {
           httpOnly: true,
           secure: true, // Enable only for HTTPS
-          sameSite: "None", // Adjust based on your requirements
+          sameSite: "lax", // Adjust based on your requirements
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("csrfT", csrfToken, {
           httpOnly: true,
           secure: true, // Enable only for HTTPS
-          sameSite: "None", // Adjust based on your requirements
+          sameSite: "lax", // Adjust based on your requirements
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
-        .json({ expDate: Date.now() + 50 * 1000 });
+        .json({ expDate: Date.now() + 10 * 1000 });
     }
 
     return res.json({ error: "Wrong password" }); // Use return to avoid further execution
@@ -171,21 +171,18 @@ const logOut = (req, res) => {
       httpOnly: true,
       secure: true, // Enable only for HTTPS
       sameSite: "None", // Adjust based on your requirements
-      domain: "https://toursingord.netlify.app/",
       path: "/",
     })
     .clearCookie("refreshT", {
       httpOnly: true,
       secure: true, // Enable only for HTTPS
       sameSite: "None", // Adjust based on your requirements
-      domain: "https://toursingord.netlify.app/",
       path: "/",
     })
     .clearCookie("csrfT", {
       httpOnly: true,
       secure: true, // Enable only for HTTPS
       sameSite: "None", // Adjust based on your requirements
-      domain: "https://toursingord.netlify.app/",
       path: "/",
     })
     .json({ expDate: undefined });
@@ -225,12 +222,10 @@ const newPassword = async (req, res) => {
 
 const uploadImagesByUser = async (req, res) => {
   const { userImage } = req.body;
-  console.log(userImage);
   try {
     // Find the user by email
 
     const user = await User.findOne({ email: req.params.email });
-    console.log(user);
 
     if (user && userImage) {
       // Upload image to Cloudinary
@@ -245,33 +240,9 @@ const uploadImagesByUser = async (req, res) => {
       if (cloudRes) {
         // Update the user's image state in MongoDB
         user.image = cloudRes;
-        const newUser = await user.save(); // Save the updated user object
+        await user.save(); // Save the updated user object
 
-        const newAccessToken = createAccessToken(newUser);
-        const newRefreshToken = createRefreshToken(newUser);
-        refreshTokens.push(newRefreshToken);
-
-        const domain = "https://toursingord.netlify.app/";
-
-        return res
-          .cookie("accessT", newAccessToken, {
-            httpOnly: true,
-            secure: true, // Enable only for HTTPS
-            sameSite: "None", // Adjust based on your requirements
-            domain: domain,
-            path: "/",
-            expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-          })
-          .cookie("refreshT", newRefreshToken, {
-            httpOnly: true,
-            secure: true, // Enable only for HTTPS
-            sameSite: "None", // Adjust based on your requirements
-            domain: domain,
-            path: "/",
-            expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-          })
-          .json(expDate)
-          .send("Image updated");
+        return res.send("Image updated");
       } else {
         return res.status(404).send("User not found or no image provided");
       }

@@ -2,11 +2,34 @@ import { mongoose } from "mongoose";
 
 const { Schema } = mongoose;
 
-const imagesSchema = new Schema({
-  image: { public_id: String, url: String },
-  page: String,
-});
+// Tour images
+const tourimages = new Schema(
+  {
+    image: { public_id: String, url: String },
+    page: String,
+  },
+  { timestamps: true }
+);
+const Tourimage = mongoose.model("TourImage", tourimages);
 
-const ImagesModel = mongoose.model("TourImages", imagesSchema);
+//Gallery images
+const galleryimages = new Schema(
+  {
+    image: { public_id: String, url: String },
+    page: String,
+  },
+  { timestamps: true }
+);
+const Galleryimage = mongoose.model("galleryImage", galleryimages);
 
-export { ImagesModel as Images };
+//Hotel images
+const hotelimages = new Schema(
+  {
+    image: { public_id: String, url: String },
+    page: String,
+  },
+  { timestamps: true }
+);
+const Hotelimage = mongoose.model("hotelimage", hotelimages);
+
+export { Tourimage, Galleryimage, Hotelimage };

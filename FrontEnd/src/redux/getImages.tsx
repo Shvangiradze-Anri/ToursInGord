@@ -22,37 +22,6 @@ const initialState: ImageState = {
   uploadImageState: null,
 };
 
-// Define the async thunk to fetch images
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let cachedImages: any[] | null = null;
-
-export const fetchImages = createAsyncThunk(
-  "tourImages/fetchImages",
-  async () => {
-    try {
-      console.log("get images");
-
-      if (cachedImages !== null) {
-        return cachedImages;
-      } else {
-        const response = await axiosAdmin.get("/images", {
-          headers: {
-            "Cache-Control": "no-cache",
-            "Content-Type": "application/json",
-          },
-        });
-        const imagesData = response.data;
-
-        cachedImages = imagesData;
-
-        return imagesData;
-      }
-    } catch (error) {
-      console.error("Error fetching images:", error);
-      throw error; // Rethrow the error to be caught by the caller
-    }
-  }
-);
 type Image = {
   _id: string;
   image: {
@@ -62,14 +31,36 @@ type Image = {
   page: string;
 };
 
+export const fetchImages = createAsyncThunk(
+  "tourImages/fetchImages",
+  async (page: string) => {
+    // Specify 'page' as the parameter
+    try {
+      console.log("get images");
+
+      const response = await axiosAdmin.get(`/${page}images`);
+      console.log(response);
+
+      const imagesData = response.data;
+
+      return imagesData;
+    } catch (error) {
+      console.error("Error fetching images:", error);
+      throw error; // Rethrow the error to be caught by the caller
+    }
+  }
+);
+
 export const deleteImage = createAsyncThunk(
   "tourImages/deleteImage",
   async (image: Image) => {
     try {
-      const response = await axiosAdmin.delete(`/images/delete/${image._id}`);
+      const response = await axiosAdmin.delete(
+        `/images/delete/${image._id}?page=${image.page}`
+      );
+
       if (response.status === 200) {
         toast.success("Image deleted");
-
         return { _id: image._id }; // Return only the deleted image ID
       } else {
         toast.error("Failed to delete image");
@@ -81,6 +72,7 @@ export const deleteImage = createAsyncThunk(
     }
   }
 );
+
 // Define the expected structure of the error response
 interface ErrorResponse {
   error: string;
@@ -106,7 +98,6 @@ export const uploadImage = createAsyncThunk(
       if (res.status === 200) {
         toast.success("Successfully uploaded");
       }
-      cachedImages = null;
 
       return res.data;
     } catch (error) {
@@ -171,14 +162,7 @@ const imageSlice = createSlice({
       })
       .addCase(deleteImage.rejected, (state) => {
         state.deleteImageState = "rejected";
-      })
-      .addMatcher(
-        (action) =>
-          [uploadImage.fulfilled, deleteImage.fulfilled].includes(action.type),
-        () => {
-          fetchImages(); // Re-fetch images after upload or delete
-        }
-      );
+      });
   },
 });
 

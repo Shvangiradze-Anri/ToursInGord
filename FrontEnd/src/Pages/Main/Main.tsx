@@ -1,14 +1,13 @@
-import AboutTour from "./About_tour/AboutTour";
-import Galerry from "./Gallery/Galerry";
-import Hotel from "./Hotel/Hotel";
-import Contact from "./Contact/Contact";
-
 import { Link } from "react-router-dom";
-import { Fragment, useEffect, useMemo, useRef } from "react";
-
+import { Fragment, lazy, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateRefs } from "../../redux/componentRef";
 import { AppDispatch, RootState } from "../../redux/redux";
+
+const AboutTour = lazy(() => import("./About_tour/AboutTour"));
+const Gallerry = lazy(() => import("./Gallery/Gallery"));
+const Hotel = lazy(() => import("./Hotel/Hotel"));
+const Contact = lazy(() => import("./Contact/Contact"));
 
 const Main = () => {
   const darkMode = useSelector((state: RootState) => state.theme.darkMode);
@@ -45,65 +44,30 @@ const Main = () => {
     getOffset();
   }, [dispatch]);
 
-  type Image = {
-    id: number;
-    image: {
-      url: string;
-    };
-    page: string;
-  };
-
-  type ImagesState = {
-    loading: boolean;
-    images: Image[];
-    error: string | null;
-  };
-  interface ImageItem {
-    image: { url: string };
-  }
-  interface FilteredData {
-    light: ImageItem[];
-    dark: ImageItem[];
-  }
-
-  const { images } = useSelector(
-    (state: { images: ImagesState }) => state.images
-  );
-
-  const filteredData = useMemo(() => {
-    const filteredImagesL = images.filter((item) => item.page === "lightbg");
-    const filteredImagesD = images.filter((item) => item.page === "darkbg");
-
-    const filteredTourL = images.filter((item) => item.page === "tourbgl");
-    const filteredTourD = images.filter((item) => item.page === "tourbgd");
-
-    const filteredHotelL = images.filter((item) => item.page === "hotelbgl");
-    const filteredHotelD = images.filter((item) => item.page === "hotelbgd");
-
-    return {
-      images: { light: filteredImagesL, dark: filteredImagesD },
-      tour: { light: filteredTourL, dark: filteredTourD },
-      hotel: { light: filteredHotelL, dark: filteredHotelD },
-    };
-  }, [images]);
-
   const backgroundImages = useMemo(() => {
-    const getImageUrl = (data: FilteredData) =>
+    const getMainImageUrl = () =>
       darkMode
-        ? `url(${data.dark[0]?.image.url})`
-        : `url(${data.light[0]?.image.url})`;
-
+        ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1727205507/Site%20Images/dyxnrrbgak3izvwetyhb.jpg"
+        : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1727205863/Site%20Images/blff7o0maaiid57vi7ih.jpg";
+    const getTourImageUrl = () =>
+      darkMode
+        ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1727266024/Site%20Images/cn01jnl5lqqda5zq2qd1.jpg"
+        : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1727261708/Site%20Images/ajx2p8lszxl876kgptlq.jpg";
+    const getHotelImageUrl = () =>
+      darkMode
+        ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730293299/Site%20Images/ej6lrsg7h6ygczj0qtrl_o19fd2.webp"
+        : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1726513533/Site%20Images/uiy8ecrw0mefdatuchcj.webp";
     return {
-      image: getImageUrl(filteredData.images),
-      tour: getImageUrl(filteredData.tour),
-      hotel: getImageUrl(filteredData.hotel),
+      image: getMainImageUrl(),
+      tour: getTourImageUrl(),
+      hotel: getHotelImageUrl(),
     };
-  }, [darkMode, filteredData]);
+  }, [darkMode]);
 
   return (
     <Fragment>
       <section
-        style={{ backgroundImage: backgroundImages.image }}
+        style={{ backgroundImage: `url(${backgroundImages?.image})` }}
         className="flex flex-col h-[100dvh] w-full  items-center justify-between text-center bg-cover   bg-no-repeat  shadow-bot-white dark:shadow-bot-black "
       >
         <span className=" text-res-xl text-blue-900 dark:text-[#e89c3e] leading-[2rem] mx-3 absolute top-2/4 -translate-y-2/4 min-400:leading-[3rem] min-1000:leading-[4rem]">
@@ -175,18 +139,18 @@ const Main = () => {
       </section>
       <section
         ref={aboutTourRef}
-        style={{ backgroundImage: backgroundImages.tour }}
+        style={{ backgroundImage: `url(${backgroundImages?.tour})` }}
         className="grid items-center min-h-[100dvh]  px-4 py-20 bg-no-repeat bg-cover  shadow-whole-white dark:shadow-whole-black min-700:px-12"
       >
         <AboutTour />
       </section>
       <section ref={galleryRef}>
-        <Galerry />
+        <Gallerry />
       </section>
       <section
         id="hotelref"
         ref={hotelRef}
-        style={{ backgroundImage: backgroundImages.hotel }}
+        style={{ backgroundImage: `url(${backgroundImages?.hotel})` }}
         className=" grid  items-center content-center w-full min-h-[100dvh] px-4 py-20 bg-cover bg-center bg-no-repeat bottom-0 left-0 relative shadow-whole-white dark:shadow-whole-black min-700:px-12 min-900:gap-8"
       >
         <Hotel />
