@@ -11,9 +11,9 @@ const authenticateToken = (req, res, next) => {
       .status(401)
       .json({ message: "Access denied. No token provided." });
   }
-  if (csrfT !== csrfToken) {
-    return res.status(401).json("You are not ablle to access on platform");
-  }
+  // if (csrfT !== csrfToken) {
+  //   return res.status(401).json("You are not ablle to access on platform");
+  // }
   // Check if CSRF token matches
   if (token) {
     jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user) => {
