@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useState, Suspense, lazy } from "react";
+import { useCallback, useEffect, useState, lazy } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ThreeDots } from "react-loader-spinner";
 import { AppDispatch } from "../../../redux/redux";
 import { toast } from "react-toastify";
 import { fetchImages } from "../../../redux/getImages";
 
-// Dynamically import CarouselItems
 const CarouselItems = lazy(
   () => import("../../../Pages/Main/About_tour/CarouselItems")
 );
@@ -31,8 +30,8 @@ function DisplayedImages({ page }: Page) {
   };
 
   type ImageFile = {
-    image: string | ArrayBuffer | null; // Assuming this is the data URL of the image
-    page: string; // Assuming this is the page number associated with the image
+    image: string | ArrayBuffer | null;
+    page: string;
   };
 
   const [image, setIMG] = useState<ImageFile>({ image: "", page: page });
@@ -57,7 +56,7 @@ function DisplayedImages({ page }: Page) {
       reader.readAsDataURL(file);
       reader.onloadend = () => {
         setIMG({ ...image, image: reader.result });
-        setUploadKey(Date.now()); // Update key to force re-render
+        setUploadKey(Date.now());
       };
     } else {
       setIMG({ image: "", page: page });
@@ -69,8 +68,7 @@ function DisplayedImages({ page }: Page) {
     const { uploadImage } = await import("../../../redux/getImages");
 
     try {
-      // Check image size on the frontend before uploading
-      const imageSize = ((image.image as string).length * (3 / 4)) / 1024; // Convert base64 size to KB
+      const imageSize = ((image.image as string).length * (3 / 4)) / 1024;
       console.log("image size", imageSize);
 
       if (imageSize > 120) {
@@ -78,19 +76,14 @@ function DisplayedImages({ page }: Page) {
         setLoadingUpload(false);
         return;
       }
-
-      // Dispatch uploadImage and handle success or error
       const resultAction = await dispatch(uploadImage({ image })).unwrap();
 
-      console.log("Image uploaded successfully:", resultAction); // Handle success case
+      console.log("Image uploaded successfully:", resultAction);
     } catch (error) {
-      console.error("Error uploading image:", error); // Handle error case
-
-      // Check if error is an instance of Error and get the message
+      console.error("Error uploading image:", error);
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-
-      toast.error(errorMessage); // Notify user of the error
+      toast.error(errorMessage);
       setErr(true);
     } finally {
       setLoadingUpload(false);
@@ -162,13 +155,11 @@ function DisplayedImages({ page }: Page) {
         />
       </form>
       <div className="grid gap-4 relative grid-cols-1 min-500:grid-cols-2 min-800:grid-cols-3 min-1200:grid-cols-4 min-2000:grid-cols-5 [&>div>img]:h-full [&>div>img]:rounded-lg">
-        <Suspense fallback={<div>Loading...</div>}>
-          {!loading && !err && !error && filteredImages.length > 0
-            ? filteredImages.map((item, index) => (
-                <CarouselItems key={index} image={[item]} items={item.image} />
-              ))
-            : null}
-        </Suspense>
+        {!loading && !err && !error && filteredImages.length > 0
+          ? filteredImages.map((item, index) => (
+              <CarouselItems key={index} image={[item]} items={item.image} />
+            ))
+          : null}
       </div>
     </section>
   );

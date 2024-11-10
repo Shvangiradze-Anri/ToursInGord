@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import refreshTokens from "./refershtokens.js";
+import tokenStore from "./refershtokens.js";
 
 const createAccessToken = (user) => {
   return jwt.sign(
@@ -13,7 +13,7 @@ const createAccessToken = (user) => {
       role: user.role,
     },
     process.env.JWT_SECRET_KEY,
-    { expiresIn: "20s" }
+    { expiresIn: "10s" }
   );
 };
 const createRefreshToken = (user) => {
@@ -32,37 +32,27 @@ const createRefreshToken = (user) => {
   );
 };
 
-export let csrfToken = crypto.randomUUID();
 const refreshToken = (req, res) => {
   try {
     const refreshToken = req.cookies.refreshT;
-    const csrfT = req.cookies.csrfT;
-
-    if (!refreshToken) return res.status(401).json("You are not authenticated");
-    // if (csrfT !== csrfToken) {
-    //   return res.status(401).json("You are not ablle to access on platform");
-    // }
-    if (!refreshTokens.includes(refreshToken)) {
-      return res.status(403).json("Refresh token is not validaaaaaa");
-    }
 
     jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, (err, user) => {
       if (err) {
         return res.status(500).json({ error: "Internal server erroreeeeee" });
       }
-      // Create new access and refresh tokens
       const newAccessToken = createAccessToken(user);
       const newRefreshToken = createRefreshToken(user);
 
-      refreshTokens.push(newRefreshToken);
+      tokenStore.csrfToken = crypto.randomUUID();
+      tokenStore.refreshTokens = newRefreshToken;
 
       return res
         .cookie("accessT", newAccessToken, {
-          httpOnly: true, // Make cookies HTTP only
-          secure: true, // Enable for HTTPS in production
-          sameSite: "None", // Adjust based on your requirements
+          httpOnly: true,
+          secure: true,
+          sameSite: "None",
           path: "/",
-          expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // Set expiration for 90 days
+          expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("refreshT", newRefreshToken, {
           httpOnly: true,
@@ -71,18 +61,18 @@ const refreshToken = (req, res) => {
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
-        .cookie("csrfT", csrfToken, {
+        .cookie("csrfT", tokenStore.csrfToken, {
           httpOnly: true,
-          secure: true, // Enable only for HTTPS
-          sameSite: "None", // Adjust based on your requirements
+          secure: true,
+          sameSite: "None",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
-        .json({ expDate: Date.now() + 20 * 1000 });
+        .json({ expDate: Date.now() + 10 * 1000 });
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal server erroraaaaa" });
   }
 };
-export { refreshToken, refreshTokens };
+export { refreshToken };

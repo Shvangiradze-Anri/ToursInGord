@@ -1,4 +1,4 @@
-import { Fragment, Suspense } from "react";
+import { Fragment } from "react";
 import { useSelector } from "react-redux";
 import { Link, Outlet } from "react-router-dom";
 import { RootState } from "../../../redux/redux";
@@ -11,13 +11,11 @@ function SiteImages() {
 
   return (
     <Fragment>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Helmet>
-          <title>Site Images</title>
-          <meta name="description" content="Site images data" />
-          <link rel="canonical" href="/ImagesData" />
-        </Helmet>
-      </Suspense>
+      <Helmet>
+        <title>Site Images</title>
+        <meta name="description" content="Site images data" />
+        <link rel="canonical" href="/ImagesData" />
+      </Helmet>
       <section>
         {user &&
         user.role === "admin" &&

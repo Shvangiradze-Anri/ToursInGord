@@ -1,4 +1,4 @@
-import { Fragment, Suspense, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 
 function Book() {
@@ -30,16 +30,14 @@ function Book() {
   };
   return (
     <Fragment>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Helmet>
-          <title>Book</title>
-          <meta
-            name="description"
-            content="On this page you can purchase tickets"
-          />
-          <link rel="canonical" href="/Book" />
-        </Helmet>
-      </Suspense>
+      <Helmet>
+        <title>Book</title>
+        <meta
+          name="description"
+          content="On this page you can purchase tickets"
+        />
+        <link rel="canonical" href="/Book" />
+      </Helmet>
       <section className=" bg-white dark:bg-black pt-[17.25rem] shadow-whole-white dark:shadow-whole-black">
         <div className="flex flex-col w-full h-full px-4 py-20 min-600:p-12 min-900:p-20 min-1000:flex-row items-start gap-32 shadow-whole-white-Book  dark:shadow-whole-black-Book bg-[#00e1ff3a] dark:bg-[#00e1ff0f] ">
           <div className="flex flex-col w-full gap-9 text-black dark:text-white">

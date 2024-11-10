@@ -68,7 +68,7 @@ const Main = () => {
     <Fragment>
       <section
         style={{ backgroundImage: `url(${backgroundImages?.image})` }}
-        className="flex flex-col h-[100dvh] w-full  items-center justify-between text-center bg-cover   bg-no-repeat  shadow-bot-white dark:shadow-bot-black "
+        className="flex flex-col h-[100dvh] w-full  items-center justify-between text-center bg-cover   bg-no-repeat  shadow-bot-white dark:shadow-bot-black  "
       >
         <span className=" text-res-xl text-blue-900 dark:text-[#e89c3e] leading-[2rem] mx-3 absolute top-2/4 -translate-y-2/4 min-400:leading-[3rem] min-1000:leading-[4rem]">
           Travel with your loved ones <br />

@@ -1,8 +1,6 @@
 import {
   FormEventHandler,
   Fragment,
-  lazy,
-  Suspense,
   useEffect,
   useMemo,
   useRef,
@@ -18,10 +16,7 @@ import {
 import { useSelector } from "react-redux";
 import { axiosUser } from "../../../api/axios";
 import { RootState } from "../../../redux/redux";
-
-const Helmet = lazy(() =>
-  import("react-helmet-async").then((module) => ({ default: module.Helmet }))
-);
+import { Helmet } from "react-helmet-async";
 
 interface MatchCode {
   confrimCode: number | null;
@@ -251,13 +246,11 @@ function Registration() {
 
   return (
     <Fragment>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Helmet>
-          <title>Registration</title>
-          <meta name="description" content="Create account" />
-          <link rel="canonical" href="/Authorization/Registration" />
-        </Helmet>
-      </Suspense>
+      <Helmet>
+        <title>Registration</title>
+        <meta name="description" content="Create account" />
+        <link rel="canonical" href="/Authorization/Registration" />
+      </Helmet>
       <div
         style={{ backgroundImage: `url(${backgroundImages?.image})` }}
         className=" grid h-[100dvh] place-items-center bg-cover bg-center bg-no-repeat  px-4 min-700:px-12 min-900:px-28 bg-white dark:bg-black"

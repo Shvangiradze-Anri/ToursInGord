@@ -1,4 +1,7 @@
 // refreshTokens.js
-let refreshTokens = [];
+let tokenStore = {
+  refreshTokens: "",
+  csrfToken: "",
+};
 
-export default refreshTokens;
+export default tokenStore;

@@ -156,8 +156,6 @@ const imageSlice = createSlice({
       })
       .addCase(deleteImage.fulfilled, (state, action) => {
         const deletedId = action.payload._id;
-        console.log(state.images);
-
         state.images = state.images.filter((image) => image._id !== deletedId);
       })
       .addCase(deleteImage.rejected, (state) => {

@@ -1,15 +1,17 @@
-import { Fragment, lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { emailValidation, passwordValidation } from "./validation/validation";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/redux";
 import { axiosUser } from "../../../api/axios";
-
-const Helmet = lazy(() =>
-  import("react-helmet-async").then((module) => ({ default: module.Helmet }))
-);
+import { Helmet } from "react-helmet-async";
+import TopLoadingBar from "react-top-loading-bar";
 
 function LogIn() {
+  const loadingBarRef = useRef<React.ElementRef<typeof TopLoadingBar> | null>(
+    null
+  );
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
@@ -41,6 +43,8 @@ function LogIn() {
     const { toast } = await import("react-toastify");
 
     try {
+      loadingBarRef.current?.continuousStart();
+
       const secretKey = GenerateSecretKey();
       const encryptedData = CryptoJS.AES.encrypt(
         JSON.stringify({ email, password }),
@@ -61,6 +65,8 @@ function LogIn() {
         localStorage.setItem("expDate", expDate);
         setEmail("");
         setPassword("");
+        loadingBarRef.current?.complete();
+
         window.location.replace("/");
       }
     } catch (error) {
@@ -81,13 +87,12 @@ function LogIn() {
   }, [darkMode]);
   return (
     <Fragment>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Helmet>
-          <title>Log In</title>
-          <meta name="description" content="Log into your account" />
-          <link rel="canonical" href="/Authorization" />
-        </Helmet>
-      </Suspense>
+      <Helmet>
+        <title>Log In</title>
+        <meta name="description" content="Log into your account" />
+        <link rel="canonical" href="/Authorization" />
+      </Helmet>
+      <TopLoadingBar color="#f11946" ref={loadingBarRef} />
       <div
         style={{ backgroundImage: `url(${backgroundImages?.image})` }}
         className="grid h-[100dvh] place-items-center bg-cover bg-center bg-no-repeat px-4 min-700:px-12 min-900:px-28 bg-white dark:bg-black"

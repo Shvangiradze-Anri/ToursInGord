@@ -6,12 +6,12 @@ const router = express.Router();
 router.use(
   cors({
     credentials: true,
-    origin: "https://toursingord.netlify.app",
+    origin: "toursingord.netlify.app",
   })
 );
+//toursingord.netlify.app
 
-// Define routes with dynamic imports
-router.post("/subscribers", async (req, res, next) => {
+https: router.post("/subscribers", async (req, res, next) => {
   const { subscribers } = await import("../controllers/authControllers.js");
   subscribers(req, res, next);
 });

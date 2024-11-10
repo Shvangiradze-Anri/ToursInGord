@@ -4,7 +4,6 @@ import {
   useState,
   useCallback,
   useEffect,
-  Suspense,
   lazy,
 } from "react";
 const CarouselItems = lazy(() => import("../About_tour/CarouselItems"));
@@ -21,13 +20,11 @@ function Carouserl() {
   };
 
   type ImagesState = {
-    loading: boolean;
     images: Image[];
     error: string | null;
   };
 
   const [hotelImages, setHotelImages] = useState<ImagesState>({
-    loading: true,
     images: [],
     error: null,
   });
@@ -37,13 +34,11 @@ function Carouserl() {
       try {
         const response = await axiosUser.get("/hotelimages");
         setHotelImages({
-          loading: false,
           images: response.data,
           error: null,
         });
       } catch (err) {
         setHotelImages({
-          loading: false,
           images: [],
           error: "Failed to load hotel images",
         });
@@ -84,21 +79,17 @@ function Carouserl() {
           style={{ transform: `translate(-${activeIndex * 100}%)` }}
           className="whitespace-nowrap transition-transform duration-300 [&>div]:inline-flex"
         >
-          {" "}
-          <Suspense fallback={<div>Loading...</div>}>
-            {!hotelImages.error && memoizedHotelImages.length > 0 ? (
-              memoizedHotelImages.map((item) => (
-                <CarouselItems
-                  key={item._id} // Using _id as key
-                  items={item.image ? item.image : filteredImageNotFound} // Pass only the URL
-                />
-              ))
-            ) : (
-              <CarouselItems items={filteredImageNotFound} />
-            )}
-          </Suspense>
+          {!hotelImages.error && memoizedHotelImages.length > 0 ? (
+            memoizedHotelImages.map((item) => (
+              <CarouselItems
+                key={item._id}
+                items={item.image ? item.image : filteredImageNotFound}
+              />
+            ))
+          ) : (
+            <CarouselItems items={filteredImageNotFound} />
+          )}
         </div>
-
         <div className="flex flex-col items-end">
           <div className="flex gap-x-4">
             <button

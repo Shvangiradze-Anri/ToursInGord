@@ -13,12 +13,12 @@ import { useDispatch, useSelector } from "react-redux";
 import useWindowResize from "../../Hooks/useWindowResize";
 import Aside from "../../Components/Aside/Aside";
 
-// import Map from "../../Components/Footer/Map";
-// import { Libraries, useJsApiLoader } from "@react-google-maps/api";
+import Map from "../../Components/Footer/Map";
+import { Libraries, useJsApiLoader } from "@react-google-maps/api";
 import { AppDispatch, RootState } from "../../redux/redux";
 import { axiosUser } from "../../api/axios";
 
-// const libraries: Libraries = ["places"];
+const libraries: Libraries = ["places"];
 
 const Home = () => {
   const location = useLocation();
@@ -54,11 +54,11 @@ const Home = () => {
 
   // const [isLoad, setIsLoaded] = useState(false);
 
-  // const { isLoaded } = useJsApiLoader({
-  //   id: "google-map-script",
-  //   googleMapsApiKey: "AIzaSyApMFdRvD68YKbYHcfutZwPvh3I7kmvrE0",
-  //   libraries,
-  // });
+  const { isLoaded } = useJsApiLoader({
+    id: "google-map-script",
+    googleMapsApiKey: "AIzaSyApMFdRvD68YKbYHcfutZwPvh3I7kmvrE0",
+    libraries,
+  });
 
   // useEffect(() => {
   //   setIsLoaded(isGoogleMapsLoaded);
@@ -86,6 +86,8 @@ const Home = () => {
     }
   };
   const scrollToComponent = (userefElement: number) => {
+    console.log(userefElement);
+
     if (userefElement) {
       window.scrollTo({
         top: userefElement,
@@ -231,7 +233,7 @@ const Home = () => {
 
   return (
     <Fragment>
-      <section className="flex flex-col justify-between">
+      <section className="flex flex-col justify-between bg-white dark:bg-black">
         <Aside />
         {!location.pathname.startsWith("/Authorization") &&
           !location.pathname.startsWith("/admin") && (
@@ -348,7 +350,7 @@ const Home = () => {
                       <Link to="/#hotel">
                         <span
                           onClick={() => {
-                            scrollToComponent(componentRefs.hotelRef);
+                            scrollToComponent(componentRefs.hotelRef + 350);
                           }}
                         >
                           Hotel
@@ -603,7 +605,7 @@ const Home = () => {
                       <Link to="/#hotel">
                         <span
                           onClick={() => {
-                            scrollToComponent(componentRefs.hotelRef);
+                            scrollToComponent(componentRefs.hotelRef + 350);
                           }}
                           className="before:content-[''] before:absolute before:rounded-md before:bg-orange-500 dark:before:bg-blue-800 before:h-1 before:w-full before:left-0 before:-top-[0.1rem] before:scale-x-0 before:origin-right before:transition-transform before:duration-500 before:ease-linear
                               hover:before:scale-100 hover:before:origin-left"
@@ -630,7 +632,7 @@ const Home = () => {
               </nav>
             </header>
           )}
-        <main>
+        <main className="bg-white dark:bg-black">
           <Outlet />
         </main>
         {!location.pathname.startsWith("/Authorization") &&
@@ -665,6 +667,7 @@ const Home = () => {
                           : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664602/Site%20Images/FACEBOOK-light_ktkwi0.png"
                       }
                       title="Facebook"
+                      alt="facebook page"
                       className="min-900:hover:scale-125 min-900:transition-all duration-300"
                     />
                     <img
@@ -675,6 +678,7 @@ const Home = () => {
                           ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664627/Site%20Images/INSTAGRAM_nmmuao.png"
                           : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664634/Site%20Images/INSTAGRAM-light_eiz1ru.png"
                       }
+                      alt="instagram page"
                       title="Instagram"
                       className="min-900:hover:scale-125 min-900:transition-all duration-300"
                     />
@@ -686,6 +690,7 @@ const Home = () => {
                           ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664641/Site%20Images/TIKTOK_y69a9r.png"
                           : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664648/Site%20Images/TikTok-light_u70oc6.png"
                       }
+                      alt="tiktok page"
                       title="TikTok"
                       className="min-900:hover:scale-125 min-900:transition-all duration-300"
                     />
@@ -697,13 +702,14 @@ const Home = () => {
                           ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664611/Site%20Images/GMAIL_vghyvp.png"
                           : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664619/Site%20Images/Gmail-light_cdl2hk.png"
                       }
+                      alt="gmail"
                       title="Gmail"
                       className="min-900:hover:scale-125 min-900:transition-all duration-300"
                     />
                   </div>
                 </div>
                 <div className="w-full  rounded-lg overflow-hidden">
-                  {/* {isLoaded ? <Map /> : "Loading"} */}
+                  {isLoaded ? <Map /> : "Loading"}
                 </div>
               </div>
               <div className="flex flex-col w-full items-center mt-20 gap-4">

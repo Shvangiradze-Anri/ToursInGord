@@ -4,19 +4,13 @@ import {
   useEffect,
   useMemo,
   useState,
-  lazy,
-  Suspense,
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { changePasswordValidation } from "../validation/validation";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../redux/redux";
 import { axiosUser } from "../../../../api/axios";
-
-// Lazy load Helmet component
-const Helmet = lazy(() =>
-  import("react-helmet-async").then((module) => ({ default: module.Helmet }))
-);
+import { Helmet } from "react-helmet-async";
 
 // Lazy load react-toastify
 const loadToastify = async () => {
@@ -110,16 +104,14 @@ function NewPassword() {
 
   return (
     <Fragment>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Helmet>
-          <title>New Password</title>
-          <meta name="description" content="Enter new password" />
-          <link
-            rel="canonical"
-            href="/Authorization/Change_Password/New_Password"
-          />
-        </Helmet>
-      </Suspense>
+      <Helmet>
+        <title>New Password</title>
+        <meta name="description" content="Enter new password" />
+        <link
+          rel="canonical"
+          href="/Authorization/Change_Password/New_Password"
+        />
+      </Helmet>
       <div
         style={{ backgroundImage: `url(${backgroundImages?.image})` }}
         className="grid place-items-center h-[100dvh] bg-cover bg-center bg-no-repeat px-4 min-700:px-12 min-900:px-28 bg-white dark:bg-black"

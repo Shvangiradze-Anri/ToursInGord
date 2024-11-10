@@ -8,7 +8,7 @@ function Gallery() {
     <Fragment>
       {" "}
       <Helmet>
-        <title>Site Images</title>
+        <title>Site Gallery Images</title>
         <meta name="description" content="Site images data" />
         <link rel="canonical" href="/ImagesData/Gallery" />
       </Helmet>

@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
-import { csrfToken } from "./refreshToken.js";
+import tokenStore from "./refershtokens.js";
 
+let counter = 0;
 const authenticateRefreshToken = (req, res, next) => {
   const refreshToken = req.cookies.refreshT;
   const csrfT = req.cookies.csrfT;
@@ -8,9 +9,35 @@ const authenticateRefreshToken = (req, res, next) => {
   if (!refreshToken) {
     return res.status(401).json("You are not authenticated");
   }
-  // if (csrfT !== csrfToken) {
-  //   return res.status(401).json("You are not ablle to access on platform");
-  // }
+  // console.log(((counter = counter + 1), "        "));
+  // console.log("Refresh Token Received:", refreshToken);
+  // console.log("Stored Token for Comparison:", tokenStore.refreshTokens);
+
+  if (tokenStore.refreshTokens !== refreshToken) {
+    return res
+      .clearCookie("accessT", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        path: "/",
+      })
+      .clearCookie("refreshT", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        path: "/",
+      })
+      .clearCookie("csrfT", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        path: "/",
+      })
+      .json({ expDate: undefined });
+  }
+  if (csrfT !== tokenStore.csrfToken) {
+    return res.status(401).json("You are not ablle to access on platform");
+  }
 
   jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, (err, user) => {
     if (err) {

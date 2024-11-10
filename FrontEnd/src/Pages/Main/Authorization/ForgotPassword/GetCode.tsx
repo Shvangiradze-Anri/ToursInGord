@@ -1,8 +1,6 @@
 import {
   FormEventHandler,
   Fragment,
-  lazy,
-  Suspense,
   useEffect,
   useMemo,
   useRef,
@@ -13,9 +11,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import CryptoJS from "crypto-js";
 import { RootState } from "../../../../redux/redux";
-const Helmet = lazy(() =>
-  import("react-helmet-async").then((module) => ({ default: module.Helmet }))
-);
+import { Helmet } from "react-helmet-async";
 
 function GetCode() {
   const codeRef = useRef<HTMLInputElement | null>(null);
@@ -87,12 +83,10 @@ function GetCode() {
   }, [darkMode]);
   return (
     <Fragment>
-      <Suspense fallback={<div>Loading Helmet...</div>}>
-        <Helmet>
-          <title>Write code</title>
-          <meta name="description" content="write code to acces changes" />
-        </Helmet>
-      </Suspense>
+      <Helmet>
+        <title>Write code</title>
+        <meta name="description" content="write code to acces changes" />
+      </Helmet>
       <div
         style={{ backgroundImage: `url(${backgroundImages?.image})` }}
         className="grid place-items-center  h-[100dvh] bg-cover bg-center bg-no-repeat  px-4 min-700:px-12 min-900:px-28 bg-white dark:bg-black"

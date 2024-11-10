@@ -1,4 +1,4 @@
-import { Fragment, Suspense } from "react";
+import { Fragment } from "react";
 import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { RootState } from "../redux/redux";
@@ -15,19 +15,17 @@ function Admin() {
 
   return (
     <Fragment>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Helmet>
-          <title>Admin Page</title>
-          <meta
-            name="description"
-            content="Admin page where the admin has the ability to change the images and user data."
-          />
-          <link rel="canonical" href="toursingord.netlify.app" />
-        </Helmet>
-      </Suspense>
-      <section className="">
+      <Helmet>
+        <title>Admin Page</title>
+        <meta
+          name="description"
+          content="Admin page where the admin has the ability to change the images and user data."
+        />
+        <link rel="canonical" href="/admin" />
+      </Helmet>
+      <section className="bg-[#03e2ff7d] dark:bg-purple-950">
         {isAdmin ? (
-          <div className="grid gap-8  grid-flow-row h-[100dvh] py-[70%] place-items-center px-4 min-500:py-0 min-500:grid-flow-col min-700:px-12   pt min-900:px-28 bg-[#03e2ff7d] dark:bg-purple-950">
+          <div className="grid gap-8  grid-flow-row h-[100dvh] py-[70%] place-items-center px-4 min-500:py-0 min-500:grid-flow-col min-700:px-12   pt min-900:px-28 ">
             <div
               title="Galley Images"
               className="bg-gradient-to-b  from-blue-400 cursor-pointer rounded-2xl p-6  min-300:p-5 min-700:p-8 min-1000:p-12 min-1400:p-20  dark:from-purple-600 "

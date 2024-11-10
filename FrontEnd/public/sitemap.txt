@@ -1,0 +1,14 @@
+https://toursingord.netlify.app/
+https://toursingord.netlify.app/BookTour
+https://toursingord.netlify.app/Bucket
+https://toursingord.netlify.app/admin
+https://toursingord.netlify.app/admin/ImagesData
+https://toursingord.netlify.app/admin/ImagesData/Tour
+https://toursingord.netlify.app/admin/ImagesData/Gallery
+https://toursingord.netlify.app/admin/ImagesData/Hotel
+https://toursingord.netlify.app/admin/UsersData
+https://toursingord.netlify.app/Authorization
+https://toursingord.netlify.app/Authorization/Registration
+https://toursingord.netlify.app/Authorization/Change_Password
+https://toursingord.netlify.app/Authorization/Get_Code
+https://toursingord.netlify.app/Authorization/New_Password

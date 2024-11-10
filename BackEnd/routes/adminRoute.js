@@ -7,11 +7,10 @@ const adminRouter = express.Router();
 adminRouter.use(
   cors({
     credentials: true,
-    origin: "https://toursingord.netlify.app",
+    origin: "toursingord.netlify.app",
   })
 );
 
-// Define routes with dynamic imports
 adminRouter.post("/uploadImages", authenticateToken, async (req, res, next) => {
   const { uploadImages } = await import("../controllers/adminControler.js");
   uploadImages(req, res, next);

@@ -7,7 +7,7 @@ function Hotel() {
   return (
     <Fragment>
       <Helmet>
-        <title>Site Images</title>
+        <title>Site Hotel Images</title>
         <meta name="description" content="Site images data" />
         <link rel="canonical" href="/ImagesData/Hotel" />
       </Helmet>

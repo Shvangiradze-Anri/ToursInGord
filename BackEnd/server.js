@@ -1,9 +1,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
-import { router } from "./routes/authRoutes.js";
 import mongoose from "mongoose";
-import { adminRouter } from "./routes/adminRoute.js";
 
 dotenv.config();
 const app = express();
@@ -20,7 +18,7 @@ app.use(cookieParser());
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'self' https://toursingord.netlify.app; script-src 'self' https://trusted-cdn.com"
+    "default-src 'self' toursingord.netlify.app; script-src 'self' https://trusted-cdn.com"
   );
   next();
 });

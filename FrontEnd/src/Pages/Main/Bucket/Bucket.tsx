@@ -1,16 +1,14 @@
-import { Fragment, Suspense } from "react";
+import { Fragment } from "react";
 import { Helmet } from "react-helmet-async";
 
 function Bucket() {
   return (
     <Fragment>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Helmet>
-          <title>Bucket</title>
-          <meta name="description" content="Your Purchased Tickets" />
-          <link rel="canonical" href="/Bucket" />
-        </Helmet>
-      </Suspense>
+      <Helmet>
+        <title>Bucket</title>
+        <meta name="description" content="Your Purchased Tickets" />
+        <link rel="canonical" href="/Bucket" />
+      </Helmet>
       <section className="pt-[17.25rem] pb-[10rem]  px-4 min-700:px-12 min-900:px-28 bg-white dark:bg-black">
         <div className="grid justify-center  gap-5 p-4 min-600:p-12 min-900:p-20 rounded-lg bg-[#00e1ff3a] dark:bg-[#00e1ff0f]">
           <p className="text-res-special-galerry-title  dark:text-blue-800 text-[#e89c3e]">

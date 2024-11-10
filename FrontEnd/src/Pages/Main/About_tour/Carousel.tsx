@@ -1,11 +1,4 @@
-import {
-  useMemo,
-  useState,
-  Suspense,
-  useCallback,
-  useEffect,
-  lazy,
-} from "react";
+import { useMemo, useState, useCallback, useEffect, lazy } from "react";
 
 import { axiosUser } from "../../../api/axios";
 const CarouselItems = lazy(() => import("./CarouselItems"));
@@ -21,13 +14,11 @@ function Carousel() {
   };
 
   type ImagesState = {
-    loading: boolean;
     images: Image[];
     error: string | null;
   };
 
   const [tourImages, setTourImages] = useState<ImagesState>({
-    loading: true,
     images: [],
     error: null,
   });
@@ -37,13 +28,11 @@ function Carousel() {
       try {
         const response = await axiosUser.get("/tourimages");
         setTourImages({
-          loading: false,
           images: response.data,
           error: null,
         });
       } catch (err) {
         setTourImages({
-          loading: false,
           images: [],
           error: "Failed to load hotel images",
         });
@@ -83,18 +72,16 @@ function Carousel() {
         style={{ transform: `translate(-${activeIndex * 100}%)` }}
         className="whitespace-nowrap transition-transform duration-300 [&>div]:inline-flex"
       >
-        <Suspense fallback={<div>Loading...</div>}>
-          {!tourImages.error && memoizedTourImages.length > 0 ? (
-            memoizedTourImages.map((item) => (
-              <CarouselItems
-                key={item._id} // Using _id as key
-                items={item.image ? item.image : filteredImageNotFound} // Pass only the URL
-              />
-            ))
-          ) : (
-            <CarouselItems items={filteredImageNotFound} />
-          )}
-        </Suspense>
+        {!tourImages.error && memoizedTourImages.length > 0 ? (
+          memoizedTourImages.map((item) => (
+            <CarouselItems
+              key={item._id} // Using _id as key
+              items={item.image ? item.image : filteredImageNotFound} // Pass only the URL
+            />
+          ))
+        ) : (
+          <CarouselItems items={filteredImageNotFound} />
+        )}
       </div>
       <div className="flex gap-x-4">
         <button

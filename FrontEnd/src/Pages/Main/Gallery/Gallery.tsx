@@ -168,7 +168,7 @@ const Gallery = () => {
                 loading="lazy"
                 decoding="async"
                 src={selectedImageURL}
-                alt="Full Screen"
+                alt="gallery images"
                 className="w-2/4 rounded-lg"
               />
             </div>

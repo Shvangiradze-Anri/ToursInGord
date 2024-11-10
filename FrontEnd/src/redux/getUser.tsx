@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { RootState } from "./redux";
 
 interface UserImage {
-  url: string; // Add other properties as needed
+  url: string;
 }
 
 interface User {
@@ -12,8 +12,8 @@ interface User {
   name: string;
   lastname: string;
   email: string;
-  password: string; // Consider excluding this from state if not needed
-  image: UserImage; // More specific type for image
+  password: string;
+  image: UserImage;
   gender: string;
   birthday: string;
   role: string;
@@ -32,15 +32,14 @@ const initialState: UserState = {
   error: null,
 };
 
-// let cachedUser: User | null = null;
-
 export const fetchUser = createAsyncThunk(
   "user/fetchSingleUser",
   async (_, { getState }) => {
-    const state = getState() as RootState; // Explicitly type state with RootState
+    const state = getState() as RootState;
+    console.log("user logged");
 
     if (state.user.user) {
-      return state.user.user; // Return existing user data if available
+      return state.user.user;
     }
 
     try {
@@ -48,40 +47,42 @@ export const fetchUser = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.error("Error fetching user:", error);
-      throw error;
+      window.location.replace("/");
+      localStorage.removeItem("expDate");
+      clearUserProfile();
     }
   }
 );
-
-// Async thunk for updating the user image
 export const updateUserImage = createAsyncThunk(
   "user/updateUserImage",
-  async (
-    {
-      email,
-      userImage,
-    }: { email: string; userImage: string | ArrayBuffer | null },
-    { dispatch }
-  ) => {
+  async ({
+    email,
+    userImage,
+  }: {
+    email: string;
+    userImage: string | ArrayBuffer | null;
+  }) => {
     try {
       const response = await axiosAdmin.put(`/users/update/image/${email}`, {
         userImage,
       });
 
-      if (response.status !== 404 && response.data.length > 0) {
-        toast.success(`${response.data}`);
+      console.log("Update Image Response:", response);
 
-        dispatch(fetchUser()); // Fetch the updated user data after the image update
+      if (response.status !== 404 && response.data) {
+        toast.success("Image is updated");
+        return response.data;
+      } else {
+        throw new Error("Image update failed or returned no data.");
       }
     } catch (error) {
       console.error("Error updating user image:", error);
-      toast.error("Failed to update user image."); // Notify the user
-      throw error; // Rethrow the error for proper handling
+      toast.error("Failed to update user image.");
+      throw error;
     }
   }
 );
 
-// Async thunk for logging out the user
 export const logoutUser = createAsyncThunk(
   "user/logoutUser",
   async (_, { dispatch }) => {
@@ -98,15 +99,14 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
-// Define the clearUserProfile reducer
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
     clearUserProfile(state) {
-      state.user = null; // Reset user profile
-      state.loading = false; // Reset loading state
-      state.error = null; // Reset error state
+      state.user = null;
+      state.loading = false;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -116,15 +116,28 @@ const userSlice = createSlice({
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload; // Store user data in state
+        state.user = action.payload;
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || "An error occurred"; // Handle error
+        state.error = action.error.message || "An error occurred";
+      })
+      .addCase(updateUserImage.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateUserImage.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.user && action.payload) {
+          console.log(action);
+          state.user.image = action.payload.image;
+        }
+      })
+      .addCase(updateUserImage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "An error occurred";
       });
   },
 });
 
-// Export the action creator and slice reducer
-export const { clearUserProfile } = userSlice.actions; // Export the action creator
-export default userSlice.reducer; // Export the reducer
+export const { clearUserProfile } = userSlice.actions;
+export default userSlice.reducer;

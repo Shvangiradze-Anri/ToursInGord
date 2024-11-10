@@ -17,7 +17,7 @@ function FetchAdminUsers() {
     gender: string;
     role: string;
   };
-  const { adminUsers, loading, error } = useSelector(
+  const { adminUsers, error } = useSelector(
     (state: RootState) => state.adminUsers
   );
 
@@ -53,16 +53,6 @@ function FetchAdminUsers() {
     },
     [dispatch]
   );
-
-  if (loading) {
-    return (
-      <tbody>
-        <tr>
-          <td colSpan={8}>Loading...</td>
-        </tr>
-      </tbody>
-    );
-  }
 
   if (error) {
     return (

@@ -27,9 +27,13 @@ function Places({ setOffice }: PlaceProps) {
     setValue(location, false);
     clearSuggestions();
 
-    const results = await getGeocode({ address: location });
-    const { lat, lng } = getLatLng(results[0]);
-    setOffice({ lat, lng });
+    try {
+      const results = await getGeocode({ address: location });
+      const { lat, lng } = getLatLng(results[0]);
+      setOffice({ lat, lng });
+    } catch (error) {
+      console.error("Error fetching coordinates:", error);
+    }
   };
 
   return (

@@ -7,8 +7,6 @@ import CryptoJS from "crypto-js";
 const uploadImages = async (req, res) => {
   try {
     const { image, page } = req.body;
-
-    // Verify `page` and upload image to Cloudinary
     let ImageModel;
     if (page === "tour") {
       ImageModel = Tourimage;
@@ -17,17 +15,13 @@ const uploadImages = async (req, res) => {
     } else if (page === "hotel") {
       ImageModel = Hotelimage;
     } else {
-      // Invalid page value
       return res.status(400).json({ error: "Invalid page value" });
     }
-
-    // Upload image to Cloudinary if not found or proceed with duplicate logic if needed
     const cloudRes = await cloudinary.uploader.upload(image, {
       upload_preset: "site_images_preset",
     });
 
     if (cloudRes) {
-      // Save new image in the database
       const newImage = new ImageModel({
         image: {
           public_id: cloudRes.public_id,
@@ -36,8 +30,6 @@ const uploadImages = async (req, res) => {
         page,
       });
       const savedImage = await newImage.save();
-
-      // Set headers and send response
       res.setHeader("Content-Type", "application/json");
       res.setHeader("Cache-Control", "public, max-age=7776000000");
 
@@ -60,10 +52,10 @@ const uploadImages = async (req, res) => {
 
 const getTourImages = async (req, res) => {
   try {
-    const images = await Tourimage.find(); // Fetches fresh data each time
+    const images = await Tourimage.find();
 
     res.setHeader("Content-Type", "application/json");
-    res.setHeader("Cache-Control", "no-store"); // Prevents caching on client side
+    res.setHeader("Cache-Control", "no-store");
     res.json(images);
   } catch (error) {
     console.error("Error fetching tour images:", error);
@@ -99,13 +91,11 @@ const getHotelImages = async (req, res) => {
 
 const deleteImage = async (req, res) => {
   try {
-    const { page } = req.query; // Extract the page parameter
+    const { page } = req.query;
     console.log(page);
 
     if (page) {
       let deleteImageDb;
-
-      // Check the page type and delete from the correct collection
       if (page === "tour") {
         const image = await Tourimage.findById(req.params._id);
         if (!image) return res.status(404).send("Image not found");
@@ -166,17 +156,11 @@ const adminusers = async (req, res) => {
   }
 };
 
-// let counter = 0;
 const getUser = async (req, res) => {
   try {
-    // Use an object with the email field as a filter
     const user = await User.findOne({ email: req.user.email }).select(
       "-password"
     );
-    // if (user) {
-    //   console.log(`get User  ${counter++} : `, user);
-    // }
-
     if (!user) {
       return res.status(404).send({ message: "User not found" });
     }
