@@ -1,8 +1,6 @@
 import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 
-import Places from "./Places";
-
 type LatLngLiteral = google.maps.LatLngLiteral;
 type MapOptions = google.maps.MapOptions;
 
@@ -29,17 +27,23 @@ function Map() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onLoad = useCallback(async (map: any) => (mapRef.current = map), []);
+
+  // Open Google Maps with given coordinates
+  const openGoogleMaps = (position: LatLngLiteral) => {
+    const { lat, lng } = position;
+    const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+    window.open(googleMapsUrl, "_blank"); // Open in a new tab
+  };
+
+  // Handle click event on the map
+  const onMapClick = () => {
+    if (office) {
+      openGoogleMaps(office);
+    }
+  };
+
   return (
-    <div className="flex flex-col  h-96">
-      <div className="grid w-full p-4  text-center bg-[#00e1ff0f] text-blue-800 dark:text-[#e89c3e] text-res-md">
-        <h1>Places</h1>
-        <Places
-          setOffice={(position) => {
-            setOffice(position);
-            mapRef.current?.panTo(position);
-          }}
-        />
-      </div>
+    <div className="flex flex-col h-96">
       <div className="w-full h-full">
         <GoogleMap
           zoom={10}
@@ -47,6 +51,7 @@ function Map() {
           mapContainerClassName="map-container"
           options={options}
           onLoad={onLoad}
+          onClick={onMapClick}
         >
           {office && <Marker position={office} />}
         </GoogleMap>

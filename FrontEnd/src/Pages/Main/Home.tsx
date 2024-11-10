@@ -13,12 +13,12 @@ import { useDispatch, useSelector } from "react-redux";
 import useWindowResize from "../../Hooks/useWindowResize";
 import Aside from "../../Components/Aside/Aside";
 
-import Map from "../../Components/Footer/Map";
-import { Libraries, useJsApiLoader } from "@react-google-maps/api";
+// import Map from "../../Components/Footer/Map";
+// import { Libraries, useJsApiLoader } from "@react-google-maps/api";
 import { AppDispatch, RootState } from "../../redux/redux";
 import { axiosUser } from "../../api/axios";
 
-const libraries: Libraries = ["places"];
+// const libraries: Libraries = ["places"];
 
 const Home = () => {
   const location = useLocation();
@@ -54,11 +54,11 @@ const Home = () => {
 
   // const [isLoad, setIsLoaded] = useState(false);
 
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: "AIzaSyApMFdRvD68YKbYHcfutZwPvh3I7kmvrE0",
-    libraries,
-  });
+  // const { isLoaded } = useJsApiLoader({
+  //   id: "google-map-script",
+  //   googleMapsApiKey: "AIzaSyApMFdRvD68YKbYHcfutZwPvh3I7kmvrE0",
+  //   libraries,
+  // });
 
   // useEffect(() => {
   //   setIsLoaded(isGoogleMapsLoaded);
@@ -709,7 +709,7 @@ const Home = () => {
                   </div>
                 </div>
                 <div className="w-full  rounded-lg overflow-hidden">
-                  {isLoaded ? <Map /> : "Loading"}
+                  {/* {isLoaded ? <Map /> : "Loading"} */}
                 </div>
               </div>
               <div className="flex flex-col w-full items-center mt-20 gap-4">

@@ -48,23 +48,23 @@ const refreshToken = (req, res) => {
 
       return res
         .cookie("accessT", newAccessToken, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "None",
+          httpOnly: false,
+          secure: false,
+          sameSite: "lax",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("refreshT", newRefreshToken, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "None",
+          httpOnly: false,
+          secure: false,
+          sameSite: "lax",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("csrfT", tokenStore.csrfToken, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "None",
+          httpOnly: false,
+          secure: false,
+          sameSite: "lax",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })

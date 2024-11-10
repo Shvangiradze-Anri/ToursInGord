@@ -102,7 +102,7 @@ const Main = () => {
               <p className="text-blue-900 dark:text-[#e89c3e] text-res-base">
                 Phone:
               </p>
-              <p className="text-res-sm">5</p>
+              <p className="text-res-sm">555 555 555</p>
             </div>
             <div>
               <p className="text-blue-900 dark:text-[#e89c3e] text-res-base">

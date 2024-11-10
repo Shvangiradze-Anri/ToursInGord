@@ -6,7 +6,7 @@ const router = express.Router();
 router.use(
   cors({
     credentials: true,
-    origin: "toursingord.netlify.app",
+    origin: "http://localhost:5173",
   })
 );
 //toursingord.netlify.app

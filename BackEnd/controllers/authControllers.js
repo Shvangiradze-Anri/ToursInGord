@@ -135,23 +135,23 @@ const logIn = async (req, res) => {
 
       return res
         .cookie("accessT", accessT, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "None",
+          httpOnly: false,
+          secure: false,
+          sameSite: "lax",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("refreshT", refreshT, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "None",
+          httpOnly: false,
+          secure: false,
+          sameSite: "lax",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("csrfT", tokenStore.csrfToken, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "None",
+          httpOnly: false,
+          secure: false,
+          sameSite: "lax",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
@@ -167,21 +167,21 @@ const logIn = async (req, res) => {
 const logOut = (req, res) => {
   return res
     .clearCookie("accessT", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
+      httpOnly: false,
+      secure: false,
+      sameSite: "lax",
       path: "/",
     })
     .clearCookie("refreshT", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
+      httpOnly: false,
+      secure: false,
+      sameSite: "lax",
       path: "/",
     })
     .clearCookie("csrfT", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
+      httpOnly: false,
+      secure: false,
+      sameSite: "lax",
       path: "/",
     })
     .json({ expDate: undefined });
