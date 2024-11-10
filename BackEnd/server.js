@@ -18,7 +18,7 @@ app.use(cookieParser());
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' https://trusted-cdn.com; connect-src 'self' toursingord.netlify.app; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+    "default-src 'self'; script-src 'self' https://trusted-cdn.com; connect-src 'self' https://toursingord.netlify.app; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
   );
   next();
 });
