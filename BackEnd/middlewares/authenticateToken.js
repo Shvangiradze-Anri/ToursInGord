@@ -12,21 +12,21 @@ const authenticateToken = (req, res, next) => {
   if (csrfT !== tokenStore.csrfToken) {
     return res
       .clearCookie("accessT", {
-        httpOnly: false,
-        secure: false,
-        sameSite: "lax",
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
         path: "/",
       })
       .clearCookie("refreshT", {
-        httpOnly: false,
-        secure: false,
-        sameSite: "lax",
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
         path: "/",
       })
       .clearCookie("csrfT", {
-        httpOnly: false,
-        secure: false,
-        sameSite: "lax",
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
         path: "/",
       })
       .status(401)
