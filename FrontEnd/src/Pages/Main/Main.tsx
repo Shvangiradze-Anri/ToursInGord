@@ -140,7 +140,7 @@ const Main = () => {
       <section
         ref={aboutTourRef}
         style={{ backgroundImage: `url(${backgroundImages?.tour})` }}
-        className="grid items-center min-h-[100dvh]  px-4 py-20 bg-no-repeat bg-cover  shadow-whole-white dark:shadow-whole-black min-700:px-12"
+        className="grid items-center h-[100dvh]  px-4 py-20 bg-no-repeat bg-cover  shadow-whole-white dark:shadow-whole-black min-700:px-12"
       >
         <AboutTour />
       </section>
@@ -151,7 +151,7 @@ const Main = () => {
         id="hotelref"
         ref={hotelRef}
         style={{ backgroundImage: `url(${backgroundImages?.hotel})` }}
-        className=" grid  items-center content-center w-full min-h-[100dvh] px-4 py-20 bg-cover bg-center bg-no-repeat bottom-0 left-0 relative shadow-whole-white dark:shadow-whole-black min-700:px-12 min-900:gap-8"
+        className=" grid  items-center content-center w-full h-[100dvh] px-4 py-20 bg-cover bg-center bg-no-repeat bottom-0 left-0 relative shadow-whole-white dark:shadow-whole-black min-700:px-12 min-900:gap-8"
       >
         <Hotel />
       </section>

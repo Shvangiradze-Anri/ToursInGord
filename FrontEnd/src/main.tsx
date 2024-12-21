@@ -56,7 +56,7 @@ const route = createBrowserRouter(
             FallbackComponent={ErrorFallback}
             onReset={() => window.location.replace("/")}
           >
-            <Suspense fallback={<div>Loading</div>}>
+            <Suspense>
               <Book />
             </Suspense>
           </ErrorBoundary>
@@ -69,7 +69,7 @@ const route = createBrowserRouter(
             FallbackComponent={ErrorFallback}
             onReset={() => window.location.replace("/")}
           >
-            <Suspense fallback={<div>Loading</div>}>
+            <Suspense>
               <Bucket />
             </Suspense>
           </ErrorBoundary>
@@ -83,7 +83,7 @@ const route = createBrowserRouter(
               FallbackComponent={ErrorFallback}
               onReset={() => window.location.replace("/")}
             >
-              <Suspense fallback={<div>Loading</div>}>
+              <Suspense>
                 <Admin />
               </Suspense>
             </ErrorBoundary>
@@ -96,7 +96,7 @@ const route = createBrowserRouter(
               FallbackComponent={ErrorFallback}
               onReset={() => window.location.replace("/")}
             >
-              <Suspense fallback={<div>Loading</div>}>
+              <Suspense>
                 <SiteImages />
               </Suspense>
             </ErrorBoundary>
@@ -109,7 +109,7 @@ const route = createBrowserRouter(
                 FallbackComponent={ErrorFallback}
                 onReset={() => window.location.replace("/")}
               >
-                <Suspense fallback={<div>Loading</div>}>
+                <Suspense>
                   <Tour />
                 </Suspense>
               </ErrorBoundary>
@@ -122,7 +122,7 @@ const route = createBrowserRouter(
                 FallbackComponent={ErrorFallback}
                 onReset={() => window.location.replace("/")}
               >
-                <Suspense fallback={<div>Loading</div>}>
+                <Suspense>
                   <Gallery />
                 </Suspense>
               </ErrorBoundary>
@@ -135,7 +135,7 @@ const route = createBrowserRouter(
                 FallbackComponent={ErrorFallback}
                 onReset={() => window.location.replace("/")}
               >
-                <Suspense fallback={<div>Loading</div>}>
+                <Suspense>
                   <Hotel />
                 </Suspense>
               </ErrorBoundary>
@@ -150,7 +150,7 @@ const route = createBrowserRouter(
               FallbackComponent={ErrorFallback}
               onReset={() => window.location.replace("/")}
             >
-              <Suspense fallback={<div>Loading</div>}>
+              <Suspense>
                 <UserData />
               </Suspense>
             </ErrorBoundary>
@@ -165,7 +165,7 @@ const route = createBrowserRouter(
               FallbackComponent={ErrorFallback}
               onReset={() => window.location.replace("/")}
             >
-              <Suspense fallback={<div>Loading</div>}>
+              <Suspense>
                 <LogIn />
               </Suspense>
             </ErrorBoundary>
@@ -178,7 +178,7 @@ const route = createBrowserRouter(
               FallbackComponent={ErrorFallback}
               onReset={() => window.location.replace("/")}
             >
-              <Suspense fallback={<div>Loading</div>}>
+              <Suspense>
                 <Registration />
               </Suspense>
             </ErrorBoundary>
@@ -192,7 +192,7 @@ const route = createBrowserRouter(
                 FallbackComponent={ErrorFallback}
                 onReset={() => window.location.replace("/")}
               >
-                <Suspense fallback={<div>Loading</div>}>
+                <Suspense>
                   <ChangePassword />
                 </Suspense>
               </ErrorBoundary>
@@ -205,7 +205,7 @@ const route = createBrowserRouter(
                 FallbackComponent={ErrorFallback}
                 onReset={() => window.location.replace("/")}
               >
-                <Suspense fallback={<div>Loading</div>}>
+                <Suspense>
                   <GetCode />
                 </Suspense>
               </ErrorBoundary>
@@ -218,7 +218,7 @@ const route = createBrowserRouter(
                 FallbackComponent={ErrorFallback}
                 onReset={() => window.location.replace("/")}
               >
-                <Suspense fallback={<div>Loading</div>}>
+                <Suspense>
                   <NewPassword />
                 </Suspense>
               </ErrorBoundary>

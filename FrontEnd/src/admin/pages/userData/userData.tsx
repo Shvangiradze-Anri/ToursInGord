@@ -18,7 +18,7 @@ function UserData() {
         <link rel="canonical" href="/UsersData" />
       </Helmet>
       {isAdmin ? (
-        <div className="bg-sky-500 dark:bg-purple-700 min-h-[100dvh] p-4 min-800:p-6">
+        <div className="bg-sky-500 dark:bg-purple-700 h-[100dvh] p-4 min-800:p-6">
           <div className="place-items-center">
             <div className="w-full">
               <div className="grid justify-center text-res-base">

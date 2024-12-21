@@ -29,24 +29,36 @@ const Gallery = () => {
   const [selectedImageURL, setSelectedImageURL] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchHotelImages = async () => {
+    let isMounted = true; // Flag to check if the component is still mounted
+
+    const fetchGalleryImages = async () => {
       try {
         const response = await axiosUser.get("/galleryimages");
-        setGalleryImages({
-          loading: false,
-          images: response.data,
-          error: null,
-        });
+        console.log("runs gallery");
+
+        if (isMounted) {
+          setGalleryImages({
+            loading: false,
+            images: response.data,
+            error: null,
+          });
+        }
       } catch (err) {
-        setGalleryImages({
-          loading: false,
-          images: [],
-          error: "Failed to load hotel images",
-        });
+        if (isMounted) {
+          setGalleryImages({
+            loading: false,
+            images: [],
+            error: "Failed to load hotel images",
+          });
+        }
       }
     };
 
-    fetchHotelImages();
+    fetchGalleryImages();
+
+    return () => {
+      isMounted = false; // Cleanup function to set the flag to false
+    };
   }, []);
 
   const filteredImageNotFound = {

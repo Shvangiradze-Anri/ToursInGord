@@ -31,22 +31,58 @@ type Image = {
   page: string;
 };
 
+let tourChachedImages: Image[] | null = null;
+let galleryChachedImages: Image[] | null = null;
+let hotelChachedImages: Image[] | null = null;
+
 export const fetchImages = createAsyncThunk(
   "tourImages/fetchImages",
   async (page: string) => {
-    // Specify 'page' as the parameter
+    let cachedImages: Image[] | null = null;
+
+    // Use specific cache based on the page
+    switch (page) {
+      case "tour":
+        cachedImages = tourChachedImages;
+        break;
+      case "gallery":
+        cachedImages = galleryChachedImages;
+        break;
+      case "hotel":
+        cachedImages = hotelChachedImages;
+        break;
+      default:
+        cachedImages = null;
+    }
+
+    if (cachedImages) {
+      console.log(`Returning cached images for ${page}`);
+      return cachedImages;
+    }
+
+    // If no cache, fetch images from the server
     try {
-      console.log("get images");
-
+      console.log(`Fetching images for ${page}`);
       const response = await axiosAdmin.get(`/${page}images`);
-      console.log(response);
-
       const imagesData = response.data;
+
+      // Update the cache based on the page
+      switch (page) {
+        case "tour":
+          tourChachedImages = imagesData;
+          break;
+        case "gallery":
+          galleryChachedImages = imagesData;
+          break;
+        case "hotel":
+          hotelChachedImages = imagesData;
+          break;
+      }
 
       return imagesData;
     } catch (error) {
       console.error("Error fetching images:", error);
-      throw error; // Rethrow the error to be caught by the caller
+      throw error;
     }
   }
 );
@@ -61,7 +97,7 @@ export const deleteImage = createAsyncThunk(
 
       if (response.status === 200) {
         toast.success("Image deleted");
-        return { _id: image._id }; // Return only the deleted image ID
+        return { _id: image._id, page: image.page }; // Include page in the return object
       } else {
         toast.error("Failed to delete image");
         return Promise.reject("Failed to delete image");
@@ -73,7 +109,6 @@ export const deleteImage = createAsyncThunk(
   }
 );
 
-// Define the expected structure of the error response
 interface ErrorResponse {
   error: string;
 }
@@ -101,14 +136,13 @@ export const uploadImage = createAsyncThunk(
 
       return res.data;
     } catch (error) {
-      // Check if the error is an instance of AxiosError
       if (error instanceof AxiosError) {
-        const axiosError = error as AxiosError<ErrorResponse>; // Type assertion
+        const axiosError = error as AxiosError<ErrorResponse>;
         if (axiosError.response) {
           const errorMessage =
             axiosError.response.data?.error || "An error occurred";
-          console.error("Error uploading image:", errorMessage); // Logs error from backend
-          toast.error(errorMessage); // Display error message to the user
+          console.error("Error uploading image:", errorMessage);
+          toast.error(errorMessage);
           return rejectWithValue(errorMessage);
         }
       } else {
@@ -120,13 +154,13 @@ export const uploadImage = createAsyncThunk(
   }
 );
 
-// Create the user slice
 const imageSlice = createSlice({
   name: "tourImages",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Fetch Images
       .addCase(fetchImages.pending, (state) => {
         state.loading = true;
         state.error = "";
@@ -141,21 +175,60 @@ const imageSlice = createSlice({
         state.images = [];
         state.error = action.error.message || "An error occurred";
       })
+      // Upload Image
       .addCase(uploadImage.pending, (state) => {
         state.uploadImageState = "pending";
       })
       .addCase(uploadImage.fulfilled, (state, action) => {
-        state.images.push(action.payload);
         state.uploadImageState = null;
+        state.images.push(action.payload);
+
+        // Update the appropriate cache based on the page of the uploaded image
+        const page = action.payload.page;
+        switch (page) {
+          case "tour":
+            tourChachedImages = tourChachedImages
+              ? [...tourChachedImages, action.payload]
+              : [action.payload];
+            break;
+          case "gallery":
+            galleryChachedImages = galleryChachedImages
+              ? [...galleryChachedImages, action.payload]
+              : [action.payload];
+            break;
+          case "hotel":
+            hotelChachedImages = hotelChachedImages
+              ? [...hotelChachedImages, action.payload]
+              : [action.payload];
+            break;
+        }
       })
-      .addCase(uploadImage.rejected, (state) => {
+      .addCase(uploadImage.rejected, (state, action) => {
         state.uploadImageState = "rejected";
+        state.error = action.error.message || "Failed to upload image";
       })
+      // Delete Image
       .addCase(deleteImage.pending, (state) => {
         state.deleteImageState = "pending";
       })
       .addCase(deleteImage.fulfilled, (state, action) => {
         const deletedId = action.payload._id;
+        const page = action.payload.page;
+
+        // Clear cache for the specific page to refetch fresh data on the next load
+        switch (page) {
+          case "tour":
+            tourChachedImages = null;
+            break;
+          case "gallery":
+            galleryChachedImages = null;
+            break;
+          case "hotel":
+            hotelChachedImages = null;
+            break;
+        }
+
+        // Remove deleted image from the state
         state.images = state.images.filter((image) => image._id !== deletedId);
       })
       .addCase(deleteImage.rejected, (state) => {
@@ -163,7 +236,5 @@ const imageSlice = createSlice({
       });
   },
 });
-
-// Export the async thunk and the slice reducer
 
 export default imageSlice.reducer;

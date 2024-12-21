@@ -66,51 +66,47 @@ function FetchAdminUsers() {
 
   return (
     <tbody>
-      {adminUsers && adminUsers.length > 0 ? (
-        adminUsers.map((user: User, index: number) => (
-          <tr key={index}>
-            <td className="px-3 py-2 text-res-sm border-opacity-70 border-b-[1px] border-sky-800 dark:border-purple-800">
-              {user.name}
-            </td>
-            <td
-              className="px-3 py-2 text-res-sm border-opacity-70 border-b-[1px] border-sky-800 dark:border-purple-800"
-              title={user.lastname}
-            >
-              {user.lastname}
-            </td>
-            <td
-              className="px-3 py-2 text-res-sm border-opacity-70 border-b-[1px] border-sky-800 dark:border-purple-800"
-              title={user.email}
-            >
-              {truncateText(user.email, 20)}
-            </td>
-            <td className="px-3 py-2 text-res-sm border-opacity-70 border-b-[1px] border-sky-800 dark:border-purple-800">
-              {user.birthday}
-            </td>
-            <td className="px-3 py-2 text-res-sm border-opacity-70 border-b-[1px] border-sky-800 dark:border-purple-800">
-              {user.gender}
-            </td>
-            <td className="px-3 py-2 text-res-sm border-opacity-70 border-b-[1px] border-sky-800 dark:border-purple-800">
-              {user.role}
-            </td>
-            <td className="pl-2">
-              <EditUsers users={user} />
-            </td>
-            <td>
-              <button
-                onClick={() => handleDelete(user._id)}
-                className="bg-sky-300 dark:bg-purple-400 px-2 py-1 rounded-lg text-res-sm"
+      {adminUsers && adminUsers.length > 0
+        ? adminUsers.map((user: User, index: number) => (
+            <tr key={index}>
+              <td className="px-3 py-2 text-res-sm border-opacity-70 border-b-[1px] border-sky-800 dark:border-purple-800">
+                {user.name}
+              </td>
+              <td
+                className="px-3 py-2 text-res-sm border-opacity-70 border-b-[1px] border-sky-800 dark:border-purple-800"
+                title={user.lastname}
               >
-                Delete
-              </button>
-            </td>
-          </tr>
-        ))
-      ) : (
-        <tr>
-          <td colSpan={8}>No users found</td>
-        </tr>
-      )}
+                {user.lastname}
+              </td>
+              <td
+                className="px-3 py-2 text-res-sm border-opacity-70 border-b-[1px] border-sky-800 dark:border-purple-800"
+                title={user.email}
+              >
+                {truncateText(user.email, 20)}
+              </td>
+              <td className="px-3 py-2 text-res-sm border-opacity-70 border-b-[1px] border-sky-800 dark:border-purple-800">
+                {user.birthday}
+              </td>
+              <td className="px-3 py-2 text-res-sm border-opacity-70 border-b-[1px] border-sky-800 dark:border-purple-800">
+                {user.gender}
+              </td>
+              <td className="px-3 py-2 text-res-sm border-opacity-70 border-b-[1px] border-sky-800 dark:border-purple-800">
+                {user.role}
+              </td>
+              <td className="pl-2">
+                <EditUsers users={user} />
+              </td>
+              <td>
+                <button
+                  onClick={() => handleDelete(user._id)}
+                  className="bg-sky-300 dark:bg-purple-400 px-2 py-1 rounded-lg text-res-sm"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))
+        : null}
     </tbody>
   );
 }

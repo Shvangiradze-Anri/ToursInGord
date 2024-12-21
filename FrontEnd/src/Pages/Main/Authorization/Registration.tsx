@@ -70,17 +70,15 @@ function Registration() {
     "Nov",
     "Dec",
   ];
-  const Year = Array.from({ length: 104 }, (_, i) => 1920 + i);
+
+  const [dayOpen, setDayOpen] = useState<boolean>(false);
+  const [monthOpen, setMonthOpen] = useState<boolean>(false);
+  const [monthAsNumber, setMonthASNUmber] = useState<number | null>(null);
+  const [yearOpen, setYearOpen] = useState<boolean>(false);
 
   const [selectedDay, setSelectedDay] = useState<string>("");
-  const [dayOpen, setDayOpen] = useState<boolean>(false);
-
   const [selectedMonth, setSelectedMonth] = useState<string>("");
-  const [monthAsNumber, setMonthASNUmber] = useState<number | null>(null);
-  const [monthOpen, setMonthOpen] = useState<boolean>(false);
-
   const [selectedYear, setSelectedYear] = useState<string>("");
-  const [yearOpen, setYearOpen] = useState<boolean>(false);
 
   const [birthday, setBirthday] = useState<string | null>(null);
 
@@ -88,9 +86,38 @@ function Registration() {
   const monthRef = useRef<HTMLDivElement | null>(null);
   const yearRef = useRef<HTMLDivElement | null>(null);
 
+  const [daysInMonth, setDaysInMonth] = useState<number[]>([]);
+  console.log("day", daysInMonth);
+  console.log("Day", Day);
+
+  const currentYear = new Date().getFullYear();
+  const Year = useMemo(
+    () => Array.from({ length: currentYear - 1919 + 2 }, (_, i) => 1920 + i),
+    [currentYear]
+  );
   useEffect(() => {
-    setBirthday(`${selectedDay}-${monthAsNumber}-${selectedYear}`);
-  }, [selectedYear, monthAsNumber, selectedDay]);
+    const getDaysInMonth = (month: number): number => {
+      // Array holding the number of days for each month (non-leap year scenario)
+      const daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+      return daysPerMonth[month]; // Get the number of days for the selected month
+    };
+
+    const monthIndex = Month.indexOf(selectedMonth);
+    if (monthIndex >= 0) {
+      const days = getDaysInMonth(monthIndex);
+      setDaysInMonth(Array.from({ length: days }, (_, i) => i + 1));
+    } else {
+      setDaysInMonth([]); // Reset if no month is selected
+    }
+  }, [selectedMonth]);
+
+  useEffect(() => {
+    setBirthday(
+      selectedDay && selectedMonth && selectedYear
+        ? `${selectedDay}-${selectedMonth}-${selectedYear}`
+        : null
+    );
+  }, [selectedDay, selectedMonth, monthAsNumber, selectedYear]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -472,31 +499,57 @@ function Registration() {
                       required
                     />
                   </div>
-                  {Day.map((day: number, id: number) => {
-                    return (
-                      <li
-                        key={id}
-                        onClick={() => {
-                          setSelectedDay(day.toString());
-                          setDayOpen(false);
-                        }}
-                        className={`w-full text-res-sm text-black dark:text-white bg-transparent list-none hover:bg-[#00e1ff2a] rounded pl-1 ${
-                          day.toString().startsWith(selectedDay)
-                            ? "block"
-                            : setTimeout(() => {
-                                "hidden";
-                              }, 1000)
-                        }
+                  {daysInMonth.length > 0
+                    ? daysInMonth.map((day: number, id: number) => {
+                        return (
+                          <li
+                            key={id}
+                            onClick={() => {
+                              setSelectedDay(day.toString());
+                              setDayOpen(false);
+                            }}
+                            className={`w-full text-res-sm text-black dark:text-white bg-transparent list-none hover:bg-[#00e1ff2a] rounded pl-1 ${
+                              day.toString().startsWith(selectedDay)
+                                ? "block"
+                                : setTimeout(() => {
+                                    "hidden";
+                                  }, 1000)
+                            }
                           ${
                             day.toString() === selectedDay
                               ? " hover:bg-[#00e1ffbe]  dark:hover:bg-purple-500  "
                               : null
                           }`}
-                      >
-                        {day}
-                      </li>
-                    );
-                  })}
+                          >
+                            {day}
+                          </li>
+                        );
+                      })
+                    : Day.map((day: number, id: number) => {
+                        return (
+                          <li
+                            key={id}
+                            onClick={() => {
+                              setSelectedDay(day.toString());
+                              setDayOpen(false);
+                            }}
+                            className={`w-full text-res-sm text-black dark:text-white bg-transparent list-none hover:bg-[#00e1ff2a] rounded pl-1 ${
+                              day.toString().startsWith(selectedDay)
+                                ? "block"
+                                : setTimeout(() => {
+                                    "hidden";
+                                  }, 1000)
+                            }
+                          ${
+                            day.toString() === selectedDay
+                              ? " hover:bg-[#00e1ffbe]  dark:hover:bg-purple-500  "
+                              : null
+                          }`}
+                          >
+                            {day}
+                          </li>
+                        );
+                      })}
                 </ul>
               </div>
               <div ref={monthRef}>

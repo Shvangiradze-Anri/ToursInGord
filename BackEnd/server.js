@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import { createClient } from "@redis/client";
 
 dotenv.config();
 const app = express();
@@ -23,6 +24,14 @@ app.use((req, res, next) => {
   next();
 });
 
+const redisClient = createClient({
+  url: process.env.REDIS_URL,
+});
+
+redisClient.on("error", (err) => console.error("Redis Client Error:", err));
+
+await redisClient.connect();
+
 const loadRoutes = async () => {
   try {
     const { router } = await import("./routes/authRoutes.js");
@@ -37,3 +46,5 @@ const loadRoutes = async () => {
 loadRoutes();
 
 app.listen(5300, () => console.log("Listening"));
+
+export default redisClient;

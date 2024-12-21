@@ -1,7 +1,7 @@
-import { useMemo, useState, useCallback, useEffect, lazy } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 
 import { axiosUser } from "../../../api/axios";
-const CarouselItems = lazy(() => import("./CarouselItems"));
+import CarouselItems from "./CarouselItems";
 
 function Carousel() {
   type Image = {
@@ -24,7 +24,7 @@ function Carousel() {
   });
 
   useEffect(() => {
-    const fetchHotelImages = async () => {
+    const fetchTourImages = async () => {
       try {
         const response = await axiosUser.get("/tourimages");
         setTourImages({
@@ -39,7 +39,7 @@ function Carousel() {
       }
     };
 
-    fetchHotelImages();
+    fetchTourImages();
   }, []);
 
   const filteredImageNotFound = {

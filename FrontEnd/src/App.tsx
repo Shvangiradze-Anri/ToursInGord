@@ -60,7 +60,7 @@ const App = () => {
     };
 
     fetchInitialData();
-  }, [dispatch, user, refreshToken]); // `refreshToken` is now stable due to `useCallback`
+  }, [dispatch, user, refreshToken]);
 
   axiosAdmin.interceptors.request.use(
     async (config) => {
@@ -68,7 +68,7 @@ const App = () => {
       const currentTime = Date.now();
       loadingBarRef.current?.continuousStart();
 
-      if (expDate && !isNaN(expDate) && expDate < currentTime) {
+      if (expDate && !isNaN(expDate) && expDate <= currentTime) {
         console.log("runs");
         await refreshToken();
       }
@@ -97,7 +97,7 @@ const App = () => {
           name="description"
           content="Welcome to ToursInGord! Explore Georgia's Zeda Gordi. On this page you can learn about us, learn about our services, and view the photo gallery."
         />
-        <link rel="canonical" href="/" />
+        <link rel="canonical" href="https://toursingord.netlify.app" />
       </Helmet>{" "}
       <TopLoadingBar color="#f11946" ref={loadingBarRef} />
       <Home />

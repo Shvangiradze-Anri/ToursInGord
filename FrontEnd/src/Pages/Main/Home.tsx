@@ -533,8 +533,6 @@ const Home = () => {
                           className="h-full cursor-pointer"
                         >
                           <img
-                            loading="lazy"
-                            decoding="async"
                             src={
                               typeof user?.image === "object"
                                 ? user?.image.url
@@ -639,7 +637,7 @@ const Home = () => {
           !location.pathname.startsWith("/admin") && (
             <footer className=" w-full z-0  pt-20 px-4 shadow-whole-white  bg-slate-300 dark:bg-slate-900 dark:shadow-whole-black bg-cover bg-center bg-no-repeat bottom-0 left-0 min-700:px-12 min-900:px-20">
               <div className="flex flex-col  w-full gap-8 min-900:flex-row min-900:gap-16 min-1200:gap-24 min-1400:gap-44 min-1500:gap-64">
-                <div className="flex  flex-col  items-center gap-6 min-w-max min-h-full text-black dark:text-white min-900:items-start min-900:justify-between ">
+                <div className="flex  flex-col  items-center gap-6 min-w-max  h-full text-black dark:text-white min-900:items-start min-900:justify-between ">
                   <div className="grid gap-4  ">
                     <p className="text-res-lg text-center text-[#e89c3e] dark:text-[#1B3C82] mb-6 min-900:text-start">
                       Contact Us

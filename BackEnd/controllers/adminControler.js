@@ -3,6 +3,8 @@ import { User } from "../models/user.js";
 import { cloudinary } from "../utils/cloudinary.js";
 import { hashePassword } from "../helpers/hashpass.js";
 import CryptoJS from "crypto-js";
+import { createClient } from "@redis/client";
+import redisClient from "../server.js";
 
 const uploadImages = async (req, res) => {
   try {
@@ -30,8 +32,7 @@ const uploadImages = async (req, res) => {
         page,
       });
       const savedImage = await newImage.save();
-      res.setHeader("Content-Type", "application/json");
-      res.setHeader("Cache-Control", "public, max-age=7776000000");
+      await redisClient.del(page);
 
       return res.status(200).send(savedImage);
     } else {
@@ -52,39 +53,62 @@ const uploadImages = async (req, res) => {
 
 const getTourImages = async (req, res) => {
   try {
+    const cachedImages = await redisClient.get("tour");
+
+    if (cachedImages) {
+      console.log("Serving from Tour Redis cache");
+      return res.json(JSON.parse(cachedImages));
+    }
     const images = await Tourimage.find();
 
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader("Cache-Control", "no-store");
+    await redisClient.setEx("tour", 1209600, JSON.stringify(images));
+
+    console.log("Serving from Tour MongoDB and caching the result");
     res.json(images);
   } catch (error) {
-    console.error("Error fetching tour images:", error);
+    console.error("Error fetching gallery images:", error);
     res.status(500).send("Internal Server Error");
   }
 };
 
 const getGalleryImages = async (req, res) => {
   try {
-    const images = await Galleryimage.find(); // Fetches fresh data each time
+    const cachedImages = await redisClient.get("gallery");
 
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader("Cache-Control", "no-store"); // Prevents caching on client side
+    if (cachedImages) {
+      console.log("Serving from Gallery Redis cache");
+      return res.json(JSON.parse(cachedImages));
+    }
+
+    const images = await Galleryimage.find();
+
+    await redisClient.setEx("gallery", 1209600, JSON.stringify(images));
+
+    console.log("Serving from Gallery MongoDB and caching the result");
     res.json(images);
   } catch (error) {
-    console.error("Error fetching tour images:", error);
+    console.error("Error fetching gallery images:", error);
     res.status(500).send("Internal Server Error");
   }
 };
 
 const getHotelImages = async (req, res) => {
   try {
-    const images = await Hotelimage.find(); // Fetches fresh data each time
+    const cachedImages = await redisClient.get("hotel");
 
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader("Cache-Control", "no-store"); // Prevents caching on client side
+    if (cachedImages) {
+      console.log("Serving from Hotel Redis cache");
+      return res.json(JSON.parse(cachedImages));
+    }
+
+    const images = await Hotelimage.find();
+
+    await redisClient.setEx("hotel", 1209600, JSON.stringify(images));
+
+    console.log("Serving from Hotel MongoDB and caching the result");
     res.json(images);
   } catch (error) {
-    console.error("Error fetching tour images:", error);
+    console.error("Error fetching gallery images:", error);
     res.status(500).send("Internal Server Error");
   }
 };
@@ -132,7 +156,7 @@ const deleteImage = async (req, res) => {
           .status(404)
           .send("Image not found in the specified collection");
       }
-
+      await redisClient.del(page);
       res.status(200).send(deleteImageDb);
     } else {
       console.log("Failed to delete image from Cloudinary");
@@ -146,10 +170,21 @@ const deleteImage = async (req, res) => {
 
 const adminusers = async (req, res) => {
   try {
-    if (!req.user) res.send("you are not authenticated");
-    const users = await User.find().select("-password");
+    const cachedAdminUser = await redisClient.get("adminusers");
 
-    res.status(200).send(users);
+    if (!req.user) {
+      return res.send("You are not authenticated");
+    }
+    if (cachedAdminUser) {
+      console.log("Returning cached users");
+      return res.json(JSON.parse(cachedAdminUser));
+    } else {
+      const users = await User.find().select("-password");
+
+      await redisClient.setEx("adminusers", 1209600, JSON.stringify(users));
+      console.log(users);
+      return res.status(200).json(users);
+    }
   } catch (error) {
     console.error(error);
     res.status(500).send(error);
@@ -165,7 +200,14 @@ const getUser = async (req, res) => {
       return res.status(404).send({ message: "User not found" });
     }
 
-    res.status(200).send(user);
+    const cachedUser = await redisClient.get("user");
+    if (cachedUser) {
+      return res.json(JSON.parse(cachedUser));
+    } else {
+      await redisClient.setEx("user", 1209600, JSON.stringify(user));
+
+      res.status(200).send(user);
+    }
   } catch (error) {
     console.error(error);
     res.status(500).send(error);
@@ -175,7 +217,7 @@ const getUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     const deleteUserDB = await User.findByIdAndDelete(req.params.id);
-
+    await Promise.all([redisClient.del("adminusers"), redisClient.del("user")]);
     res.status(200).send(deleteUserDB);
   } catch (error) {
     res.status(500).send(error);
@@ -234,6 +276,7 @@ const updateUser = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(req.params.id, user, {
       new: true,
     });
+    await Promise.all([redisClient.del("adminusers"), redisClient.del("user")]);
 
     return res.json(updatedUser);
   } catch (error) {

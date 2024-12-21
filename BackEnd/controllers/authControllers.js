@@ -5,6 +5,7 @@ import { hashePassword, comparedassword } from "../helpers/hashpass.js";
 import { cloudinary } from "../utils/cloudinary.js";
 import CryptoJS from "crypto-js";
 import tokenStore from "../middlewares/refershtokens.js";
+import redisClient from "../server.js";
 
 const subscribers = async (req, res) => {
   try {
@@ -133,25 +134,27 @@ const logIn = async (req, res) => {
       tokenStore.csrfToken = crypto.randomUUID(); // Update the object properties
       tokenStore.refreshTokens = refreshT; //
 
+      await redisClient.setEx("user", 1209600, JSON.stringify(user));
+
       return res
         .cookie("accessT", accessT, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "None",
+          httpOnly: false,
+          secure: false,
+          sameSite: "lax",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("refreshT", refreshT, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "None",
+          httpOnly: false,
+          secure: false,
+          sameSite: "lax",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
         .cookie("csrfT", tokenStore.csrfToken, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "None",
+          httpOnly: false,
+          secure: false,
+          sameSite: "lax",
           path: "/",
           expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         })
@@ -164,24 +167,26 @@ const logIn = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
-const logOut = (req, res) => {
+const logOut = async (req, res) => {
+  await redisClient.del(...["adminUsers", "user"]);
+
   return res
     .clearCookie("accessT", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
+      httpOnly: false,
+      secure: false,
+      sameSite: "lax",
       path: "/",
     })
     .clearCookie("refreshT", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
+      httpOnly: false,
+      secure: false,
+      sameSite: "lax",
       path: "/",
     })
     .clearCookie("csrfT", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
+      httpOnly: false,
+      secure: false,
+      sameSite: "lax",
       path: "/",
     })
     .json({ expDate: undefined });
