@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState, memo, lazy } from "react";
-const ScrollGallery = lazy(() => import("./ScrollGallery"));
+import { useEffect, useMemo, useState, memo } from "react";
+import ScrollGallery from "./ScrollGallery";
 import { axiosUser } from "../../../api/axios";
 
 // Memoized ScrollGallery Component
@@ -130,22 +130,25 @@ const Gallery = () => {
 
         <div className="scroller">
           <ul className="flex tag-list scroller__inner">
-            {memoizedGalleryImages
-              .filter((_, index) => index % 2 !== 0)
-              .map((item, index) => (
-                <li key={index} className="flex gap-8">
-                  <div className="w-[23rem] aspect-video min-1200:h-60">
-                    <MemoizedScrollGallery
-                      items={
-                        item.image.url
-                          ? item.image.url
-                          : filteredImageNotFound?.url
-                      }
-                      setImageURL={setSelectedImageURL}
-                    />
-                  </div>
-                </li>
-              ))}
+            {memoizedGalleryImages.length > 0 ? (
+              memoizedGalleryImages
+                .filter((_, index) => index % 2 !== 0)
+                .map((item, index) => (
+                  <li key={index} className="flex gap-8">
+                    <div className="w-[23rem] aspect-video min-1200:h-60">
+                      <MemoizedScrollGallery
+                        items={item.image.url}
+                        setImageURL={setSelectedImageURL}
+                      />
+                    </div>
+                  </li>
+                ))
+            ) : (
+              <MemoizedScrollGallery
+                items={filteredImageNotFound?.url}
+                setImageURL={setSelectedImageURL}
+              />
+            )}
           </ul>
         </div>
 
@@ -177,8 +180,6 @@ const Gallery = () => {
           >
             <div className="flex items-center justify-center w-full h-full bg-[rgba(88,183,209,0.97)] dark:bg-[rgba(62,24,77,0.97)] rounded-lg p-4">
               <img
-                loading="lazy"
-                decoding="async"
                 src={selectedImageURL}
                 alt="gallery images"
                 className="w-2/4 rounded-lg"

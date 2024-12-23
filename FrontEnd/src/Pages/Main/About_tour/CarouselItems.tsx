@@ -100,13 +100,7 @@ const CarouselItems: React.FC<Images> = ({ items, image }) => {
           />
         </svg>
       ) : null}
-      <img
-        loading="lazy"
-        decoding="async"
-        src={items?.url}
-        alt="Tour Images"
-        className="w-full h-full"
-      />
+      <img src={items?.url} alt="Tour Images" className="w-full h-full" />
     </div>
   );
 };

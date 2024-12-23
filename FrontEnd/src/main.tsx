@@ -31,18 +31,18 @@ const Admin = lazy(() => import("./admin/Admin"));
 const UserData = lazy(() => import("./admin/pages/userData/userData"));
 const SiteImages = lazy(() => import("./admin/pages/siteImage/siteImages"));
 
-import { Provider } from "react-redux";
-import store from "./redux/redux";
-import Main from "./Pages/Main/Main";
-
-const ErrorFallback = lazy(
-  () => import("./Components/ErrorBoundinary/errorBoundinary")
-);
 const Tour = lazy(() => import("./admin/pages/siteImage/tour"));
 const Gallery = lazy(() => import("./admin/pages/siteImage/gallery"));
 const Hotel = lazy(() => import("./admin/pages/siteImage/hotel"));
-const PageNotFound = lazy(() => import("./Components/PageNotFound"));
 
+const PageNotFound = lazy(() => import("./Components/PageNotFound"));
+const ErrorFallback = lazy(
+  () => import("./Components/ErrorBoundinary/errorBoundinary")
+);
+
+import { Provider } from "react-redux";
+import store from "./redux/redux";
+import Main from "./Pages/Main/Main";
 const rootContainer = document.getElementById("root") as HTMLElement;
 
 const route = createBrowserRouter(

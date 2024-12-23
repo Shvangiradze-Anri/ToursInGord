@@ -1,6 +1,4 @@
-import { lazy } from "react";
-
-const Carousel = lazy(() => import("./Carousel"));
+import Carousel from "./Carousel";
 
 function AboutTour() {
   return (

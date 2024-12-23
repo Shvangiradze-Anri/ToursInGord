@@ -131,8 +131,8 @@ const logIn = async (req, res) => {
     if (match) {
       const accessT = createAccessToken(user);
       const refreshT = createRefreshToken(user);
-      tokenStore.csrfToken = crypto.randomUUID(); // Update the object properties
-      tokenStore.refreshTokens = refreshT; //
+      tokenStore.csrfToken = crypto.randomUUID();
+      tokenStore.refreshTokens = refreshT;
 
       await redisClient.setEx("user", 1209600, JSON.stringify(user));
 

@@ -188,8 +188,6 @@ const Home = () => {
           />
         </div>
         <img
-          loading="lazy"
-          decoding="async"
           src={userImageUrl}
           className="w-full h-full aspect-video rounded-full"
           alt="Profile Image"

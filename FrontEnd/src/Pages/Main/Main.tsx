@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { Fragment, lazy, useEffect, useMemo, useRef } from "react";
+import { Fragment, lazy, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateRefs } from "../../redux/componentRef";
 import { AppDispatch, RootState } from "../../redux/redux";
+import useWindowResize from "../../Hooks/useWindowResize";
 
 const AboutTour = lazy(() => import("./About_tour/AboutTour"));
 const Gallerry = lazy(() => import("./Gallery/Gallery"));
@@ -17,6 +18,7 @@ const Main = () => {
   const galleryRef = useRef<HTMLElement>(null);
   const hotelRef = useRef<HTMLElement>(null);
   const contactRef = useRef<HTMLElement>(null);
+  const { width, height } = useWindowResize();
 
   useEffect(() => {
     const getOffset = async () => {
@@ -43,32 +45,59 @@ const Main = () => {
     };
     getOffset();
   }, [dispatch]);
+  const [imageSize, setImageSize] = useState<any>({
+    width: "400",
+    height: "600",
+  });
+
+  useEffect(() => {
+    if (width > 1200) {
+      // Desktop
+      setImageSize({ width: 1920, height: 1080 });
+    } else if (width > 768) {
+      // Tablet
+      setImageSize({ width, height });
+    } else if (width > 600) {
+      // Large Mobile
+      setImageSize({ width, height });
+    } else {
+      // Small Mobile
+      setImageSize({ width: "400", height: "600" });
+    }
+  }, [width]);
 
   const backgroundImages = useMemo(() => {
+    const { width, height } = imageSize;
+
     const getMainImageUrl = () =>
       darkMode
-        ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1727205507/Site%20Images/dyxnrrbgak3izvwetyhb.jpg"
-        : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1727205863/Site%20Images/blff7o0maaiid57vi7ih.jpg";
+        ? `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1727205507/Site%20Images/dyxnrrbgak3izvwetyhb.jpg`
+        : `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1727205863/Site%20Images/blff7o0maaiid57vi7ih.jpg`;
+
     const getTourImageUrl = () =>
       darkMode
-        ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1727266024/Site%20Images/cn01jnl5lqqda5zq2qd1.jpg"
-        : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1727261708/Site%20Images/ajx2p8lszxl876kgptlq.jpg";
+        ? `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1727266024/Site%20Images/cn01jnl5lqqda5zq2qd1.jpg`
+        : `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1727261708/Site%20Images/ajx2p8lszxl876kgptlq.jpg`;
+
     const getHotelImageUrl = () =>
       darkMode
-        ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730293299/Site%20Images/ej6lrsg7h6ygczj0qtrl_o19fd2.webp"
-        : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1726513533/Site%20Images/uiy8ecrw0mefdatuchcj.webp";
+        ? `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1730293299/Site%20Images/ej6lrsg7h6ygczj0qtrl_o19fd2.webp`
+        : `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1726513533/Site%20Images/uiy8ecrw0mefdatuchcj.webp`;
+
     return {
       image: getMainImageUrl(),
       tour: getTourImageUrl(),
       hotel: getHotelImageUrl(),
     };
-  }, [darkMode]);
+  }, [darkMode, imageSize]);
+
+  console.log(backgroundImages);
 
   return (
     <Fragment>
       <section
         style={{ backgroundImage: `url(${backgroundImages?.image})` }}
-        className="flex flex-col h-[100dvh] w-full  items-center justify-between text-center bg-cover   bg-no-repeat  shadow-bot-white dark:shadow-bot-black  "
+        className="flex flex-col h-[100vh] w-full  items-center justify-between text-center bg-cover   bg-no-repeat  shadow-bot-white dark:shadow-bot-black  "
       >
         <span className=" text-res-xl text-blue-900 dark:text-[#e89c3e] leading-[2rem] mx-3 absolute top-2/4 -translate-y-2/4 min-400:leading-[3rem] min-1000:leading-[4rem]">
           Travel with your loved ones <br />
@@ -140,7 +169,7 @@ const Main = () => {
       <section
         ref={aboutTourRef}
         style={{ backgroundImage: `url(${backgroundImages?.tour})` }}
-        className="grid items-center h-[100dvh]  px-4 py-20 bg-no-repeat bg-cover  shadow-whole-white dark:shadow-whole-black min-700:px-12"
+        className="grid items-center h-[100vh]  px-4 py-20 bg-no-repeat bg-cover  shadow-whole-white dark:shadow-whole-black min-700:px-12"
       >
         <AboutTour />
       </section>
@@ -151,7 +180,7 @@ const Main = () => {
         id="hotelref"
         ref={hotelRef}
         style={{ backgroundImage: `url(${backgroundImages?.hotel})` }}
-        className=" grid  items-center content-center w-full h-[100dvh] px-4 py-20 bg-cover bg-center bg-no-repeat bottom-0 left-0 relative shadow-whole-white dark:shadow-whole-black min-700:px-12 min-900:gap-8"
+        className=" grid  items-center content-center w-full h-[100vh] px-4 py-20 bg-cover bg-center bg-no-repeat bottom-0 left-0 relative shadow-whole-white dark:shadow-whole-black min-700:px-12 min-900:gap-8"
       >
         <Hotel />
       </section>

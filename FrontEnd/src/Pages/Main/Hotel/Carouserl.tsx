@@ -1,12 +1,5 @@
-import {
-  Fragment,
-  useMemo,
-  useState,
-  useCallback,
-  useEffect,
-  lazy,
-} from "react";
-const CarouselItems = lazy(() => import("../About_tour/CarouselItems"));
+import { Fragment, useMemo, useState, useCallback, useEffect } from "react";
+import CarouselItems from "../About_tour/CarouselItems";
 import { axiosUser } from "../../../api/axios";
 
 function Carouserl() {

@@ -468,8 +468,8 @@ function Registration() {
                 <ul
                   className={`relative px-2 mt-1 overflow-y-auto  border-2 border-orange-400  dark:border-blue-700 rounded-md   transition-all duration-500  ${
                     dayOpen
-                      ? "max-h-32  border-orange-400  dark:border-blue-700 "
-                      : "max-h-0  border-transparent  dark:border-transparent"
+                      ? "h-32  border-orange-400  dark:border-blue-700 "
+                      : "h-0  border-transparent  dark:border-transparent"
                   }`}
                 >
                   <div className="flex gap-1 justify-between items-center  w-full sticky top-0 bg-blue-500  dark:bg-purple-600 rounded">
@@ -581,8 +581,8 @@ function Registration() {
                 <ul
                   className={`relative px-2 mt-1 overflow-y-auto  border-2 border-orange-400  dark:border-blue-700 rounded-md   transition-all duration-500  ${
                     monthOpen
-                      ? "max-h-32  border-orange-400  dark:border-blue-700 "
-                      : "max-h-0  border-transparent  dark:border-transparent"
+                      ? "h-32  border-orange-400  dark:border-blue-700 "
+                      : "h-0  border-transparent  dark:border-transparent"
                   }`}
                 >
                   <div className="flex gap-1 justify-between items-center  w-full sticky top-0  bg-blue-500  dark:bg-purple-600 rounded">
@@ -669,8 +669,8 @@ function Registration() {
                 <ul
                   className={`relative px-2 mt-1 overflow-y-auto  border-2 border-orange-400  dark:border-blue-700 rounded-md   transition-all duration-500  ${
                     yearOpen
-                      ? "max-h-32  border-orange-400  dark:border-blue-700 "
-                      : "max-h-0  border-transparent  dark:border-transparent"
+                      ? "h-32  border-orange-400  dark:border-blue-700 "
+                      : "h-0  border-transparent  dark:border-transparent"
                   }`}
                 >
                   <div className="flex gap-1  items-center  w-full sticky top-0  bg-blue-500  dark:bg-purple-600 rounded">

@@ -24,9 +24,7 @@ app.use((req, res, next) => {
   next();
 });
 
-const redisClient = createClient({
-  url: process.env.REDIS_URL,
-});
+const redisClient = createClient();
 
 redisClient.on("error", (err) => console.error("Redis Client Error:", err));
 
