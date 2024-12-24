@@ -91,8 +91,6 @@ const Main = () => {
     };
   }, [darkMode, imageSize]);
 
-  console.log(backgroundImages);
-
   return (
     <Fragment>
       <section

@@ -25,12 +25,30 @@ const Gallery = () => {
     images: [],
     error: null,
   });
+  console.log(galleryImages);
 
   const [selectedImageURL, setSelectedImageURL] = useState<string | null>(null);
 
+  const filteredImageNotFound = {
+    public_id: "not_found",
+    url: "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730293799/Site%20Images/istockphoto-1409329028-612x612_bvpfff.jpg",
+  };
   useEffect(() => {
     let isMounted = true; // Flag to check if the component is still mounted
-
+    // setGalleryImages({
+    //   loading: false,
+    //   images: [
+    //     {
+    //       _id: "not-found",
+    //       image: {
+    //         public_id: "not-found",
+    //         url: filteredImageNotFound.url,
+    //       },
+    //       page: "default",
+    //     },
+    //   ],
+    //   error: "Failed to load hotel images",
+    // });
     const fetchGalleryImages = async () => {
       try {
         const response = await axiosUser.get("/galleryimages");
@@ -47,7 +65,16 @@ const Gallery = () => {
         if (isMounted) {
           setGalleryImages({
             loading: false,
-            images: [],
+            images: [
+              {
+                _id: "not-found",
+                image: {
+                  public_id: "not-found",
+                  url: filteredImageNotFound.url,
+                },
+                page: "default",
+              },
+            ],
             error: "Failed to load hotel images",
           });
         }
@@ -60,11 +87,6 @@ const Gallery = () => {
       isMounted = false; // Cleanup function to set the flag to false
     };
   }, []);
-
-  const filteredImageNotFound = {
-    public_id: "not_found",
-    url: "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730293799/Site%20Images/istockphoto-1409329028-612x612_bvpfff.jpg",
-  };
 
   const memoizedGalleryImages = useMemo(
     () => galleryImages.images,
@@ -130,25 +152,22 @@ const Gallery = () => {
 
         <div className="scroller">
           <ul className="flex tag-list scroller__inner">
-            {memoizedGalleryImages.length > 0 ? (
-              memoizedGalleryImages
-                .filter((_, index) => index % 2 !== 0)
-                .map((item, index) => (
-                  <li key={index} className="flex gap-8">
-                    <div className="w-[23rem] aspect-video min-1200:h-60">
-                      <MemoizedScrollGallery
-                        items={item.image.url}
-                        setImageURL={setSelectedImageURL}
-                      />
-                    </div>
-                  </li>
-                ))
-            ) : (
-              <MemoizedScrollGallery
-                items={filteredImageNotFound?.url}
-                setImageURL={setSelectedImageURL}
-              />
-            )}
+            {memoizedGalleryImages
+              .filter((_, index) => index % 2 === 0)
+              .map((item, index) => (
+                <li key={index} className="flex gap-8">
+                  <div className="w-[23rem] aspect-video min-1200:h-60">
+                    <MemoizedScrollGallery
+                      items={
+                        item.image.url
+                          ? item.image.url
+                          : filteredImageNotFound.url
+                      }
+                      setImageURL={setSelectedImageURL}
+                    />
+                  </div>
+                </li>
+              ))}
           </ul>
         </div>
 
