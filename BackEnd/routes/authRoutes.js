@@ -6,10 +6,10 @@ const router = express.Router();
 router.use(
   cors({
     credentials: true,
-    origin: "toursingord.netlify.app",
+    origin: "https://toursingord.netlify.app",
   })
 );
-//toursingord.netlify.app
+//https://toursingord.netlify.app
 
 https: router.post("/subscribers", async (req, res, next) => {
   const { subscribers } = await import("../controllers/authControllers.js");
