@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { createClient } from "@redis/client";
+import compression from "compression"; // Import compression
 
 dotenv.config();
 const app = express();
@@ -13,6 +14,7 @@ mongoose
   .then(() => console.log("Database connected"))
   .catch((err) => console.error("Database connection error:", err));
 
+app.use(compression()); // Enable compression middleware
 app.use(express.json(bodyParserOptions));
 app.use(express.urlencoded({ extended: true, ...bodyParserOptions }));
 app.use(cookieParser());
@@ -27,9 +29,7 @@ app.use((req, res, next) => {
 const redisClient = createClient({
   url: process.env.REDIS_URL,
 });
-// {
-//   url: process.env.REDIS_URL,
-// }
+
 redisClient.on("error", (err) => console.error("Redis Client Error:", err));
 
 await redisClient.connect();
