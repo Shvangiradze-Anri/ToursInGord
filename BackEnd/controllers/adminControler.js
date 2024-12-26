@@ -53,17 +53,19 @@ const uploadImages = async (req, res) => {
 
 const getTourImages = async (req, res) => {
   try {
+    const startTime = Date.now();
     const cachedImages = await redisClient.get("tour");
 
     if (cachedImages) {
-      console.log("Serving from Tour Redis cache");
+      console.log(`Redis Fetch Time: ${Date.now() - startTime}ms`);
       return res.json(JSON.parse(cachedImages));
     }
-    const images = await Tourimage.find();
 
+    console.log("Cache miss: Querying MongoDB");
+    const images = await Tourimage.find();
     await redisClient.setEx("tour", 1209600, JSON.stringify(images));
 
-    console.log("Serving from Tour MongoDB and caching the result");
+    console.log("Cache updated: Data stored in Redis");
     res.json(images);
   } catch (error) {
     console.error("Error fetching gallery images:", error);
@@ -73,18 +75,18 @@ const getTourImages = async (req, res) => {
 
 const getGalleryImages = async (req, res) => {
   try {
+    const startTime = Date.now();
     const cachedImages = await redisClient.get("gallery");
 
     if (cachedImages) {
-      console.log("Serving from Gallery Redis cache");
+      console.log(`Redis Fetch Time: ${Date.now() - startTime}ms`);
       return res.json(JSON.parse(cachedImages));
     }
-
+    console.log("Cache miss: Querying MongoDB");
     const images = await Galleryimage.find();
-
     await redisClient.setEx("gallery", 1209600, JSON.stringify(images));
 
-    console.log("Serving from Gallery MongoDB and caching the result");
+    console.log("Cache updated: Data stored in Redis");
     res.json(images);
   } catch (error) {
     console.error("Error fetching gallery images:", error);
@@ -94,18 +96,18 @@ const getGalleryImages = async (req, res) => {
 
 const getHotelImages = async (req, res) => {
   try {
+    const startTime = Date.now();
     const cachedImages = await redisClient.get("hotel");
 
     if (cachedImages) {
-      console.log("Serving from Hotel Redis cache");
+      console.log(`Redis Fetch Time: ${Date.now() - startTime}ms`);
       return res.json(JSON.parse(cachedImages));
     }
-
+    console.log("Cache miss: Querying MongoDB");
     const images = await Hotelimage.find();
-
     await redisClient.setEx("hotel", 1209600, JSON.stringify(images));
 
-    console.log("Serving from Hotel MongoDB and caching the result");
+    console.log("Cache updated: Data stored in Redis");
     res.json(images);
   } catch (error) {
     console.error("Error fetching gallery images:", error);
