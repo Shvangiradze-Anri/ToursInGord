@@ -259,6 +259,7 @@ function Registration() {
       );
     }
   };
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   const backgroundImages = useMemo(() => {
     const getMainImageUrl = () =>
@@ -266,10 +267,29 @@ function Registration() {
         ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1726513496/Site%20Images/sizukkags7wsoqh8hl17.jpg"
         : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1726513492/Site%20Images/otjl6yqje0ds0dcda3ap.jpg";
 
+    const getBlurredImageUrl = () =>
+      darkMode
+        ? "https://res.cloudinary.com/dywchsrms/image/upload/e_blur:500,f_auto,q_auto/v1726513496/Site%20Images/sizukkags7wsoqh8hl17.jpg"
+        : "https://res.cloudinary.com/dywchsrms/image/upload/e_blur:500,f_auto,q_auto/v1726513492/Site%20Images/otjl6yqje0ds0dcda3ap.jpg";
+
     return {
-      image: getMainImageUrl(),
+      mainImage: getMainImageUrl(),
+      blurredImage: getBlurredImageUrl(),
     };
   }, [darkMode]);
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = backgroundImages.mainImage;
+    img.onload = () => setIsImageLoaded(true); // Mark image as loaded
+  }, [backgroundImages.mainImage]);
+
+  const backgroundStyle = {
+    backgroundImage: `url(${isImageLoaded ? backgroundImages.mainImage : backgroundImages.blurredImage})`,
+    backgroundColor: darkMode ? "#000" : "#fff", // Fallback color
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  };
 
   return (
     <Fragment>
@@ -279,7 +299,7 @@ function Registration() {
         <link rel="canonical" href="/Authorization/Registration" />
       </Helmet>
       <div
-        style={{ backgroundImage: `url(${backgroundImages?.image})` }}
+        style={backgroundStyle}
         className=" grid h-[100dvh] place-items-center bg-cover bg-center bg-no-repeat  px-4 min-700:px-12 min-900:px-28 bg-white dark:bg-black"
       >
         {openCodeSender ? (
