@@ -711,7 +711,7 @@ const Home = () => {
               <div className="flex flex-col w-full items-center mt-20 gap-4">
                 <div className="  w-3/5 h-1 rounded-2xl bg-[#e89c3e] dark:bg-[#1B3C82]"></div>
                 <span className="w-fit text-res-sm text-[#1B3C82] dark:text-[#e89c3e]">
-                  Copyright © 2023 TourInGord.com All Rights Reserved.
+                  Copyright © 2025 TourInGord.com All Rights Reserved.
                 </span>
               </div>
             </footer>
