@@ -23,7 +23,7 @@ function Bucket() {
                 From
               </p>
               <p className="text-res-sm text-black dark:text-white">
-                30/02/2024
+                30/01/2025
               </p>
             </div>
             <div className="bg-[#00e1ff3a] dark:bg-[#00e1ff0f]">
@@ -31,7 +31,7 @@ function Bucket() {
                 To
               </p>
               <p className="text-res-sm text-black dark:text-white">
-                30/09/2024
+                30/02/2025
               </p>
             </div>
             <div className="bg-[#00e1ff3a] dark:bg-[#00e1ff0f]">

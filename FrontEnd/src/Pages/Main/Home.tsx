@@ -357,7 +357,7 @@ const Home = () => {
                       <Link to="/#contact">
                         <span
                           onClick={() => {
-                            scrollToComponent(componentRefs.contactRef);
+                            scrollToComponent(componentRefs.contactRef + 130);
                           }}
                         >
                           Contact
@@ -614,7 +614,7 @@ const Home = () => {
                       <Link to="/#contact">
                         <span
                           onClick={() => {
-                            scrollToComponent(componentRefs.contactRef);
+                            scrollToComponent(componentRefs.contactRef + 130);
                           }}
                           className="before:content-[''] before:absolute before:rounded-md before:bg-orange-500 dark:before:bg-blue-800 before:h-1 before:w-full before:left-0 before:-top-[0.1rem] before:scale-x-0 before:origin-right before:transition-transform before:duration-500 before:ease-linear
                                      hover:before:scale-100 hover:before:origin-left"

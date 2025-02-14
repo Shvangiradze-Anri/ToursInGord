@@ -94,8 +94,8 @@ function Book() {
               <p className="text-res-md text-blue-700 dark:text-[#ffbc69]">
                 Date
               </p>
-              <p className="text-res-md-sm">From: 22 / 05 / 2024</p>
-              <p className="text-res-md-sm">To: 22 / 05 / 2024</p>
+              <p className="text-res-md-sm">From: 22 / 01 / 2025</p>
+              <p className="text-res-md-sm">To: 29 / 01 / 2025</p>
             </div>
             <div>
               <p className="text-res-md text-blue-700 dark:text-[#ffbc69]">
