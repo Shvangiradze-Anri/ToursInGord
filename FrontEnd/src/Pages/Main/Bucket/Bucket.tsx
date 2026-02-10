@@ -9,7 +9,7 @@ function Bucket() {
         <meta name="description" content="Your Purchased Tickets" />
         <link rel="canonical" href="/Bucket" />
       </Helmet>
-      <section className="pt-[17.25rem] pb-[10rem] h-[100vh]  px-4 min-700:px-12 min-900:px-28 bg-white dark:bg-black">
+      <section className="pt-[17.25rem] pb-[10rem] min-h-[100vh]  px-4 min-700:px-12 min-900:px-28 bg-white dark:bg-black">
         <div className="grid justify-center  gap-5 p-4 min-600:p-12 min-900:p-20 rounded-lg bg-[#00e1ff3a] dark:bg-[#00e1ff0f]">
           <p className="text-res-special-galerry-title  dark:text-blue-800 text-[#e89c3e]">
             Tour Ticket

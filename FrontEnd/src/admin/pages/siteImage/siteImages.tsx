@@ -16,11 +16,11 @@ function SiteImages() {
         <meta name="description" content="Site images data" />
         <link rel="canonical" href="/ImagesData" />
       </Helmet>
-      <section>
+      <section className="min-h-dvh bg-sky-600 dark:bg-purple-950">
         {user &&
         user.role === "admin" &&
         location.pathname.startsWith("/admin") ? (
-          <div className="flex flex-col h-[100dvh] bg-sky-600 dark:bg-purple-950">
+          <div className="flex flex-col  ">
             <div className="grid place-items-center h-fit p-4 min-800:p-6">
               <div className="grid grid-flow-col text-center w-[92%] min-300:w-3/4 text-res-md gap-4 p-4 bg-sky-400 dark:bg-purple-600 rounded-lg">
                 <Link to="/admin/ImagesData/Tour">tour</Link>

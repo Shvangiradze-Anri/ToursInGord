@@ -628,7 +628,7 @@ const Home = () => {
               </nav>
             </header>
           )}
-        <main className="bg-white dark:bg-black">
+        <main className="bg-white min-h-[100vh] dark:bg-black">
           <Outlet />
         </main>
         {!location.pathname.startsWith("/Authorization") &&

@@ -38,7 +38,7 @@ function Book() {
         />
         <link rel="canonical" href="/Book" />
       </Helmet>
-      <section className=" bg-white dark:bg-black pt-[17.25rem] h-[100vh] shadow-whole-white dark:shadow-whole-black">
+      <section className=" bg-white dark:bg-black pt-[17.25rem] min-h-[100vh] shadow-whole-white dark:shadow-whole-black">
         <div className="flex flex-col w-full h-full px-4 py-20 min-600:p-12 min-900:p-20 min-1000:flex-row items-start gap-32 shadow-whole-white-Book  dark:shadow-whole-black-Book bg-[#00e1ff3a] dark:bg-[#00e1ff0f] ">
           <div className="flex flex-col w-full gap-9 text-black dark:text-white">
             <p className="text-res-special-galerry-title text-blue-800 dark:text-[#ffbc69] py-2 border-b-4 border-[#ffbc69] dark:border-blue-950">

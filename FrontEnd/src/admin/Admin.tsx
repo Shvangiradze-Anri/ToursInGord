@@ -23,7 +23,7 @@ function Admin() {
         />
         <link rel="canonical" href="/admin" />
       </Helmet>
-      <section className="bg-[#03e2ff7d] dark:bg-purple-950">
+      <section className="bg-[#03e2ff7d] dark:bg-purple-950 ">
         {isAdmin ? (
           <div className="grid gap-8  grid-flow-row h-[100dvh] py-[70%] place-items-center px-4 min-500:py-0 min-500:grid-flow-col min-700:px-12   pt min-900:px-28 ">
             <div
