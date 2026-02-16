@@ -226,28 +226,35 @@ const newPassword = async (req, res) => {
 
 const uploadImagesByUser = async (req, res) => {
   const { userImage } = req.body;
+
   try {
-    const user = await User.findOne({ email: req.params.email });
+    const user = await User.findOne({ email: req.user.email });
 
-    if (user && userImage) {
-      if (user.image.public_id) {
-        cloudinary.uploader.destroy(user.image.public_id);
-      }
-      const cloudRes = await cloudinary.uploader.upload(userImage, {
-        upload_preset: "site_images_preset",
-      });
-      console.log(cloudRes);
-
-      if (cloudRes) {
-        user.image = cloudRes;
-        const uploadedImage = await user.save();
-        return res.status(200).send(uploadedImage);
-      } else {
-        return res.status(404).send("User not found or no image provided");
-      }
-    } else {
+    if (!user || !userImage) {
       return res.status(404).send("User not found or no image provided");
     }
+
+    // Delete old Cloudinary image
+    if (user.image?.public_id) {
+      await cloudinary.uploader.destroy(user.image.public_id);
+    }
+
+    // Upload new image
+    const cloudRes = await cloudinary.uploader.upload(userImage, {
+      upload_preset: "ToursInGord",
+    });
+
+    if (!cloudRes) {
+      return res.status(500).send("Image upload failed");
+    }
+
+    user.image = cloudRes;
+    const updatedUser = await user.save();
+
+    // 🔥 DELETE REDIS CACHE HERE
+    await redisClient.del(`user:${req.user.email}`);
+
+    return res.status(200).json(updatedUser);
   } catch (error) {
     console.log(error);
     return res.status(500).send(error);

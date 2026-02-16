@@ -71,18 +71,18 @@ const Main = () => {
 
     const getMainImageUrl = () =>
       darkMode
-        ? `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1727205507/Site%20Images/dyxnrrbgak3izvwetyhb.jpg`
-        : `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1727205863/Site%20Images/blff7o0maaiid57vi7ih.jpg`;
+        ? `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1771187704/ToursInGord/bg_pnsizr.webp`
+        : `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1771187743/ToursInGord/HeaderBGLight_wf4ihz.webp`;
 
     const getTourImageUrl = () =>
       darkMode
-        ? `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1727266024/Site%20Images/cn01jnl5lqqda5zq2qd1.jpg`
-        : `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1727261708/Site%20Images/ajx2p8lszxl876kgptlq.jpg`;
+        ? `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1771187019/ToursInGord/tz2dfuqegh4q0j9yazwf.webp`
+        : `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1771187588/ToursInGord/TourLightBG_fa4vq3.webp`;
 
     const getHotelImageUrl = () =>
       darkMode
-        ? `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1730293299/Site%20Images/ej6lrsg7h6ygczj0qtrl_o19fd2.webp`
-        : `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1726513533/Site%20Images/uiy8ecrw0mefdatuchcj.webp`;
+        ? `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1771187802/ToursInGord/HotelDarkBG_v9vbby.webp`
+        : `https://res.cloudinary.com/dywchsrms/image/upload/w_${width},h_${height},c_fill,f_auto,q_auto/v1771187807/ToursInGord/HotelLightBG_diqnjn.webp`;
 
     return {
       image: getMainImageUrl(),

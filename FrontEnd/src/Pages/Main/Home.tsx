@@ -659,8 +659,8 @@ const Home = () => {
                       decoding="async"
                       src={
                         darkMode
-                          ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664581/Site%20Images/FACEBOOK_cptuqr.png"
-                          : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664602/Site%20Images/FACEBOOK-light_ktkwi0.png"
+                          ? "https://res.cloudinary.com/dywchsrms/image/upload/v1771184262/ToursInGord/FACEBOOK_qzmvp2.png"
+                          : "https://res.cloudinary.com/dywchsrms/image/upload/v1771184262/ToursInGord/FACEBOOK_-light_ylnxju.png"
                       }
                       title="Facebook"
                       alt="facebook page"
@@ -671,8 +671,8 @@ const Home = () => {
                       decoding="async"
                       src={
                         darkMode
-                          ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664627/Site%20Images/INSTAGRAM_nmmuao.png"
-                          : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664634/Site%20Images/INSTAGRAM-light_eiz1ru.png"
+                          ? "https://res.cloudinary.com/dywchsrms/image/upload/v1771184263/ToursInGord/INSTAGRAM_sqdk1i.png"
+                          : "https://res.cloudinary.com/dywchsrms/image/upload/v1771184263/ToursInGord/INSTAGRAM_-_light_ccr8o2.png"
                       }
                       alt="instagram page"
                       title="Instagram"
@@ -683,8 +683,8 @@ const Home = () => {
                       decoding="async"
                       src={
                         darkMode
-                          ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664641/Site%20Images/TIKTOK_y69a9r.png"
-                          : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664648/Site%20Images/TikTok-light_u70oc6.png"
+                          ? "https://res.cloudinary.com/dywchsrms/image/upload/v1771184264/ToursInGord/TIKTOK_deaz0p.png"
+                          : "https://res.cloudinary.com/dywchsrms/image/upload/v1771184266/ToursInGord/TikTok-light_hb29xx.png"
                       }
                       alt="tiktok page"
                       title="TikTok"
@@ -695,8 +695,8 @@ const Home = () => {
                       decoding="async"
                       src={
                         darkMode
-                          ? "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664611/Site%20Images/GMAIL_vghyvp.png"
-                          : "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730664619/Site%20Images/Gmail-light_cdl2hk.png"
+                          ? "https://res.cloudinary.com/dywchsrms/image/upload/v1771184262/ToursInGord/GMAIL_lhcoyb.png"
+                          : "https://res.cloudinary.com/dywchsrms/image/upload/v1771184262/ToursInGord/Gmail-light_s7c1sn.png"
                       }
                       alt="gmail"
                       title="Gmail"

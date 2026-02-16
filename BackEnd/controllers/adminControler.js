@@ -20,7 +20,7 @@ const uploadImages = async (req, res) => {
       return res.status(400).json({ error: "Invalid page value" });
     }
     const cloudRes = await cloudinary.uploader.upload(image, {
-      upload_preset: "site_images_preset",
+      upload_preset: "ToursInGord",
     });
 
     if (cloudRes) {
@@ -195,21 +195,24 @@ const adminusers = async (req, res) => {
 
 const getUser = async (req, res) => {
   try {
+    const cacheKey = `user:${req.user.email}`;
+
+    const cachedUser = await redisClient.get(cacheKey);
+    if (cachedUser) {
+      return res.json(JSON.parse(cachedUser));
+    }
+
     const user = await User.findOne({ email: req.user.email }).select(
       "-password"
     );
+
     if (!user) {
       return res.status(404).send({ message: "User not found" });
     }
 
-    const cachedUser = await redisClient.get("user");
-    if (cachedUser) {
-      return res.json(JSON.parse(cachedUser));
-    } else {
-      await redisClient.setEx("user", 1209600, JSON.stringify(user));
+    await redisClient.setEx(cacheKey, 1209600, JSON.stringify(user));
 
-      res.status(200).send(user);
-    }
+    res.status(200).json(user);
   } catch (error) {
     console.error(error);
     res.status(500).send(error);
@@ -267,7 +270,7 @@ const updateUser = async (req, res) => {
     // Upload new image if provided
     if (image !== "") {
       const cloudRes = await cloudinary.uploader.upload(image, {
-        upload_preset: "site_images_preset",
+        upload_preset: "ToursInGord",
       });
       user.image = {
         url: cloudRes.secure_url,
