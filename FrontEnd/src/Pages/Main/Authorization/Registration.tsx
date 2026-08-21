@@ -214,7 +214,7 @@ function Registration() {
   };
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-
+    const CryptoJS = (await import("crypto-js")).default;
     try {
       if (matchCode.generatedCode === matchCode.confrimCode) {
         const signSecretKey = GenerateSecretKey();
@@ -317,7 +317,7 @@ function Registration() {
                 </p>
               </div>
               <input
-                className="w-full border-[#de4d28] border-2 outline-none p-4 text-base bg-transparent rounded-lg 
+                className="w-full text-white border-[#de4d28] border-2 outline-none p-4 text-base bg-transparent rounded-lg 
               placeholder:text-[#de4c2887] placeholder:text-sm focus:border-yellow-500 focus:outline-none"
                 type="number"
                 name="code"
@@ -334,7 +334,7 @@ function Registration() {
               />
               <button
                 type="submit"
-                className="grid place-items-center cursor-pointer py-2 px-7 border-2 border-[#de4d28] rounded-lg bg-transparent"
+                className="grid place-items-center text-orange-700 cursor-pointer py-2 px-7 border-2 border-[#de4d28] rounded-lg bg-transparent"
               >
                 Confrim
               </button>

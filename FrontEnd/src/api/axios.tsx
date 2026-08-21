@@ -1,17 +1,13 @@
 import axios from "axios";
 
 const axiosUser = axios.create({
-  baseURL: "https://tour-in-gord.onrender.com",
+  baseURL: import.meta.env.VITE_SERVER_URL,
   withCredentials: true,
 });
 
 const axiosAdmin = axios.create({
-  baseURL: "https://tour-in-gord.onrender.com",
+  baseURL: import.meta.env.VITE_SERVER_URL,
   withCredentials: true,
 });
 
 export { axiosUser, axiosAdmin };
-
-// https://tour-in-gord.onrender.com
-
-// http://localhost:5300

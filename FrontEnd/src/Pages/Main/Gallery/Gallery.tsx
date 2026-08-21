@@ -31,7 +31,7 @@ const Gallery = () => {
 
   const filteredImageNotFound = {
     public_id: "not_found",
-    url: "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730293799/Site%20Images/istockphoto-1409329028-612x612_bvpfff.jpg",
+    url: "https://res.cloudinary.com/dywchsrms/image/upload/v1787340061/ToursInGord/image-available-icon-set-default-missing-photo-stock-vector-symbol-black-filled-outlined-style-no-image-found-sign_268104-6708_yvsrdn.avif",
   };
   useEffect(() => {
     let isMounted = true; // Flag to check if the component is still mounted

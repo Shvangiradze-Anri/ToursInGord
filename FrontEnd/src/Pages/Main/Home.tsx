@@ -38,6 +38,7 @@ const Home = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [menuButt, setMenuButt] = useState(false);
+  console.log(user, "useriiii");
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -145,7 +146,7 @@ const Home = () => {
   }, [userImage]);
 
   const filteredImageNotFound =
-    "https://res.cloudinary.com/dywchsrms/image/upload/f_auto,q_auto/v1730293799/Site%20Images/istockphoto-1409329028-612x612_bvpfff.jpg";
+    "https://res.cloudinary.com/dywchsrms/image/upload/v1787340070/ToursInGord/Image-not-found_ot6gjz.png";
   const renderProfileImage = () => {
     const defaultImageUrl = filteredImageNotFound;
     const userImageUrl =
