@@ -18,10 +18,14 @@ app.use(compression()); // Enable compression middleware
 app.use(express.json(bodyParserOptions));
 app.use(express.urlencoded({ extended: true, ...bodyParserOptions }));
 app.use(cookieParser());
+
 app.use((req, res, next) => {
+  const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+  const serverUrl = process.env.SERVER_URL || "http://localhost:5300";
+
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' https://trusted-cdn.com; connect-src 'self' https://toursingord.netlify.app; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+    `default-src 'self'; script-src 'self' https://trusted-cdn.com; connect-src 'self' ${clientUrl} ${serverUrl}; style-src 'self' 'unsafe-inline'; img-src 'self' data:;`
   );
   next();
 });

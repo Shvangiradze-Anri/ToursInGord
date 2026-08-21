@@ -35,7 +35,8 @@ const decryptData = (encryptedData, codeSecretKey) => {
 
 const CodeSender = async (req, res) => {
   const { encryptedData, codeSecretKey } = req.body;
-
+  console.log("ADMIN:", process.env.ADMIN);
+  console.log("PASSWORD length:", process.env.PASSWORD?.length);
   try {
     const decryptedData = decryptData(encryptedData, codeSecretKey);
     if (!decryptedData) {

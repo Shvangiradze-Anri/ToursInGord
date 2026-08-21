@@ -7,10 +7,10 @@ const adminRouter = express.Router();
 adminRouter.use(
   cors({
     credentials: true,
-    origin: "https://toursingord.netlify.app",
+    origin: process.env.CLIENT_URL,
   })
 );
-
+console.log(process.env.CLIENT_URL);
 adminRouter.post("/uploadImages", authenticateToken, async (req, res, next) => {
   const { uploadImages } = await import("../controllers/adminControler.js");
   uploadImages(req, res, next);
